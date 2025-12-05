@@ -43,8 +43,9 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Expose port
-EXPOSE 8080
+#EXPOSE 8080
 
 # Run the application
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "hrms.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "hrms.wsgi"]
+
