@@ -1,0 +1,126 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">Monthly Attendance Summary</div><a href="{% url 'hr-dashboard' %}"><div class="text-muted">Dashboard</div></a></div><!-- STATISTICS CARDS --><div style="display:flex; gap:20px; flex-wrap:wrap; margin:20px 0; font-family:Poppins, sans-serif;"><!-- CARD 1 - Total Summaries --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#1a73e8; margin-bottom:8px;"><i class="ri-file-chart-line"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {{ total_summaries }}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Total Summaries</div><div style="font-size:12px; color:#28a745; margin-top:4px;">All time records</div></div><!-- CARD 2 - Finalized --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#28a745; margin-bottom:8px;"><i class="ri-check-double-line"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {{ finalized_summaries }}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Finalized</div><div style="font-size:12px; color:#28a745; margin-top:4px;">Ready for payroll</div></div><!-- CARD 3 - Pending --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#f2b33d; margin-bottom:8px;"><i class="ri-time-line"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {{ pending_summaries }}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Pending</div><div style="font-size:12px; color:#f2b33d; margin-top:4px;">Awaiting action</div></div><!-- CARD 4 - Employees --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#17a2b8; margin-bottom:8px;"><i class="ri-user-line"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {{ employees|length }}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Employees</div><div style="font-size:12px; color:#28a745; margin-top:4px;">Active workforce</div></div></div><!-- GENERATE SUMMARY FORM --><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0; background: linear-gradient(135deg, #f8fffe 0%, #e8f5f3 100%);"><div style="display:flex; flex-wrap:wrap; align-items:center; justify-content: space-between; gap:20px;"><!-- Form Section --><div style="flex: 1; min-width: 400px;"><h5 style="margin:0; font-weight:600; color:#333; margin-bottom:15px;"><i class="ri-add-circle-line me-2" style="color:#0a6d65;"></i>
+          Generate Monthly Summary
+        </h5>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-bottom:15px;">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:15px; align-items:end;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="generate_summary"><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px; margin-bottom:5px;">Select Employee</label><select name="employee" required style="padding:10px 15px; border:1px solid #ddd; border-radius:6px; outline:none; font-size:14px;"><option value="">Choose Employee</option>
+                    {% for employee in employees %}
+                    <option value="{{ employee.id }}">{{ employee.first_name }} {{ employee.last_name }} ({{ employee.company_id }})</option>
+                    {% endfor %}
+                </select></div><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px; margin-bottom:5px;">Select Month</label><select name="month" required style="padding:10px 15px; border:1px solid #ddd; border-radius:6px; outline:none; font-size:14px;"><option value="">Choose Month</option>
+                    {% for month in months %}
+                    <option value="{{ month }}">{{ month }}</option>
+                    {% endfor %}
+                </select></div><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px; margin-bottom:5px;">Select Year</label><select name="year" required style="padding:10px 15px; border:1px solid #ddd; border-radius:6px; outline:none; font-size:14px;"><option value="">Choose Year</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select></div><button type="submit" style="background:#0a6d65; color:#fff; border:none; padding:12px 24px; border-radius:8px; font-weight:600; font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1); white-space:nowrap;"><i class="ri-calculator-line me-2"></i>Generate Summary
+            </button></form></div></div></div><!-- MONTHLY ATTENDANCE SUMMARIES TABLE --><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+            border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Table Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb;background-color: #0a6d65;"><h5 style="margin:0; font-weight:600; color:#f5f3f3;"><i class="ri-file-chart-line me-2"></i>
+            Monthly Attendance Summaries
+        </h5></div><!-- Table Content --><div style="padding:20px;">
+        {% if summaries %}
+            <div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-family:Poppins, sans-serif;"><thead><tr style="background:#f8f9fa; border-bottom:1px solid #e5e7eb;"><th style="padding:12px 8px; text-align:left; font-weight:600; color:#333; font-size:14px;">Employee</th><th style="padding:12px 8px; text-align:left; font-weight:600; color:#333; font-size:14px;">Period</th><th style="padding:12px 8px; text-align:center; font-weight:600; color:#333; font-size:14px;">Present</th><th style="padding:12px 8px; text-align:center; font-weight:600; color:#333; font-size:14px;">Absent</th><th style="padding:12px 8px; text-align:center; font-weight:600; color:#333; font-size:14px;">Half Day</th><th style="padding:12px 8px; text-align:center; font-weight:600; color:#333; font-size:14px;">Late</th><th style="padding:12px 8px; text-align:left; font-weight:600; color:#333; font-size:14px;">Deductions</th><th style="padding:12px 8px; text-align:center; font-weight:600; color:#333; font-size:14px;">Status</th><th style="padding:12px 8px; text-align:center; font-weight:600; color:#333; font-size:14px;">Actions</th></tr></thead><tbody>
+                        {% for summary in summaries %}
+                        <tr style="border-bottom:1px solid #f0f0f0; hover:{background-color:#f8f9fa};"><td style="padding:15px 8px;"><div style="display:flex; align-items:center; gap:10px;">
+                                    {% if summary.employee.image %}
+                                        <img src="{{ summary.employee.image.url }}" alt="{{ summary.employee.first_name }}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                                    {% else %}
+                                        <div style="width:32px; height:32px; border-radius:50%; background:#f0f0f0; display:flex; align-items:center; justify-content:center;"><i class="ri-user-line" style="color:#666; font-size:14px;"></i></div>
+                                    {% endif %}
+                                    <div><div style="font-weight:600; color:#333; font-size:14px;">{{ summary.employee.first_name }} {{ summary.employee.last_name }}</div><div style="color:#666; font-size:12px;">{{ summary.employee.company_id }}</div></div></div></td><td style="padding:15px 8px;"><div style="font-weight:600; color:#333; font-size:14px;">{{ summary.month }} {{ summary.year }}</div><div style="color:#666; font-size:12px;">{{ summary.total_working_days }} working days</div></td><td style="padding:15px 8px; text-align:center;"><span style="background:#28a745; color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">{{ summary.present_days }}</span></td><td style="padding:15px 8px; text-align:center;"><span style="background:#dc3545; color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">{{ summary.absent_days }}</span></td><td style="padding:15px 8px; text-align:center;"><span style="background:#ffc107; color:#000; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">{{ summary.half_days }}</span></td><td style="padding:15px 8px; text-align:center;"><span style="background:#17a2b8; color:#fff; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">{{ summary.late_arrivals }}</span></td><td style="padding:15px 8px;"><div style="font-size:12px; color:#666;"><div><strong>₹{{ summary.salary_deduction_for_absences }}</strong> absence</div><div><strong>₹{{ summary.salary_deduction_for_half_days }}</strong> half-day</div><div><strong>₹{{ summary.salary_deduction_for_late_arrivals }}</strong> late</div></div></td><td style="padding:15px 8px; text-align:center;">
+                                {% if summary.is_finalized %}
+                                    <span style="background:#28a745; color:#fff; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:600;"><i class="ri-check-double-line me-1"></i>Finalized
+                                    </span>
+                                {% else %}
+                                    <span style="background:#ffc107; color:#000; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:600;"><i class="ri-time-line me-1"></i>Pending
+                                    </span>
+                                {% endif %}
+                            </td><td style="padding:15px 8px; text-align:center;">
+                                {% if not summary.is_finalized %}
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#finalizeModal{{ summary.id }}" 
+                                            style="background:#28a745; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; margin-right:5px; cursor:pointer;"><i class="ri-check-line"></i> Finalize
+                                    </button>
+                                {% endif %}
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#viewModal{{ summary.id }}"
+                                        style="background:#17a2b8; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;"><i class="ri-eye-line"></i> View
+                                </button></td></tr>
+                        {% endfor %}
+                    </tbody></table></div>
+        {% else %}
+            <div style="text-align:center; padding:60px 20px;"><i class="ri-file-chart-line" style="color:#ccc; font-size:64px;"></i><h5 style="margin:20px 0 10px 0; color:#666;">No Monthly Summaries</h5><p style="color:#999; margin:0;">Generate monthly attendance summaries to see them here.</p></div>
+        {% endif %}
+    </div></div><!-- RECENT ACTIVITY --><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+            border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Section Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb;background-color: #0a6d65;"><h6 style="margin:0; font-weight:600; color:#f5f3f3;"><i class="ri-history-line me-2"></i>
+            Recent Summary Activity
+        </h6></div><!-- Section Content --><div style="padding:20px;">
+        {% if recent_summaries %}
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+                {% for summary in recent_summaries %}
+                <div style="border:1px solid #e5e7eb; border-radius:8px; padding:20px; background:#fafafa;"><div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;"><div><h6 style="margin:0 0 5px 0; color:#333; font-size:14px; font-weight:600;">{{ summary.employee.first_name }} {{ summary.employee.last_name }}</h6><p style="margin:0; color:#666; font-size:12px;">{{ summary.month }} {{ summary.year }}</p></div>
+                        {% if summary.is_finalized %}
+                            <span style="background:#28a745; color:#fff; padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">Finalized</span>
+                        {% else %}
+                            <span style="background:#ffc107; color:#000; padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">Pending</span>
+                        {% endif %}
+                    </div><div style="display:flex; justify-content:space-around; text-align:center;"><div><h6 style="margin:0; color:#28a745; font-size:16px; font-weight:700;">{{ summary.present_days }}</h6><small style="color:#666; font-size:11px;">Present</small></div><div><h6 style="margin:0; color:#dc3545; font-size:16px; font-weight:700;">{{ summary.absent_days }}</h6><small style="color:#666; font-size:11px;">Absent</small></div><div><h6 style="margin:0; color:#ffc107; font-size:16px; font-weight:700;">{{ summary.half_days }}</h6><small style="color:#666; font-size:11px;">Half Day</small></div></div></div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align:center; padding:40px 20px;"><i class="ri-history-line" style="color:#ccc; font-size:48px;"></i><p style="color:#999; margin:15px 0 0 0; font-size:14px;">No recent summary activity</p></div>
+        {% endif %}
+    </div></div></main><!-- Finalize Modals -->
+{% for summary in summaries %}
+{% if not summary.is_finalized %}
+<div class="modal fade" id="finalizeModal{{ summary.id }}" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Finalize Monthly Summary</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="finalize_summary"><input type="hidden" name="summary_id" value="{{ summary.id }}"><div class="modal-body"><p>Are you sure you want to finalize the monthly summary for <strong>{{ summary.employee.first_name }} {{ summary.employee.last_name }}</strong> for <strong>{{ summary.month }} {{ summary.year }}</strong>?</p><div class="alert alert-warning"><i class="ri-error-warning-line me-2"></i>
+                        Once finalized, the summary cannot be edited. This will enable payroll calculations.
+                    </div><div class="mb-3"><h6>Summary Details:</h6><ul class="list-unstyled"><li><strong>Working Days:</strong> {{ summary.total_working_days }}</li><li><strong>Present Days:</strong> {{ summary.present_days }}</li><li><strong>Absent Days:</strong> {{ summary.absent_days }}</li><li><strong>Half Days:</strong> {{ summary.half_days }}</li><li><strong>Late Arrivals:</strong> {{ summary.late_arrivals }}</li></ul></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-warning"><i class="ri-check-line me-2"></i>Finalize Summary
+                    </button></div></form></div></div></div>
+{% endif %}
+
+<!-- View Modal --><div class="modal fade" id="viewModal{{ summary.id }}" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header" style="background-color:teal; color:white"><h5 class="modal-title">Monthly Summary Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row"><div class="col-md-6"><h6>Employee Information</h6><p><strong>Name:</strong> {{ summary.employee.first_name }} {{ summary.employee.last_name }}</p><p><strong>Employee ID:</strong> {{ summary.employee.company_id }}</p><p><strong>Designation:</strong> {{ summary.employee.designation }}</p><p><strong>Department:</strong> {{ summary.employee.department }}</p></div><div class="col-md-6"><h6>Period Information</h6><p><strong>Month:</strong> {{ summary.month }} {{ summary.year }}</p><p><strong>Status:</strong> 
+                            {% if summary.is_finalized %}
+                                <span class="badge bg-success">Finalized</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </p><p><strong>Generated:</strong> {{ summary.created_at|date:"d M Y H:i" }}</p>
+                        {% if summary.finalized_date %}
+                            <p><strong>Finalized:</strong> {{ summary.finalized_date|date:"d M Y H:i" }}</p><p><strong>Finalized By:</strong> {{ summary.finalized_by }}</p>
+                        {% endif %}
+                    </div></div><hr><h6>Attendance Statistics</h6><div class="row"><div class="col-md-3"><div class="text-center"><h4 class="text-success">{{ summary.present_days }}</h4><p class="text-muted">Present Days</p></div></div><div class="col-md-3"><div class="text-center"><h4 class="text-danger">{{ summary.absent_days }}</h4><p class="text-muted">Absent Days</p></div></div><div class="col-md-3"><div class="text-center"><h4 class="text-warning">{{ summary.half_days }}</h4><p class="text-muted">Half Days</p></div></div><div class="col-md-3"><div class="text-center"><h4 class="text-info">{{ summary.late_arrivals }}</h4><p class="text-muted">Late Arrivals</p></div></div></div><div class="row mt-3"><div class="col-md-6"><p><strong>Total Working Days:</strong> {{ summary.total_working_days }}</p><p><strong>Weekend Days:</strong> {{ summary.weekend_days }}</p><p><strong>Holiday Days:</strong> {{ summary.holiday_days }}</p></div><div class="col-md-6"><p><strong>Approved Leaves:</strong> {{ summary.approved_leaves }}</p><p><strong>Unpaid Leaves:</strong> {{ summary.unpaid_leaves }}</p><p><strong>Total Worked Hours:</strong> {{ summary.total_worked_hours|floatformat:1 }} hrs</p></div></div><hr><h6>Salary Deductions</h6><div class="row"><div class="col-md-4"><div class="text-center"><h5 class="text-danger">₹{{ summary.salary_deduction_for_absences }}</h5><p class="text-muted">Absence Deduction</p></div></div><div class="col-md-4"><div class="text-center"><h5 class="text-warning">₹{{ summary.salary_deduction_for_half_days }}</h5><p class="text-muted">Half Day Deduction</p></div></div><div class="col-md-4"><div class="text-center"><h5 class="text-info">₹{{ summary.salary_deduction_for_late_arrivals }}</h5><p class="text-muted">Late Arrival Deduction</p></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+{% endfor %}
+
+{% endblock %}

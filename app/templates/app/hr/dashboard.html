@@ -1,0 +1,632 @@
+{% extends "app/base.html" %}
+{% block content %}
+    <!-- CONTENT --><main class="content-wrap"><div
+        class="d-flex justify-content-between mb-3"
+        style="
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          padding: 10px 15px;
+          border-radius: 4px;
+        "><div class="page-title">
+          HR Dashboard
+        </div><div class="d-flex gap-2"><a
+            href="{% url 'hr-profile' %}"
+            style="
+              background: #0b7368;
+              color: white;
+              padding: 6px 14px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-weight: 600;
+            "><i class="fa-solid fa-user me-1"></i>My Profile
+          </a><a
+            href="{% url 'team-page' %}"
+            style="
+              background: teal;
+              color: white;
+              padding: 6px 14px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-weight: 600;
+            ">
+            Create Teams
+          </a></div></div><!-- YOUR FULL CONTENT (unchanged) --><!-- 4 Stat Cards Section --><div class="row" style="margin-bottom: 18px"><!-- Total Employees --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: #0b7368;
+              "><i class="fa-solid fa-users"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ total_employees|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Total Employees
+              </div></div></div></div><!-- Present Today --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: rgb(2, 194, 2);
+              "><i class="fa-solid fa-calendar-check"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ present_today|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Present Today
+              </div></div></div></div><!-- Absent Today --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: red;
+              "><i class="fa-solid fa-calendar-xmark"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ absent_today|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Absent Today
+              </div></div></div></div><!-- Pending Approvals --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: rgb(226, 226, 5);
+              "><i class="fa-solid fa-clock"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ pending_approvals|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Pending Approvals
+              </div></div></div></div></div><!-- ===========================
+     GRAPH SECTION – EQUAL HEIGHT
+     =========================== --><div class="row" style="margin-bottom: 20px"><!-- LEFT BAR CHART --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 420px;
+            "><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 12px 16px;
+                border-radius: 10px 10px 0 0;
+                font-weight: 700;
+              ">
+              Department Distribution
+            </div><!-- Hover Badge --><div
+              id="barBadge"
+              style="
+                display: none;
+                position: absolute;
+                background: #0b7368;
+                color: #fff;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                z-index: 999;
+              "></div><div
+              style="
+                padding: 18px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 340px;
+                position: relative;
+              "><canvas
+                id="deptBarChart"
+                style="width: 100%; max-width: 480px; height: 300px !important"></canvas></div></div></div><!-- RIGHT PIE CHART --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 420px;
+            "><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 12px 16px;
+                border-radius: 10px 10px 0 0;
+                font-weight: 700;
+              ">
+              Monthly Attendance Trend
+            </div><!-- Hover Badge --><div
+              id="pieBadge"
+              style="
+                display: none;
+                position: absolute;
+                background: #0b7368;
+                color: #fff;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                z-index: 999;
+              "></div><div
+              style="
+                padding: 18px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 340px;
+                position: relative;
+              "><canvas
+                id="attendancePieChart"
+                style="width: 100%; max-width: 380px; height: 300px !important"></canvas></div><!-- Monthly Trend Line Chart --><div
+              style="
+                padding: 0 18px 18px 18px;
+                height: 200px;
+                position: relative;
+              "><h6 style="margin: 0 0 10px 0; color: #0b7368; font-weight: 600; text-align: center;">
+                6-Month Attendance Trend
+              </h6><canvas
+                id="monthlyTrendChart"
+                style="width: 100%; height: 150px !important"></canvas></div></div></div></div><!-- ============================
+     NEW SECTION – SMALL HEIGHT
+     ============================ --><div class="row" style="margin-top: 20px"><!-- LEFT SMALL RECENT ACTIVITY --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 300px;
+              overflow: hidden;
+              position: relative;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 10px 14px;
+                font-weight: 700;
+                border-radius: 10px 10px 0 0;
+                font-size: 16px;
+              ">
+              Recent Activity
+            </div><!-- Slider --><div
+              id="activityContainer"
+              style="
+                height: 245px;
+                overflow: hidden;
+                position: relative;
+                padding: 10px 15px;
+              "><div
+                id="activityList"
+                style="position: absolute; bottom: 0; width: 100%">
+                {% if recent_announcements %}
+                  {% for announcement in recent_announcements %}
+                  <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                      class="fa-solid fa-bullhorn"
+                      style="color: #0b7368; font-size: 18px"></i><div><div
+                        style="font-weight: 700; font-size: 14px">
+                        {{ announcement.title|truncatechars:50 }}
+                      </div><div style="font-size: 12px; color: #6c7278">
+                        {{ announcement.category|title }} - {{ announcement.created_at|timesince }} ago
+                      </div></div></div>
+                  {% endfor %}
+                {% else %}
+                  <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                      class="fa-solid fa-info-circle"
+                      style="color: #6c7278; font-size: 18px"></i><div><div style="font-weight: 700; font-size: 14px; color: #6c7278">
+                        No recent announcements
+                      </div><div style="font-size: 12px; color: #6c7278">
+                        Create your first announcement
+                      </div></div></div>
+                {% endif %}
+
+                {% if pending_approvals > 0 %}
+                <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                    class="fa-solid fa-clock"
+                    style="color: #0b7368; font-size: 18px"></i><div><div
+                      style="font-weight: 700; font-size: 14px">
+                      Pending Leave Approvals
+                    </div><div style="font-size: 12px; color: #6c7278">
+                      {{ pending_approvals }} requests waiting for approval
+                    </div></div></div>
+                {% endif %}
+
+                <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                    class="fa-solid fa-users"
+                    style="color: #0b7368; font-size: 18px"></i><div><div
+                      style="font-weight: 700; font-size: 14px">
+                      Employee Statistics
+                    </div><div style="font-size: 12px; color: #6c7278">
+                      {{ active_employees }} active employees
+                    </div></div></div><div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                    class="fa-solid fa-calendar-check"
+                    style="color: #0b7368; font-size: 18px"></i><div><div
+                      style="font-weight: 700; font-size: 14px">
+                      Today's Attendance
+                    </div><div style="font-size: 12px; color: #6c7278">
+                      {{ present_today }} present out of {{ active_employees }}
+                    </div></div></div></div></div></div></div><!-- RIGHT SMALL QUICK ACTIONS --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 300px;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 10px 14px;
+                font-weight: 700;
+                border-radius: 10px 10px 0 0;
+                font-size: 16px;
+              ">
+              Quick Actions
+            </div><div style="padding: 16px"><div class="row g-2"><div class="col-6"><a href="{% url 'employee-management' %}" 
+                     style="width: 100%; display: block; background: #0b7368; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-user-plus me-1"></i><span>Add Employee</span></a></div><div class="col-6"><a href="{% url 'leave-approvals' %}" 
+                     style="width: 100%; display: block; background: #0a8a4a; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-calendar-check me-1"></i><span>Leave Approval{% if pending_approvals > 0 %} ({{ pending_approvals }}){% endif %}</span></a></div><div class="col-6"><a href="{% url 'payroll-management' %}" 
+                     style="width: 100%; display: block; background: #1e90ff; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-wallet me-1"></i><span>Payroll</span></a></div><div class="col-6"><a href="{% url 'hr-announcements' %}" 
+                     style="width: 100%; display: block; background: #e63946; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-bullhorn me-1"></i><span>Announcements</span></a></div><div class="col-6"><a href="{% url 'hr-reports' %}" 
+                     style="width: 100%; display: block; background: #6c757d; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-file-lines me-1"></i><span>View Reports</span></a></div><div class="col-6"><a href="{% url 'hr-monthly-attendance-summary' %}" 
+                     style="width: 100%; display: block; background: #f0ad4e; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-calendar-alt me-1"></i><span>Monthly Summary</span></a></div><div class="col-6"><a href="{% url 'hr-list' %}" 
+                     style="width: 100%; display: block; background: #dc3545; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-users-cog me-1"></i><span>Manage HR Profiles</span></a></div><div class="col-6"><a href="{% url 'hr-attendance' %}" 
+                     style="width: 100%; display: block; background: #17a2b8; color: #fff; border: 0; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none;"><i class="fa-solid fa-clock me-1"></i><span>Attendance</span></a></div></div></div></div></div></div><!-- ==========================================
+     PENDING LEAVE + UPCOMING EVENTS (Equal Height)
+     ========================================== --><div class="row" style="margin-top: 25px"><!-- LEFT – Pending Leave Approvals --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 12px;
+              border: 1px solid #e5e7eb;
+              overflow: hidden;
+              height: 430px;
+              display: flex;
+              flex-direction: column;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 14px 18px;
+                font-size: 20px;
+                font-weight: 700;
+              ">
+              Pending Leave Approvals
+            </div><!-- Body --><div style="padding: 18px; overflow-y: auto">
+              {% if recent_pending_leaves %}
+                {% for leave in recent_pending_leaves %}
+                <!-- LEAVE ITEM --><div
+                  style="
+                    border: 1px solid #e8e8e8;
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin-bottom: 16px;
+                    position: relative;
+                  "><!-- right side icons --><div
+                    style="
+                      position: absolute;
+                      right: 15px;
+                      top: 15px;
+                      display: flex;
+                      gap: 12px;
+                      font-size: 18px;
+                    "><i
+                      class="fa-solid fa-check"
+                      style="color: #1aaa55; cursor: pointer"
+                      title="Approve Leave"></i><i
+                      class="fa-solid fa-xmark"
+                      style="color: #d64545; cursor: pointer"
+                      title="Reject Leave"></i></div><div
+                    style="font-size: 16px; font-weight: 700; padding-right: 60px">
+                    {{ leave.employee.first_name }} {{ leave.employee.last_name }} – {{ leave.get_leave_type_display|title }}
+                  </div><div style="color: #6d7c83; font-size: 14px">
+                    {{ leave.start_date|date:"M d" }}{% if leave.start_date != leave.end_date %}–{{ leave.end_date|date:"M d, Y" }}{% else %}, {{ leave.start_date|date:"Y" }}{% endif %} ({{ leave.total_days }} {% if leave.total_days == 1 %}day{% else %}days{% endif %})
+                  </div><div style="color: #9aa3a9; font-size: 12px; margin-top: 4px">
+                    Applied {{ leave.applied_at|timesince }} ago
+                  </div>
+                  {% if leave.reason %}
+                  <div style="color: #6d7c83; font-size: 12px; margin-top: 4px; font-style: italic">
+                    Reason: {{ leave.reason|truncatechars:50 }}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <!-- No pending leaves --><div style="text-align: center; padding: 40px 20px; color: #6c7278;"><i class="fa-solid fa-check-circle" style="font-size: 48px; color: #1aaa55; margin-bottom: 16px;"></i><div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                    No Pending Leave Approvals
+                  </div><div style="font-size: 14px;">
+                    All leave requests have been processed
+                  </div></div>
+              {% endif %}
+            </div></div></div><!-- RIGHT – Upcoming Events --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 12px;
+              border: 1px solid #e5e7eb;
+              overflow: hidden;
+              height: 430px;
+              display: flex;
+              flex-direction: column;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 14px 18px;
+                font-size: 20px;
+                font-weight: 700;
+              ">
+              Upcoming Events
+            </div><!-- Body --><div style="padding: 18px; overflow-y: auto">
+              {% if upcoming_events %}
+                {% for event in upcoming_events %}
+                <div
+                  style="
+                    background: {{ event.color|default:'#0b7368' }};
+                    color: #fff;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                  "><div
+                    style="
+                      background: rgba(255, 255, 255, 0.15);
+                      padding: 10px 14px;
+                      border-radius: 6px;
+                      font-weight: 700;
+                      text-align: center;
+                      line-height: 16px;
+                    "><div style="font-size: 20px">{{ event.date|date:"d" }}</div><div style="font-size: 12px">{{ event.date|date:"M" }}</div></div><div style="flex: 1;"><div style="font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;"><i class="fa-solid {{ event.icon|default:'fa-calendar' }}"></i>
+                      {{ event.title }}
+                    </div><div style="font-size: 13px; color: #d6f3ef; margin-top: 4px;">
+                      {{ event.description }}
+                    </div>
+                    {% if event.days_until <= 7 %}
+                    <div style="font-size: 11px; color: #ffeb3b; margin-top: 4px; font-weight: 600;"><i class="fa-solid fa-clock"></i> 
+                      {% if event.days_until == 0 %}Today{% elif event.days_until == 1 %}Tomorrow{% else %}{{ event.days_until }} days left{% endif %}
+                    </div>
+                    {% endif %}
+                  </div></div>
+                {% endfor %}
+              {% else %}
+                <!-- No upcoming events --><div style="text-align: center; padding: 40px 20px; color: #6c7278;"><i class="fa-solid fa-calendar-check" style="font-size: 48px; color: #0b7368; margin-bottom: 16px;"></i><div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                    No Upcoming Events
+                  </div><div style="font-size: 14px;">
+                    All events are up to date
+                  </div></div>
+              {% endif %}
+            </div></div></div></div></main><!-- Chart.js Library --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Initialize Department Distribution Bar Chart
+            initializeDepartmentChart();
+            
+            // Initialize Monthly Attendance Trend Chart
+            initializeAttendanceChart();
+        }
+
+        function initializeDepartmentChart() {
+            const ctx = document.getElementById('deptBarChart');
+            if (!ctx) return;
+
+            const chartData = {{ chart_data|safe }};
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.dept_labels,
+                    datasets: [{
+                        label: 'Employees',
+                        data: chartData.dept_counts,
+                        backgroundColor: chartData.dept_colors.slice(0, chartData.dept_labels.length),
+                        borderColor: chartData.dept_colors.slice(0, chartData.dept_labels.length).map(color => color + 'CC'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = chartData.dept_counts.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.raw / total) * 100).toFixed(1);
+                                    return `${context.raw} employees (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+
+        function initializeAttendanceChart() {
+            const ctx = document.getElementById('attendancePieChart');
+            if (!ctx) return;
+
+            const chartData = {{ chart_data|safe }};
+            
+            // Calculate current month data for pie chart
+            const currentMonthData = chartData.monthly_attendance_rates[chartData.monthly_attendance_rates.length - 1] || 0;
+            const presentPercentage = currentMonthData;
+            const absentPercentage = 100 - presentPercentage;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Absent'],
+                    datasets: [{
+                        data: [presentPercentage, absentPercentage],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${percentage}%`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                }
+            });
+
+            // Add monthly trend line chart below the pie chart
+            initializeMonthlyTrendChart();
+        }
+
+        function initializeMonthlyTrendChart() {
+            const ctx = document.getElementById('monthlyTrendChart');
+            if (!ctx) return;
+
+            const chartData = {{ chart_data|safe }};
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.monthly_labels,
+                    datasets: [{
+                        label: 'Attendance Rate (%)',
+                        data: chartData.monthly_attendance_rates,
+                        borderColor: '#0b7368',
+                        backgroundColor: 'rgba(11, 115, 104, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#0b7368',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Attendance Rate: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+
+        // Add hover effects for quick action buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const quickActionButtons = document.querySelectorAll('[href*="dashboard"]');
+            quickActionButtons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+
+    {% endblock %}

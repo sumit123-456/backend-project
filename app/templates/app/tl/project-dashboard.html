@@ -1,0 +1,461 @@
+{% extends "app/base3.html" %} 
+{% block content %}
+
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Personalized Welcome Header -->
+  <div class="row" style="margin-bottom: 18px">
+    <div class="col-12">
+      <div
+        style="
+          background: linear-gradient(135deg, #0b7368, #0a8a4a);
+          color: white;
+          padding: 20px;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+        "
+      >
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h2 style="margin: 0; font-weight: 700">
+              Project Dashboard - {{ request.session.tl_name|default:"Team Lead" }}
+            </h2>
+            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px">
+              Comprehensive project overview and team performance tracking | {{
+              "now"|date:"F d, Y" }}
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <small style="opacity: 0.8"
+              ><i class="fa-solid fa-chart-line me-1"></i>
+              Project Management Center
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "
+  >
+    <div class="page-title">Project Dashboard & Analytics</div>
+    <div class="d-flex gap-2">
+      <button
+        onclick="exportProjectData()"
+        style="
+          background: #0a8a4a;
+          color: white;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-download me-1"></i>Export Data
+      </button>
+    </div>
+  </div>
+  <!-- Project Statistics Cards -->
+  <div class="row" style="margin-bottom: 18px">
+    <!-- Total Projects -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #0b7368;
+          "
+        >
+          <i class="fa-solid fa-project-diagram"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ total_projects|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Total Projects</div>
+        </div>
+      </div>
+    </div>
+    <!-- Active Projects -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: rgb(2, 194, 2);
+          "
+        >
+          <i class="fa-solid fa-play-circle"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ active_projects|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Active Projects</div>
+        </div>
+      </div>
+    </div>
+    <!-- Completed Projects -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #1e90ff;
+          "
+        >
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ completed_projects|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Completed Projects</div>
+        </div>
+      </div>
+    </div>
+    <!-- Pending Tasks -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #e63946;
+          "
+        >
+          <i class="fa-solid fa-tasks"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ pending_tasks|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Pending Tasks</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Projects Overview -->
+  <div class="row" style="margin-bottom: 20px">
+    <div class="col-lg-12 col-md-12">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          height: auto;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-project-diagram me-2"></i>Projects Overview
+          <span class="badge bg-light text-dark ms-2"
+            >{{ projects.count }}</span
+          >
+        </div>
+        <div style="padding: 18px">
+          {% if projects %}
+          <div class="row g-3">
+            {% for project in projects %}
+            <div class="col-lg-6 col-md-12">
+              <div
+                style="
+                  border: 1px solid #e8e8e8;
+                  border-radius: 10px;
+                  padding: 15px;
+                  position: relative;
+                  height: 200px;
+                "
+              >
+                <!-- Priority and Status Badges -->
+                <div style="position: absolute; right: 15px; top: 15px">
+                  {% if project.priority == "high" %}
+                  <span class="badge bg-danger me-1">High</span>
+                  {% elif project.priority == "medium" %}
+                  <span class="badge bg-warning text-dark me-1">Medium</span>
+                  {% elif project.priority == "low" %}
+                  <span class="badge bg-secondary me-1">Low</span>
+                  {% else %}
+                  <span class="badge bg-secondary me-1"
+                    >{{ project.priority|title }}</span
+                  >
+                  {% endif %} {% if project.end_date >= timezone.now.date %}
+                  <span class="badge bg-success">Active</span>
+                  {% else %}
+                  <span class="badge bg-secondary">Completed</span>
+                  {% endif %}
+                </div>
+                <!-- Project Title -->
+                <h6
+                  style="
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    padding-right: 150px;
+                  "
+                >
+                  {{ project.project_name }}
+                </h6>
+                <div
+                  style="font-size: 14px; color: #6d7c83; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-code me-1"></i>{{ project.project_code
+                  }}
+                </div>
+                <!-- Team Info -->
+                <div
+                  style="font-size: 12px; color: #6d7c83; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-users me-1"></i>{{
+                  project.team_members.count }} members
+                </div>
+                <!-- Timeline -->
+                <div
+                  style="font-size: 12px; color: #9aa3a9; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-calendar me-1"></i>
+                  {{ project.start_date|date:"M d" }} - {{
+                  project.end_date|date:"M d, Y" }}
+                </div>
+                <!-- Progress Bar -->
+                <div style="margin-bottom: 8px">
+                  <div
+                    style="font-size: 12px; color: #6d7c83; margin-bottom: 4px"
+                  >
+                    Progress
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ project.progress|default:0 }}%; background-color: #0b7368;"
+                      aria-valuenow="{{ project.progress|default:0 }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <div style="font-size: 11px; color: #9aa3a9; margin-top: 2px">
+                    {{ project.progress|default:0 }}% Complete
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center" style="padding: 40px; color: #6d7c83">
+            <i
+              class="fa-solid fa-project-diagram"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h5>No Projects</h5>
+            <p>No projects assigned to you yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Team Performance Section -->
+  <div class="row" style="margin-top: 20px">
+    <div class="col-lg-12 col-md-12">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          height: auto;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-users me-2"></i>Team Performance Analytics
+        </div>
+        <div style="padding: 18px">
+          {% if team_performance %}
+          <div class="row g-3">
+            {% for member in team_performance %}
+            <div class="col-lg-4 col-md-6">
+              <div
+                style="
+                  border: 1px solid #e8e8e8;
+                  border-radius: 10px;
+                  padding: 15px;
+                  position: relative;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                  "
+                >
+                  <h6 style="font-weight: 700; margin: 0">
+                    {{ member.employee }}
+                  </h6>
+                  {% if member.performance >= 80 %}
+                  <span class="badge bg-success">Excellent</span>
+                  {% elif member.performance >= 60 %}
+                  <span class="badge bg-warning text-dark">Good</span>
+                  {% elif member.performance >= 40 %}
+                  <span class="badge bg-info">Average</span>
+                  {% else %}
+                  <span class="badge bg-danger">Needs Improvement</span>
+                  {% endif %}
+                </div>
+                <div
+                  style="font-size: 14px; color: #6d7c83; margin-bottom: 10px"
+                >
+                  {{ member.completed_tasks }}/{{ member.total_tasks }} tasks
+                  completed
+                </div>
+                <!-- Performance Bar -->
+                <div class="progress" style="height: 8px; margin-bottom: 5px">
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    style="width: {{ member.performance }}%; 
+                             {% if member.performance >= 80 %}background-color: #28a745;
+                             {% elif member.performance >= 60 %}background-color: #ffc107;
+                             {% elif member.performance >= 40 %}background-color: #17a2b8;
+                             {% else %}background-color: #dc3545;{% endif %}"
+                    aria-valuenow="{{ member.performance }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  ></div>
+                </div>
+                <div style="font-size: 12px; color: #9aa3a9">
+                  {{ member.performance }}% Performance
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center" style="padding: 40px; color: #6d7c83">
+            <i
+              class="fa-solid fa-users"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h5>No Team Data</h5>
+            <p>No team performance data available.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+  // Export project data functionality
+  function exportProjectData() {
+    // This would typically make an AJAX call to export project data
+    // For now, we'll show a confirmation dialog
+    if (confirm("Do you want to export project data as Excel file?")) {
+      // Implement export functionality here
+      alert("Export functionality will be implemented soon!");
+    }
+  }
+
+  // Auto-refresh dashboard every 30 seconds
+  setInterval(function () {
+    // Reload the page to get fresh data
+    location.reload();
+  }, 30000);
+</script>
+
+{% endblock %}

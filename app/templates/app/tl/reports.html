@@ -1,0 +1,243 @@
+{% extends 'app/base3.html' %}
+{% block content %}
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">Team Reports</div><div class="text-muted">Dashboard</div></div><!-- ANALYTICS REPORTS CONTENT --><!-- Overview Statistics Cards --><div class="row mb-4"><!-- Total Team Members --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="stat-card bg-white rounded-3 border p-4 h-100" style="border-top: 4px solid #008080 !important;"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-users text-primary fs-4"></i></div><div class="stat-content"><div class="stat-number fw-bold fs-3">12</div><div class="stat-label text-muted small">Team Members</div><div class="stat-change text-success small"><i class="fa-solid fa-arrow-up"></i> +2 new this month
+          </div></div></div></div></div><!-- Present Today --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="stat-card bg-white rounded-3 border p-4 h-100" style="border-top: 4px solid #008080 !important;"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-success-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-calendar-check text-success fs-4"></i></div><div class="stat-content"><div class="stat-number fw-bold fs-3">10</div><div class="stat-label text-muted small">Present Today</div><div class="stat-change text-success small"><i class="fa-solid fa-arrow-up"></i> 83.3% attendance rate
+          </div></div></div></div></div><!-- Absent Today --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="stat-card bg-white rounded-3 border p-4 h-100" style="border-top: 4px solid #008080 !important;"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-danger-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-calendar-xmark text-danger fs-4"></i></div><div class="stat-content"><div class="stat-number fw-bold fs-3">2</div><div class="stat-label text-muted small">Absent Today</div><div class="stat-change text-danger small"><i class="fa-solid fa-arrow-down"></i> 16.7% absence rate
+          </div></div></div></div></div><!-- Pending Approvals --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="stat-card bg-white rounded-3 border p-4 h-100" style="border-top: 4px solid #008080 !important;"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-warning-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-clock text-warning fs-4"></i></div><div class="stat-content"><div class="stat-number fw-bold fs-3">5</div><div class="stat-label text-muted small">Pending Approvals</div><div class="stat-change text-warning small"><i class="fa-solid fa-exclamation-circle"></i> Needs attention
+          </div></div></div></div></div></div><!-- Analytics Charts Row --><div class="row mb-4"><!-- Weekly Team Attendance Chart --><div class="col-lg-8 col-md-12 mb-4"><div class="chart-card bg-white rounded-3 border p-4 h-100"><div class="chart-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="chart-title mb-1">Weekly Team Performance</h5><p class="chart-subtitle text-muted mb-0">Team productivity and attendance trends</p></div><div class="chart-actions"><select class="form-select form-select-sm" style="width: auto;"><option>Last 4 weeks</option><option>Last 8 weeks</option><option>Last 30 days</option></select></div></div><div class="chart-container" style="height: 350px; position: relative;"><canvas id="teamPerformanceChart"></canvas></div></div></div><!-- Team Skill Distribution --><div class="col-lg-4 col-md-12 mb-4"><div class="chart-card bg-white rounded-3 border p-4 h-100"><div class="chart-header mb-4"><h5 class="chart-title mb-1">Team Skill Distribution</h5><p class="chart-subtitle text-muted mb-0">Skills and expertise levels</p></div><div class="chart-container" style="height: 350px; position: relative;"><canvas id="teamSkillsChart"></canvas></div></div></div></div><!-- Additional Analytics Cards --><div class="row mb-4"><!-- Team Leave Analytics --><div class="col-lg-6 col-md-12 mb-4"><div class="analytics-card bg-white rounded-3 border p-4 h-100"><div class="card-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="card-title mb-1">Team Leave Analytics</h5><p class="card-subtitle text-muted mb-0">Team leave requests and approvals</p></div><div class="card-actions"><button class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-plus"></i> Generate Report
+            </button></div></div><div class="row g-3 mb-4"><div class="col-6"><div class="metric-box bg-primary-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-primary">18</div><div class="metric-label text-muted small">Total Requests</div></div></div><div class="col-6"><div class="metric-box bg-success-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-success">16</div><div class="metric-label text-muted small">Approved</div></div></div></div><div class="chart-container" style="height: 200px; position: relative;"><canvas id="teamLeaveChart"></canvas></div></div></div><!-- Performance Summary --><div class="col-lg-6 col-md-12 mb-4"><div class="analytics-card bg-white rounded-3 border p-4 h-100"><div class="card-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="card-title mb-1">Performance Summary</h5><p class="card-subtitle text-muted mb-0">Team performance overview</p></div><div class="card-actions"><button class="btn btn-outline-success btn-sm"><i class="fa-solid fa-download"></i> Export
+            </button></div></div><div class="row g-3 mb-4"><div class="col-6"><div class="metric-box bg-success-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-success">89%</div><div class="metric-label text-muted small">Avg Performance</div></div></div><div class="col-6"><div class="metric-box bg-info-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-info">5</div><div class="metric-label text-muted small">Top Performers</div></div></div></div><div class="chart-container" style="height: 200px; position: relative;"><canvas id="teamPerformanceSummaryChart"></canvas></div></div></div></div><!-- Performance & Activity Analytics --><div class="row mb-4"><!-- Individual Performance --><div class="col-lg-4 col-md-12 mb-4"><div class="performance-card bg-white rounded-3 border p-4 h-100"><div class="card-header mb-4"><h5 class="card-title mb-1">Individual Performance</h5><p class="card-subtitle text-muted mb-0">Team member performance metrics</p></div><div class="performance-metrics"><div class="metric-item d-flex justify-content-between align-items-center mb-3"><div class="metric-info"><div class="metric-title">Excellent Performance</div><div class="metric-subtitle text-muted small">Above 90% rating</div></div><div class="metric-badge bg-success text-white px-3 py-1 rounded-pill"><span class="fw-bold">5</span></div></div><div class="metric-item d-flex justify-content-between align-items-center mb-3"><div class="metric-info"><div class="metric-title">Good Performance</div><div class="metric-subtitle text-muted small">75-90% rating</div></div><div class="metric-badge bg-primary text-white px-3 py-1 rounded-pill"><span class="fw-bold">6</span></div></div><div class="metric-item d-flex justify-content-between align-items-center mb-3"><div class="metric-info"><div class="metric-title">Needs Improvement</div><div class="metric-subtitle text-muted small">Below 75% rating</div></div><div class="metric-badge bg-warning text-white px-3 py-1 rounded-pill"><span class="fw-bold">1</span></div></div></div></div></div><!-- Recent Team Activities --><div class="col-lg-8 col-md-12 mb-4"><div class="activity-card bg-white rounded-3 border p-4 h-100"><div class="card-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="card-title mb-1">Recent Team Activities</h5><p class="card-subtitle text-muted mb-0">Latest team updates and activities</p></div><div class="card-actions"><button class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-eye"></i> View All
+            </button></div></div><div class="activity-list"><div class="activity-item d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border"><div class="activity-icon bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-user-plus text-primary"></i></div><div class="activity-content flex-grow-1"><div class="activity-title fw-medium">Team member performance review</div><div class="activity-subtitle text-muted small">Alice Johnson - Q1 Performance Assessment</div><div class="activity-time text-muted small">2 hours ago</div></div></div><div class="activity-item d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border"><div class="activity-icon bg-success-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-check-circle text-success"></i></div><div class="activity-content flex-grow-1"><div class="activity-title fw-medium">Leave request approved</div><div class="activity-subtitle text-muted small">Bob Smith - Personal leave approval</div><div class="activity-time text-muted small">4 hours ago</div></div></div><div class="activity-item d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border"><div class="activity-icon bg-warning-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-calendar text-warning"></i></div><div class="activity-content flex-grow-1"><div class="activity-title fw-medium">Team meeting scheduled</div><div class="activity-subtitle text-muted small">Weekly team sync - Every Friday at 2 PM</div><div class="activity-time text-muted small">1 day ago</div></div></div><div class="activity-item d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border"><div class="activity-icon bg-info-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-trophy text-info"></i></div><div class="activity-content flex-grow-1"><div class="activity-title fw-medium">Team achievement</div><div class="activity-subtitle text-muted small">Completed Q1 project ahead of schedule</div><div class="activity-time text-muted small">2 days ago</div></div></div></div></div></div></div></main><!-- ===========================
+     CHART.JS
+     =========================== --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+// ===========================
+// TEAM ANALYTICS CHARTS CONFIGURATION
+// ===========================
+
+// Chart.js default settings
+Chart.defaults.font.family = 'Poppins';
+Chart.defaults.color = '#6d7c83';
+
+// Color palette
+const colors = {
+    primary: '#0b7368',
+    success: '#02c202',
+    danger: '#dc3545',
+    warning: '#e2e205',
+    info: '#17a2b8',
+    purple: '#6f42c1',
+    orange: '#fd7e14',
+    teal: '#20c997'
+};
+
+// 1. Weekly Team Performance Chart
+function initTeamPerformanceChart() {
+    const ctx = document.getElementById('teamPerformanceChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [
+                {
+                    label: 'Team Productivity',
+                    data: [85, 88, 92, 89],
+                    borderColor: colors.success,
+                    backgroundColor: colors.success + '20',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Attendance Rate',
+                    data: [90, 85, 88, 83],
+                    borderColor: colors.info,
+                    backgroundColor: colors.info + '20',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Performance Score',
+                    data: [88, 90, 89, 91],
+                    borderColor: colors.warning,
+                    backgroundColor: colors.warning + '20',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 2. Team Skills Distribution Chart
+function initTeamSkillsChart() {
+    const ctx = document.getElementById('teamSkillsChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Frontend', 'Backend', 'DevOps', 'QA', 'Full Stack', 'Database'],
+            datasets: [{
+                data: [4, 3, 2, 1, 1, 1],
+                backgroundColor: [
+                    colors.primary,
+                    colors.success,
+                    colors.info,
+                    colors.warning,
+                    colors.purple,
+                    colors.orange
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 3. Team Leave Analytics Chart
+function initTeamLeaveChart() {
+    const ctx = document.getElementById('teamLeaveChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Leave Requests',
+                data: [3, 4, 2, 3, 3, 3],
+                backgroundColor: colors.primary + '80',
+                borderColor: colors.primary,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 4. Team Performance Summary Chart
+function initTeamPerformanceSummaryChart() {
+    const ctx = document.getElementById('teamPerformanceSummaryChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Team Performance',
+                data: [85, 87, 88, 89, 89, 89],
+                borderColor: colors.success,
+                backgroundColor: colors.success + '20',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    min: 80,
+                    max: 100,
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Initialize all charts when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure all canvases are rendered
+    setTimeout(() => {
+        initTeamPerformanceChart();
+        initTeamSkillsChart();
+        initTeamLeaveChart();
+        initTeamPerformanceSummaryChart();
+    }, 100);
+});
+
+// Responsive utilities
+function handleChartResize() {
+    // Redraw charts on window resize
+    setTimeout(() => {
+        // Chart.js automatically handles responsive, but we can add custom logic here
+    }, 250);
+}
+
+window.addEventListener('resize', handleChartResize);
+</script>
+
+{% endblock %}

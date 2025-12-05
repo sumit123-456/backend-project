@@ -1,0 +1,460 @@
+{% extends 'app/base2.html' %}
+{% load static %}
+{% block title %}Enhanced Attendance - {{ employee.first_name }} {{ employee.last_name }}{% endblock %}
+
+{% block content %}
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Page Title Bar -->
+  <div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "
+  >
+    <div class="page-title">
+      <i class="fa-solid fa-calendar-check me-2"></i>
+      My Enhanced Attendance
+    </div>
+    <div class="d-flex gap-2">
+      <a
+        href="{% url 'employee-dashboard' %}"
+        style="
+          background: #0b7368;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-home me-1"></i>Dashboard
+      </a>
+      <a
+        href="{% url 'attendance-table' %}"
+        style="
+          background: #17a2b8;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-table me-1"></i>Attendance Table
+      </a>
+      {% if request.META.HTTP_REFERER %}
+      <a
+        href="{{ request.META.HTTP_REFERER }}"
+        style="
+          background: #6c757d;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-arrow-left me-1"></i>Previous Page
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% include 'app/enhanced_attendance_content.html' %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables for calendar
+let currentCalendarDate = new Date();
+let calendarData = [];
+
+// Calendar month names
+const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function updateCurrentTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+    const currentTimeElement = document.getElementById('current-time');
+    if (currentTimeElement) {
+        currentTimeElement.textContent = timeString;
+    }
+}
+
+// Update time every second
+setInterval(updateCurrentTime, 1000);
+updateCurrentTime();
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+    
+    const container = document.querySelector('.content-wrap');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Calendar functions
+function loadCalendarData() {
+    const month = currentCalendarDate.getMonth() + 1;
+    const year = currentCalendarDate.getFullYear();
+    
+    document.getElementById('calendarLoading').style.display = 'block';
+    document.getElementById('calendarContainer').style.display = 'none';
+    
+    fetch(`{% url 'get-attendance-calendar' %}?month=${month}&year=${year}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                calendarData = data.calendar_data;
+                renderCalendar();
+                updateMonthDisplay(data.month_name, data.year);
+            } else {
+                showAlert('Error loading calendar data: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading calendar data. Please try again.', 'danger');
+        })
+        .finally(() => {
+            document.getElementById('calendarLoading').style.display = 'none';
+            document.getElementById('calendarContainer').style.display = 'block';
+        });
+}
+
+function renderCalendar() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    
+    // Get first day of the month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    let calendarHTML = `
+        <div class="calendar-grid">
+            <!-- Day headers -->
+            <div class="calendar-day-header">Sun</div>
+            <div class="calendar-day-header">Mon</div>
+            <div class="calendar-day-header">Tue</div>
+            <div class="calendar-day-header">Wed</div>
+            <div class="calendar-day-header">Thu</div>
+            <div class="calendar-day-header">Fri</div>
+            <div class="calendar-day-header">Sat</div>
+    `;
+    
+    // Empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        calendarHTML += '<div class="calendar-day empty"></div>';
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        // Find attendance data for this day
+        const dayData = calendarData.find(d => d.date === dateStr);
+        
+        let dayClass = 'calendar-day';
+        let dayContent = '';
+        let buttonsHTML = '';
+        
+        if (dayData) {
+            switch (dayData.status) {
+                case 'present':
+                    dayClass += ' present-day';
+                    dayContent = `<div class="day-number">${day}</div><div class="status-indicator present">✓ Present</div>`;
+                    break;
+                case 'late_mark':
+                    dayClass += ' late-mark-day';
+                    dayContent = `<div class="day-number">${day}</div><div class="status-indicator late-mark">! Late (${dayData.details.late_minutes}m)</div>`;
+                    break;
+                case 'absent':
+                    dayClass += ' absent-day';
+                    dayContent = `<div class="day-number">${day}</div><div class="status-indicator absent">✗ Absent</div>`;
+                    break;
+                default:
+                    dayContent = `<div class="day-number">${day}</div>`;
+            }
+        } else {
+            dayContent = `<div class="day-number">${day}</div>`;
+            
+            // Add buttons only for past dates that don't have attendance records yet
+            const today = new Date();
+            const isToday = date.toDateString() === today.toDateString();
+            const isFuture = date > today;
+            const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+            
+            if (!isToday && !isFuture && !isWeekend && (!dayData || dayData.status === 'no_record')) {
+                buttonsHTML = `
+                    <div class="day-buttons" style="display: none;">
+                        <button class="btn btn-success btn-sm me-1" onclick="markPresent('${dateStr}')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="markAbsent('${dateStr}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                dayClass += ' has-buttons';
+            }
+        }
+        
+        // Mark today
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+            dayClass += ' today';
+        }
+        
+        // Mark weekends
+        if (date.getDay() === 0 || date.getDay() === 6) {
+            dayClass += ' weekend';
+        }
+        
+        calendarHTML += `
+            <div class="${dayClass}" data-date="${dateStr}">
+                ${dayContent}
+                ${buttonsHTML}
+            </div>
+        `;
+    }
+    
+    calendarHTML += '</div>';
+    document.getElementById('calendarContainer').innerHTML = calendarHTML;
+    
+    // Add hover effects for days with buttons
+    document.querySelectorAll('.has-buttons').forEach(dayElement => {
+        dayElement.addEventListener('mouseenter', function() {
+            const buttons = this.querySelector('.day-buttons');
+            if (buttons) buttons.style.display = 'block';
+        });
+        
+        dayElement.addEventListener('mouseleave', function() {
+            const buttons = this.querySelector('.day-buttons');
+            if (buttons) buttons.style.display = 'none';
+        });
+    });
+}
+
+function updateMonthDisplay(monthName, year) {
+    const monthSpan = document.getElementById('currentMonth');
+    if (monthSpan) {
+        monthSpan.textContent = `${monthName} ${year}`;
+    }
+}
+
+function previousMonth() {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    loadCalendarData();
+}
+
+function nextMonth() {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    loadCalendarData();
+}
+
+function markPresent(dateStr) {
+    if (confirm(`Mark present for ${dateStr}?`)) {
+        fetch('{% url "mark-present-date" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ date: dateStr })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadCalendarData(); // Reload calendar
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'danger');
+        });
+    }
+}
+
+function markAbsent(dateStr) {
+    const reason = prompt('Please provide reason for absence:');
+    if (reason === null) return; // User cancelled
+    
+    if (reason.trim() === '') {
+        showAlert('Reason is required for absence.', 'warning');
+        return;
+    }
+    
+    fetch('{% url "mark-absent-date" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            date: dateStr,
+            reason: reason.trim()
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            loadCalendarData(); // Reload calendar
+        } else {
+            showAlert(data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred. Please try again.', 'danger');
+    });
+}
+
+// Initialize calendar when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadCalendarData();
+});
+
+function markPresent() {
+    if (confirm('Are you sure you want to mark yourself as Present for today?')) {
+        fetch('{% url "mark-present-today" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'danger');
+        });
+    }
+}
+
+function markAbsent() {
+    document.getElementById('absentForm').style.display = 'block';
+    document.getElementById('btnAbsent').style.display = 'none';
+}
+
+function hideAbsentForm() {
+    document.getElementById('absentForm').style.display = 'none';
+    document.getElementById('btnAbsent').style.display = 'inline-block';
+}
+
+document.getElementById('absentReasonForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const reason = document.getElementById('reason').value;
+    
+    fetch('{% url "mark-absent-today" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            'reason': reason
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showAlert(data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred. Please try again.', 'danger');
+    });
+});
+
+document.getElementById('workDetailsForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "work-complete-today" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showAlert(data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred. Please try again.', 'danger');
+    });
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Export functionality
+function exportAttendanceData() {
+    // You can implement export functionality here
+    showAlert('Export functionality will be implemented soon!', 'info');
+}
+</script>
+{% endblock %}

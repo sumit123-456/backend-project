@@ -1,0 +1,1240 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Enhanced Attendance Management</title>
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Inter Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <nav id="sidebar" class="sidebar">
+      <div class="brand d-flex align-items-center gap-2 px-2">
+        <img
+          src="{% static 'assets/img/sidebar1.png' %}"
+          class="full-logo"
+        /><img
+          src="{% static 'assets/img/sidebar.png' %}"
+          class="small-logo"
+        />
+      </div>
+      <hr />
+      <div class="px-2 mt-2">
+        <!-- HR Navigation -->
+        {% if user_role == 'HR' %}
+        <a href="{% url 'hr-dashboard' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="side-text"><b>Dashboard</b></div>
+        </a>
+        <a href="{% url 'employee-management' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="side-text">Employees</div>
+        </a>
+        <a href="{% url 'hr-enhanced-attendance' %}" class="side-link active">
+          <div class="side-icon">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+          <div class="side-text">Enhanced Attendance</div>
+        </a>
+        <a href="{% url 'leave-approvals' %}" class="side-link">
+          <div class="side-icon">
+            <i class="fa-solid fa-calendar-xmark"></i>
+          </div>
+          <div class="side-text">Leave Approvals</div>
+        </a>
+        <a href="{% url 'payroll-management' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="side-text">Payroll</div>
+        </a>
+        <a href="{% url 'hr-reports' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-file-lines"></i></div>
+          <div class="side-text">Reports</div>
+        </a>
+        <a href="{% url 'hr-announcements' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-bullhorn"></i></div>
+          <div class="side-text">Announcements</div>
+        </a>
+        {% elif user_role == 'TL' %}
+        <!-- TL Navigation -->
+        <a href="{% url 'tl-dashboard' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="side-text"><b>Dashboard</b></div>
+        </a>
+        <a href="{% url 'tl-manage-team' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="side-text">Team Management</div>
+        </a>
+        <a href="{% url 'tl-enhanced-attendance' %}" class="side-link active">
+          <div class="side-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div class="side-text">Enhanced Attendance</div>
+        </a>
+        <a href="{% url 'team-attendence' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="side-text">Team Attendance</div>
+        </a>
+        <a href="{% url 'team-leave-approval' %}" class="side-link">
+          <div class="side-icon">
+            <i class="fa-solid fa-calendar-xmark"></i>
+          </div>
+          <div class="side-text">Leave Approvals</div>
+        </a>
+        <a href="{% url 'tl-project-dashboard' %}" class="side-link">
+          <div class="side-icon">
+            <i class="fa-solid fa-project-diagram"></i>
+          </div>
+          <div class="side-text">Project Dashboard</div>
+        </a>
+        <a href="{% url 'tl-reports' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-file-lines"></i></div>
+          <div class="side-text">Reports</div>
+        </a>
+        {% else %}
+        <!-- Employee Navigation -->
+        <a href="{% url 'employee-dashboard' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="side-text"><b>Dashboard</b></div>
+        </a>
+        <a href="{% url 'enhanced-attendance' %}" class="side-link active">
+          <div class="side-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div class="side-text">Enhanced Attendance</div>
+        </a>
+        <a href="{% url 'attendance-records' %}" class="side-link">
+          <div class="side-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+          <div class="side-text">Attendance Records</div>
+        </a>
+        <a href="{% url 'employee-leave-apply' %}" class="side-link">
+          <div class="side-icon">
+            <i class="fa-solid fa-calendar-plus"></i>
+          </div>
+          <div class="side-text">Apply Leave</div>
+        </a>
+        <a href="{% url 'employee-project-dashboard' %}" class="side-link">
+          <div class="side-icon">
+            <i class="fa-solid fa-project-diagram"></i>
+          </div>
+          <div class="side-text">Project Dashboard</div>
+        </a>
+        {% endif %}
+        
+        <a href="#" class="side-link" onclick="handleLogout()">
+          <div class="side-icon">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </div>
+          <div class="side-text">Logout</div>
+        </a>
+      </div>
+    </nav>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <!-- DESKTOP SIDEBAR TOGGLE BUTTON -->
+      <button
+        id="desktopSidebarToggle"
+        class="desktop-toggle-btn bg-transparent border-0"
+        title="Toggle Sidebar"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <!-- SINGLE MOBILE/TABLET TOGGLE BUTTON -->
+      <button id="menuToggle" class="bg-transparent border-0">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div style="flex: 1"></div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="profile-dropdown">
+          <div class="profile-circle" onclick="toggleProfileDropdown()">
+            {% if user_role == 'HR' %}HR{% elif user_role == 'TL' %}TL{% else %}{{ employee.first_name.0 }}{{ employee.last_name.0 }}{% endif %}
+          </div>
+          <div class="profile-dropdown-content" id="profileDropdown">
+            {% if user_role == 'HR' %}
+              <a href="{% url 'hr-profile' %}" onclick="viewProfile()">My Profile</a>
+            {% elif user_role == 'TL' %}
+              <a href="{% url 'tl-profile' %}" onclick="viewProfile()">My Profile</a>
+            {% else %}
+              <a href="{% url 'employee-profile' %}" onclick="viewProfile()">My Profile</a>
+            {% endif %}
+            <button onclick="handleLogout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content-wrap">
+      <!-- Page Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="k-card page-title-container">
+            <h1 class="page-title">
+              <i class="fas fa-calendar-check me-3"></i>
+              {% if user_role == 'HR' %}
+                Enhanced Attendance Management
+              {% elif user_role == 'TL' %}
+                Team Enhanced Attendance
+              {% else %}
+                My Enhanced Attendance
+              {% endif %}
+            </h1>
+            <p class="text-muted">
+              {% if user_role == 'HR' %}
+                Comprehensive attendance tracking and management for all employees
+              {% elif user_role == 'TL' %}
+                Enhanced attendance tracking for your team members
+              {% else %}
+                Manage your daily attendance and work completion
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Cards -->
+      <div class="row mb-4">
+        {% if user_role == 'HR' %}
+        <!-- HR Overview Cards -->
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_employees|default:0 }}</div>
+              <div class="stat-label">Total Employees</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon" style="color: #28a745;">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_present|default:0 }}</div>
+              <div class="stat-label">Present Today</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon" style="color: #dc3545;">
+              <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_absent|default:0 }}</div>
+              <div class="stat-label">Absent Today</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon" style="color: #ffc107;">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_late_mark|default:0 }}</div>
+              <div class="stat-label">Late Mark Today</div>
+            </div>
+          </div>
+        </div>
+        {% elif user_role == 'TL' %}
+        <!-- TL Overview Cards -->
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ team_size|default:0 }}</div>
+              <div class="stat-label">Team Members</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon" style="color: #28a745;">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_present|default:0 }}</div>
+              <div class="stat-label">Present Today</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon" style="color: #dc3545;">
+              <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_absent|default:0 }}</div>
+              <div class="stat-label">Absent Today</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="k-card stat-card">
+            <div class="stat-icon" style="color: #ffc107;">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ total_late_mark|default:0 }}</div>
+              <div class="stat-label">Late Mark Today</div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <!-- Employee Overview Cards -->
+        {% if present_today %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #28a745;">
+            <div class="stat-icon" style="color: #28a745;">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+              <div class="stat-number">✓</div>
+              <div class="stat-label">Present Today</div>
+              <small class="text-muted">Marked at: {{ present_today.marked_time|date:"H:i:s" }}</small>
+            </div>
+          </div>
+        </div>
+        {% elif absent_today %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #dc3545;">
+            <div class="stat-icon" style="color: #dc3545;">
+              <i class="fa-solid fa-times"></i>
+            </div>
+            <div>
+              <div class="stat-number">✗</div>
+              <div class="stat-label">Absent Today</div>
+              <small class="text-muted">Marked at: {{ absent_today.marked_time|date:"H:i:s" }}</small>
+            </div>
+          </div>
+        </div>
+        {% elif late_mark_today %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #ffc107;">
+            <div class="stat-icon" style="color: #ffc107;">
+              <i class="fa-solid fa-exclamation-triangle"></i>
+            </div>
+            <div>
+              <div class="stat-number">!</div>
+              <div class="stat-label">Late Mark Today</div>
+              <small class="text-muted">{{ late_mark_today.late_minutes }} minutes late</small>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #6c757d;">
+            <div class="stat-icon" style="color: #6c757d;">
+      <!-- Employee Module Specific Content -->
+      {% if user_role == 'Employee' %}
+      <!-- Time Information Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="k-card">
+            <h5 class="mb-3">
+              <i class="fas fa-info-circle me-2"></i>Time Information
+            </h5>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="summary-section">
+                  <strong>Late Mark Threshold:</strong> {{ late_threshold|date:"H:i" }}
+                  <br><small class="text-muted">After this time, attendance will be marked as Late Mark</small>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="summary-section">
+                  <strong>Office Closing Time:</strong> {{ office_closing_time|date:"H:i" }}
+                  <br><small class="text-muted">Work completion submission time</small>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="summary-section">
+                  <strong>Current Time:</strong> {{ current_time|date:"H:i:s" }}
+                  <br><small class="text-muted">{{ current_time|date:"M d, Y" }}</small>
+                </div>
+              </div>
+            </div>
+            {% if is_late_mark %}
+            <div class="alert alert-warning mt-3">
+              <i class="fas fa-exclamation-triangle"></i> 
+              <strong>⚠️ Current time is after late mark threshold</strong>
+            </div>
+            {% endif %}
+            {% if is_office_closing_time %}
+            <div class="alert alert-info mt-3">
+              <i class="fas fa-check-circle"></i> 
+              <strong>✓ Office closing time reached - Work completion available</strong>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Actions -->
+      {% if not has_marked_attendance %}
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="k-card text-center">
+            <h5 class="mb-3">
+              <i class="fas fa-hand-pointer me-2"></i>Mark Your Attendance
+            </h5>
+            <button id="btnPresent" class="btn btn-success me-2" onclick="markPresent()">
+              <i class="fas fa-check me-1"></i> Present
+            </button>
+            <button id="btnAbsent" class="btn btn-danger" onclick="markAbsent()">
+              <i class="fas fa-times me-1"></i> Absent
+            </button>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            <strong>Attendance already marked for today.</strong> You cannot change your attendance status.
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Absent Reason Form -->
+      <div id="absentForm" class="row mb-4" style="display: none;">
+        <div class="col-12">
+          <div class="k-card">
+            <h5 class="mb-3">
+              <i class="fas fa-comment me-2"></i>Provide Reason for Absence
+            </h5>
+            <form id="absentReasonForm">
+              <div class="mb-3">
+                <label for="reason" class="form-label">Reason for Absence:</label>
+                <textarea class="form-control" id="reason" name="reason" rows="3" 
+                          placeholder="Please provide a brief reason for your absence..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-times me-1"></i> Confirm Absence
+              </button>
+              <button type="button" class="btn btn-secondary ms-2" onclick="hideAbsentForm()">
+                <i class="fas fa-times me-1"></i> Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Completion Form -->
+      {% if is_office_closing_time and not work_completion_today %}
+      <div id="workCompletionForm" class="row mb-4">
+        <div class="col-12">
+          <div class="k-card">
+            <h5 class="mb-3">
+              <i class="fas fa-tasks me-2"></i>Submit Daily Work Completion
+            </h5>
+            <p class="text-muted">Please provide details about your work completion for today.</p>
+            <form id="workDetailsForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="tasksCompleted" class="form-label">Tasks Completed Today *</label>
+                  <textarea class="form-control" id="tasksCompleted" name="tasks_completed" rows="3" 
+                            placeholder="List the main tasks you completed today..." required></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="challengesFaced" class="form-label">Challenges Faced</label>
+                  <textarea class="form-control" id="challengesFaced" name="challenges_faced" rows="3" 
+                            placeholder="Any challenges or blockers encountered..."></textarea>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="tomorrowPlan" class="form-label">Tomorrow's Plan</label>
+                  <textarea class="form-control" id="tomorrowPlan" name="tomorrow_plan" rows="2" 
+                            placeholder="What you plan to work on tomorrow..."></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="additionalNotes" class="form-label">Additional Notes</label>
+                  <textarea class="form-control" id="additionalNotes" name="additional_notes" rows="2" 
+                            placeholder="Any additional comments or notes..."></textarea>
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-info">
+                  <i class="fas fa-check me-1"></i> Submit Work Completion
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Team Module Specific Content -->
+      {% elif user_role == 'TL' %}
+      <!-- Team Members Overview -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="k-card">
+            <h5 class="mb-3">
+              <i class="fa-solid fa-users me-2"></i>Team Members Overview
+            </h5>
+            <div class="row g-3">
+              {% for member in team_members %}
+              <div class="col-lg-4 col-md-6 col-12">
+                <div class="k-card" style="border-left: 4px solid var(--teal);">
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="avatar me-3">
+                      {{ member.first_name.0 }}{{ member.last_name.0 }}
+                    </div>
+                    <div>
+                      <div class="employee-details">
+                        <h6>{{ member.first_name }} {{ member.last_name }}</h6>
+                        <small>{{ member.company_id }} | {{ member.designation }}</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Today's Status -->
+                  {% for present in present_records %}
+                    {% if present.employee_id == member.id %}
+                    <div class="badge bg-success d-block text-center">
+                      <i class="fa-solid fa-check me-1"></i>Present Today
+                    </div>
+                    {% break %}
+                    {% endif %}
+                  {% empty %}
+                    {% for absent in absent_records %}
+                      {% if absent.employee_id == member.id %}
+                      <div class="badge bg-danger d-block text-center">
+                        <i class="fa-solid fa-times me-1"></i>Absent Today
+                      </div>
+                      {% break %}
+                      {% endif %}
+                    {% empty %}
+                      {% for late_mark in late_mark_records %}
+                        {% if late_mark.employee_id == member.id %}
+                        <div class="badge bg-warning text-dark d-block text-center">
+                          <i class="fa-solid fa-exclamation-triangle me-1"></i>Late Mark ({{ late_mark.late_minutes }} min)
+                        </div>
+                        {% break %}
+                        {% endif %}
+                      {% empty %}
+                      <div class="badge bg-secondary d-block text-center">
+                        <i class="fa-solid fa-question me-1"></i>No Record Today
+                      </div>
+                      {% endfor %}
+                    {% endfor %}
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Filters Section (HR and TL) -->
+      {% if user_role != 'Employee' %}
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="k-card">
+            <form method="GET" action="">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  <label for="from_date" class="form-label">From Date:</label>
+                  <input
+                    type="date"
+                    id="from_date"
+                    name="from_date"
+                    class="form-control"
+                    value="{{ from_date|date:'Y-m-d'|default:'' }}"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="to_date" class="form-label">To Date:</label>
+                  <input
+                    type="date"
+                    id="to_date"
+                    name="to_date"
+      <!-- Summary Sections -->
+      <div class="row mb-4">
+        <!-- Present Records -->
+        <div class="col-lg-6 col-md-12 mb-4">
+          <div class="k-card" style="border-left: 4px solid #28a745;">
+            <div class="summary-section present">
+              <h6>
+                <i class="fas fa-check-circle me-2"></i>Present Records ({{ present_records|length|default:0 }})
+              </h6>
+            </div>
+            <div style="max-height: 200px; overflow-y: auto;">
+              {% if present_records %}
+                {% for record in present_records|slice:":5" %}
+                <div class="k-card mb-2" style="background: #d4edda; border: 1px solid #c3e6cb;">
+                  <strong>{{ record.employee.first_name }} {{ record.employee.last_name }}</strong>
+                  <br>
+                  <small>{{ record.attendance_date|date:"M d, Y" }} at {{ record.marked_time|date:"H:i:s" }}</small>
+                </div>
+                {% endfor %}
+                {% if present_records|length > 5 %}
+                <div class="text-center">
+                  <small class="text-muted">...and {{ present_records|length|add:"-5" }} more</small>
+                </div>
+                {% endif %}
+              {% else %}
+              <div class="text-center text-muted p-3">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <div>No present records found</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Late Mark Records -->
+        <div class="col-lg-6 col-md-12 mb-4">
+          <div class="k-card" style="border-left: 4px solid #ffc107;">
+            <div class="summary-section late-mark">
+              <h6>
+                <i class="fas fa-exclamation-triangle me-2"></i>Late Mark Records ({{ late_mark_records|length|default:0 }})
+              </h6>
+            </div>
+            <div style="max-height: 200px; overflow-y: auto;">
+              {% if late_mark_records %}
+                {% for record in late_mark_records|slice:":5" %}
+                <div class="k-card mb-2" style="background: #fff3cd; border: 1px solid #ffeaa7;">
+                  <strong>{{ record.employee.first_name }} {{ record.employee.last_name }}</strong>
+                  <br>
+                  <small>{{ record.attendance_date|date:"M d, Y" }} - {{ record.late_minutes }} min late</small>
+                </div>
+                {% endfor %}
+                {% if late_mark_records|length > 5 %}
+                <div class="text-center">
+                  <small class="text-muted">...and {{ late_mark_records|length|add:"-5" }} more</small>
+                </div>
+                {% endif %}
+              {% else %}
+              <div class="text-center text-muted p-3">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <div>No late mark records found</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Absent Records -->
+        <div class="col-lg-6 col-md-12 mb-4">
+          <div class="k-card" style="border-left: 4px solid #dc3545;">
+            <div class="summary-section absent">
+              <h6>
+                <i class="fas fa-times-circle me-2"></i>Absent Records ({{ absent_records|length|default:0 }})
+              </h6>
+            </div>
+            <div style="max-height: 200px; overflow-y: auto;">
+              {% if absent_records %}
+                {% for record in absent_records|slice:":5" %}
+                <div class="k-card mb-2" style="background: #f8d7da; border: 1px solid #f5c6cb;">
+                  <strong>{{ record.employee.first_name }} {{ record.employee.last_name }}</strong>
+                  <br>
+                  <small>{{ record.attendance_date|date:"M d, Y" }} at {{ record.marked_time|date:"H:i:s" }}</small>
+                  {% if record.reason %}
+                  <br><small class="text-muted">Reason: {{ record.reason|truncatechars:50 }}</small>
+                  {% endif %}
+                </div>
+                {% endfor %}
+                {% if absent_records|length > 5 %}
+                <div class="text-center">
+                  <small class="text-muted">...and {{ absent_records|length|add:"-5" }} more</small>
+                </div>
+                {% endif %}
+              {% else %}
+              <div class="text-center text-muted p-3">
+                <i class="fas fa-times-circle fa-2x mb-2"></i>
+                <div>No absent records found</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Completions -->
+        <div class="col-lg-6 col-md-12 mb-4">
+          <div class="k-card" style="border-left: 4px solid #17a2b8;">
+            <div class="summary-section work-completion">
+              <h6>
+                <i class="fas fa-tasks me-2"></i>Work Completions ({{ work_completions|length|default:0 }})
+              </h6>
+            </div>
+            <div style="max-height: 200px; overflow-y: auto;">
+              {% if work_completions %}
+                {% for record in work_completions|slice:":5" %}
+                <div class="k-card mb-2" style="background: #d1ecf1; border: 1px solid #bee5eb;">
+                  <strong>{{ record.employee.first_name }} {{ record.employee.last_name }}</strong>
+                  <br>
+                  <small>{{ record.work_date|date:"M d, Y" }} - {{ record.get_status_display }}</small>
+                </div>
+                {% endfor %}
+                {% if work_completions|length > 5 %}
+                <div class="text-center">
+                  <small class="text-muted">...and {{ work_completions|length|add:"-5" }} more</small>
+                </div>
+                {% endif %}
+              {% else %}
+              <div class="text-center text-muted p-3">
+                <i class="fas fa-tasks fa-2x mb-2"></i>
+                <div>No work completion records found</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+                    class="form-control"
+                    value="{{ to_date|date:'Y-m-d'|default:'' }}"
+                  />
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i>Filter
+      <!-- Detailed Attendance Table (HR and TL) -->
+      {% if user_role != 'Employee' %}
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="table-scroll">
+            <table class="professional-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                  <th>Details</th>
+                  <th>Work Completion</th>
+                  {% if user_role == 'TL' %}
+                  <th>Actions</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in present_records %}
+                <tr>
+                  <td>
+                    <div class="employee-info">
+                      <div class="avatar">
+                        {{ record.employee.first_name.0 }}{{ record.employee.last_name.0 }}
+                      </div>
+                      <div class="employee-details">
+                        <h6>{{ record.employee.first_name }} {{ record.employee.last_name }}</h6>
+                        <small>{{ record.employee.company_id }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ record.attendance_date|date:"M d, Y" }}</td>
+                  <td><span class="badge bg-success">Present</span></td>
+                  <td>{{ record.marked_time|date:"H:i:s" }}</td>
+                  <td>Checked in at {{ record.check_in_time|date:"H:i:s" }}</td>
+                  <td>
+                    {% for work in work_completions %}
+                      {% if work.employee_id == record.employee_id and work.work_date == record.attendance_date %}
+                      <span class="badge bg-light">Completed</span>
+                      {% endif %}
+                    {% empty %}
+                    <span class="text-muted">-</span>
+                    {% endfor %}
+                  </td>
+                  {% if user_role == 'TL' %}
+                  <td>
+                    <div class="btn-group">
+                      {% for work in work_completions %}
+                        {% if work.employee_id == record.employee_id and work.work_date == record.attendance_date %}
+                        <button class="btn btn-outline-info btn-sm" onclick="viewWorkDetails({{ work.id }})">
+                          <i class="fa-solid fa-eye"></i> View Work
+                        </button>
+                        {% endif %}
+                      {% empty %}
+                      <span class="text-muted">No work record</span>
+                      {% endfor %}
+                    </div>
+                  </td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+
+                {% for record in late_mark_records %}
+                <tr>
+                  <td>
+                    <div class="employee-info">
+                      <div class="avatar">
+                        {{ record.employee.first_name.0 }}{{ record.employee.last_name.0 }}
+                      </div>
+                      <div class="employee-details">
+                        <h6>{{ record.employee.first_name }} {{ record.employee.last_name }}</h6>
+                        <small>{{ record.employee.company_id }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ record.attendance_date|date:"M d, Y" }}</td>
+                  <td><span class="badge bg-warning text-dark">Late Mark</span></td>
+                  <td>{{ record.marked_time|date:"H:i:s" }}</td>
+                  <td>{{ record.late_minutes }} minutes late</td>
+                  <td>
+                    {% for work in work_completions %}
+                      {% if work.employee_id == record.employee_id and work.work_date == record.attendance_date %}
+                      <span class="badge bg-light">Completed</span>
+                      {% endif %}
+                    {% empty %}
+                    <span class="text-muted">-</span>
+                    {% endfor %}
+                  </td>
+                  {% if user_role == 'TL' %}
+                  <td>
+                    <div class="btn-group">
+                      {% for work in work_completions %}
+                        {% if work.employee_id == record.employee_id and work.work_date == record.attendance_date %}
+                        <button class="btn btn-outline-info btn-sm" onclick="viewWorkDetails({{ work.id }})">
+                          <i class="fa-solid fa-eye"></i> View Work
+                        </button>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+
+                {% for record in absent_records %}
+                <tr>
+                  <td>
+                    <div class="employee-info">
+                      <div class="avatar">
+                        {{ record.employee.first_name.0 }}{{ record.employee.last_name.0 }}
+                      </div>
+                      <div class="employee-details">
+                        <h6>{{ record.employee.first_name }} {{ record.employee.last_name }}</h6>
+                        <small>{{ record.employee.company_id }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ record.attendance_date|date:"M d, Y" }}</td>
+                  <td><span class="badge bg-danger">Absent</span></td>
+                  <td>{{ record.marked_time|date:"H:i:s" }}</td>
+                  <td>{{ record.reason|default:"No reason provided" }}</td>
+                  <td><span class="text-muted">N/A</span></td>
+                  {% if user_role == 'TL' %}
+                  <td>
+                    <div class="btn-group">
+                      {% if record.reason %}
+                      <button class="btn btn-outline-warning btn-sm" onclick="viewAbsenceDetails({{ record.id }})">
+                        <i class="fa-solid fa-eye"></i> View Reason
+                      </button>
+                      {% else %}
+                      <span class="text-muted">No details</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Quick Actions -->
+      <div class="row">
+        <div class="col-12">
+          <div class="k-card text-center">
+            {% if user_role == 'HR' %}
+            <a href="{% url 'hr-dashboard' %}" class="btn btn-primary me-2">
+              <i class="fas fa-home me-1"></i>Back to Dashboard
+            </a>
+            {% elif user_role == 'TL' %}
+            <a href="{% url 'tl-dashboard' %}" class="btn btn-primary me-2">
+              <i class="fas fa-home me-1"></i>Back to Dashboard
+            </a>
+            <a href="{% url 'tl-manage-team' %}" class="btn btn-info">
+              <i class="fas fa-users-cog me-1"></i>Manage Team
+            </a>
+            {% else %}
+            <a href="{% url 'employee-dashboard' %}" class="btn btn-info me-2">
+              <i class="fas fa-home me-1"></i>Back to Dashboard
+            </a>
+            <a href="{% url 'attendance-records' %}" class="btn btn-secondary">
+              <i class="fas fa-table me-1"></i>View Attendance Table
+            </a>
+            {% endif %}
+            <button class="btn btn-success ms-2" onclick="exportAttendanceData()">
+              <i class="fas fa-download me-1"></i>Export Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Work Details Modal -->
+    <div class="modal fade" id="workDetailsModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header" style="background: var(--teal); color: white">
+            <h5 class="modal-title">
+              <i class="fas fa-tasks me-2"></i>Work Completion Details
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="workDetailsContent">
+              <!-- Work details will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Sidebar functionality
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const menuToggle = document.getElementById("menuToggle");
+      const desktopToggle = document.getElementById("desktopSidebarToggle");
+
+      // Mobile/Tablet menu toggle
+      menuToggle.onclick = () => {
+        if (sidebar.classList.contains("open")) {
+          sidebar.classList.remove("open");
+          overlay.classList.remove("show");
+        } else {
+          sidebar.classList.add("open");
+          overlay.classList.add("show");
+        }
+      };
+
+      // Desktop sidebar toggle
+      desktopToggle.onclick = () => {
+        if (sidebar.classList.contains("hidden")) {
+          sidebar.classList.remove("hidden");
+          desktopToggle.classList.remove("collapsed");
+        } else {
+          sidebar.classList.add("hidden");
+          desktopToggle.classList.add("collapsed");
+        }
+      };
+
+      overlay.onclick = () => {
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+      };
+
+      // Profile Dropdown Functions
+      function toggleProfileDropdown() {
+        const dropdown = document.getElementById("profileDropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      function viewProfile() {
+        {% if user_role == 'HR' %}
+        window.location.href = "{% url 'hr-profile' %}";
+        {% elif user_role == 'TL' %}
+        window.location.href = "{% url 'tl-profile' %}";
+        {% else %}
+        window.location.href = "{% url 'employee-profile' %}";
+        {% endif %}
+        toggleProfileDropdown();
+      }
+
+      function handleLogout() {
+        window.location.href = "{% url 'logout_confirmation' %}";
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        const profileDropdown = document.querySelector(".profile-dropdown");
+        const dropdownContent = document.getElementById("profileDropdown");
+
+        if (!profileDropdown.contains(event.target)) {
+          dropdownContent.classList.remove("show");
+        }
+      });
+
+      // Set default dates if not provided
+      document.addEventListener("DOMContentLoaded", function () {
+        const fromDateInput = document.getElementById("from_date");
+        const toDateInput = document.getElementById("to_date");
+
+        if (fromDateInput && !fromDateInput.value) {
+          const firstDayOfMonth = new Date();
+          firstDayOfMonth.setDate(1);
+          fromDateInput.value = firstDayOfMonth.toISOString().split("T")[0];
+        }
+
+        if (toDateInput && !toDateInput.value) {
+          const today = new Date();
+          toDateInput.value = today.toISOString().split("T")[0];
+        }
+      });
+
+      // Employee specific functions
+      {% if user_role == 'Employee' %}
+      function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+        
+        const container = document.querySelector('.content-wrap');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+      }
+
+      function markPresent() {
+        if (confirm('Are you sure you want to mark yourself as Present for today?')) {
+            fetch('{% url "mark-present-today" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showAlert(data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('An error occurred. Please try again.', 'danger');
+            });
+        }
+      }
+
+      function markAbsent() {
+        document.getElementById('absentForm').style.display = 'block';
+        document.getElementById('btnAbsent').style.display = 'none';
+      }
+
+      function hideAbsentForm() {
+        document.getElementById('absentForm').style.display = 'none';
+        document.getElementById('btnAbsent').style.display = 'inline-block';
+      }
+
+      document.getElementById('absentReasonForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const reason = document.getElementById('reason').value;
+        
+        fetch('{% url "mark-absent-today" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'reason': reason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'danger');
+        });
+      });
+
+      document.getElementById('workDetailsForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('{% url "work-complete-today" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'danger');
+        });
+      });
+
+      // Helper function to get CSRF token
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+      }
+      {% endif %}
+
+      // TL specific functions
+      {% if user_role == 'TL' %}
+      function viewWorkDetails(workId) {
+        const modal = new bootstrap.Modal(document.getElementById('workDetailsModal'));
+        const content = document.getElementById("workDetailsContent");
+
+        content.innerHTML = "<p>Work details for ID: " + workId + "</p><p>Implementation pending...</p>";
+        modal.show();
+      }
+
+      function viewAbsenceDetails(absenceId) {
+        alert("Absence details view for ID: " + absenceId + " - Implementation pending...");
+      }
+      {% endif %}
+
+      // Export function
+      function exportAttendanceData() {
+        alert("Export functionality will be implemented. For now, use browser print to save as PDF.");
+        window.print();
+      }
+    </script>
+  </body>
+</html>
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <a href="" class="btn btn-secondary w-100">
+                    <i class="fas fa-refresh me-1"></i>Reset
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+              <i class="fa-solid fa-question"></i>
+            </div>
+            <div>
+              <div class="stat-number">?</div>
+              <div class="stat-label">No Attendance</div>
+              <small class="text-muted">Please mark your attendance</small>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if work_completion_today %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #17a2b8;">
+            <div class="stat-icon" style="color: #17a2b8;">
+              <i class="fa-solid fa-tasks"></i>
+            </div>
+            <div>
+              <div class="stat-number">✓</div>
+              <div class="stat-label">Work Completed</div>
+              <small class="text-muted">Submitted: {{ work_completion_today.work_completion_time|date:"H:i:s" }}</small>
+            </div>
+          </div>
+        </div>
+        {% elif is_office_closing_time %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #17a2b8;">
+            <div class="stat-icon" style="color: #17a2b8;">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+              <div class="stat-number">🕕</div>
+              <div class="stat-label">Work Time</div>
+              <small class="text-muted">Submit your daily work</small>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid #6c757d;">
+            <div class="stat-icon" style="color: #6c757d;">
+              <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+            <div>
+              <div class="stat-number">⏰</div>
+              <div class="stat-label">Work Pending</div>
+              <small class="text-muted">Available after 6:30 PM</small>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="k-card stat-card" style="border-left: 4px solid var(--teal);">
+            <div class="stat-icon" style="color: var(--teal);">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+              <div class="stat-number">{{ current_time|date:"H:i" }}</div>
+              <div class="stat-label">Current Time</div>
+              <small class="text-muted">{{ current_time|date:"M d, Y" }}</small>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>

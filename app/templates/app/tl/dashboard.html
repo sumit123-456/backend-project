@@ -1,0 +1,559 @@
+{% extends "app/base3.html" %}
+{% block content %}
+  
+  
+  <!-- CONTENT --><main class="content-wrap"><!-- Personalized Welcome Header --><div class="row" style="margin-bottom: 18px;"><div class="col-12"><div style="
+            background: linear-gradient(135deg, #0b7368, #0a8a4a);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+          "><div class="row align-items-center"><div class="col-md-8"><h2 style="margin: 0; font-weight: 700;">
+                  Welcome back, {{ request.session.tl_name|default:"Team Lead" }}!
+                </h2><p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px;">
+                  {% if tl_obj %}
+                    {{ tl_obj.employee.designation }} | {{ tl_obj.employee.department }} | Experience: {{ tl_obj.experience_years }} years
+                    | Team Size: {{ total_team_members }} members
+                  {% else %}
+                    Team Leadership Dashboard
+                  {% endif %}
+                  | {{ "now"|date:"F d, Y" }}
+                </p></div><div class="col-md-4 text-end"><small style="opacity: 0.8;"><i class="fa-solid fa-users me-1"></i>
+                  Managing Team Performance
+                </small></div></div></div></div></div><div
+        class="d-flex justify-content-between mb-3"
+        style="
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          padding: 10px 15px;
+          border-radius: 4px;
+        "><div class="page-title">
+          Team Lead Dashboard
+        </div><div class="d-flex gap-2"><a
+            href="{% url 'tl-profile' %}"
+            style="
+              background: #0b7368;
+              color: white;
+              padding: 6px 14px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-weight: 600;
+            "><i class="fa-solid fa-user me-1"></i>My Profile
+          </a><a
+            href="{% url 'tl-manage-team' %}"
+            style="
+              background: #0b7368;
+              color: white;
+              padding: 6px 14px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-weight: 600;
+            "><i class="fa-solid fa-users me-1"></i>Manage Team
+          </a></div></div><!-- YOUR FULL CONTENT (unchanged) --><!-- 4 Stat Cards Section --><div class="row" style="margin-bottom: 18px"><!-- Total Team Members --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: #0b7368;
+              "><i class="fa-solid fa-users"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ total_team_members|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Team Members
+              </div></div></div></div><!-- Present Today --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: rgb(2, 194, 2);
+              "><i class="fa-solid fa-calendar-check"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ present_today|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Present Today
+              </div></div></div></div><!-- Absent Today --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: red;
+              "><i class="fa-solid fa-calendar-xmark"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ absent_today|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Absent Today
+              </div></div></div></div><!-- Pending Approvals --><div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #edf0f1;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              gap: 18px;
+              min-height: 120px;
+            "><div
+              style="
+                width: 70px;
+                height: 70px;
+                background: #f7faf9;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                color: rgb(226, 226, 5);
+              "><i class="fa-solid fa-clock"></i></div><div><div style="font-size: 24px; font-weight: 700">{{ pending_approvals|default:0 }}</div><div
+                style="font-size: 14px; color: #6d7c83">
+                Pending Approvals
+              </div></div></div></div></div><!-- ===========================
+     GRAPH SECTION – EQUAL HEIGHT
+     =========================== --><div class="row" style="margin-bottom: 20px"><!-- LEFT BAR CHART --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 420px;
+            "><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 12px 16px;
+                border-radius: 10px 10px 0 0;
+                font-weight: 700;
+              ">
+              Team Member Performance
+            </div><!-- Hover Badge --><div
+              id="barBadge"
+              style="
+                display: none;
+                position: absolute;
+                background: #0b7368;
+                color: #fff;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                z-index: 999;
+              "></div><div
+              style="
+                padding: 18px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 340px;
+                position: relative;
+              "><canvas
+                id="performanceBarChart"
+                style="width: 100%; max-width: 480px; height: 300px !important"></canvas></div></div></div><!-- RIGHT PIE CHART --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 420px;
+            "><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 12px 16px;
+                border-radius: 10px 10px 0 0;
+                font-weight: 700;
+              ">
+              Weekly Team Attendance
+            </div><!-- Hover Badge --><div
+              id="pieBadge"
+              style="
+                display: none;
+                position: absolute;
+                background: #0b7368;
+                color: #fff;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                z-index: 999;
+              "></div><div
+              style="
+                padding: 18px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 340px;
+                position: relative;
+              "><canvas
+                id="teamAttendancePieChart"
+                style="width: 100%; max-width: 380px; height: 300px !important"></canvas></div></div></div></div><!-- ============================
+     NEW SECTION – SMALL HEIGHT
+     ============================ --><div class="row" style="margin-top: 20px"><!-- LEFT SMALL RECENT ACTIVITY --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 300px;
+              overflow: hidden;
+              position: relative;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 10px 14px;
+                font-weight: 700;
+                border-radius: 10px 10px 0 0;
+                font-size: 16px;
+              ">
+              Recent Team Activity
+            </div><!-- Slider --><div
+              id="activityContainer"
+              style="
+                height: 245px;
+                overflow: hidden;
+                position: relative;
+                padding: 10px 15px;
+              "><div
+                id="activityList"
+                style="position: absolute; bottom: 0; width: 100%">
+                {% if team_leave_applications %}
+                  {% for leave in team_leave_applications %}
+                  <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                      class="fa-solid fa-clock"
+                      style="color: #0b7368; font-size: 18px"></i><div><div
+                        style="font-weight: 700; font-size: 14px">
+                        {{ leave.employee.first_name }} {{ leave.employee.last_name }} - {{ leave.get_leave_type_display|title }}
+                      </div><div style="font-size: 12px; color: #6c7278">
+                        Applied {{ leave.applied_at|timesince }} ago
+                      </div></div></div>
+                  {% endfor %}
+                {% else %}
+                  <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                      class="fa-solid fa-users"
+                      style="color: #0b7368; font-size: 18px"></i><div><div
+                        style="font-weight: 700; font-size: 14px">
+                        Team Status Update
+                      </div><div style="font-size: 12px; color: #6c7278">
+                        {{ present_today }} present, {{ absent_today }} absent today
+                      </div></div></div>
+                {% endif %}
+                
+                {% if total_team_members > 0 %}
+                <div style="display: flex; gap: 10px; margin-bottom: 10px"><i
+                    class="fa-solid fa-user-check"
+                    style="color: #0b7368; font-size: 18px"></i><div><div
+                      style="font-weight: 700; font-size: 14px">
+                      Team Overview
+                    </div><div style="font-size: 12px; color: #6c7278">
+                      Managing {{ total_team_members }} team members
+                    </div></div></div>
+                {% endif %}
+              </div></div></div></div><!-- RIGHT SMALL QUICK ACTIONS --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 10px;
+              border: 1px solid #e5e7eb;
+              height: 300px;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 10px 14px;
+                font-weight: 700;
+                border-radius: 10px 10px 0 0;
+                font-size: 16px;
+              ">
+              Quick Actions
+            </div><div style="padding: 16px"><div class="row g-2"><div class="col-6"><button
+                    style="
+                      width: 100%;
+                      background: #0b7368;
+                      color: #fff;
+                      border: 0;
+                      padding: 10px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 14px;
+                    "><i class="fa-solid fa-calendar-check me-1"></i><span>Approve Leave</span></button></div><div class="col-6"><button
+                    style="
+                      width: 100%;
+                      background: #0a8a4a;
+                      color: #fff;
+                      border: 0;
+                      padding: 10px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 14px;
+                    "><i class="fa-solid fa-users me-1"></i><span>View Team</span></button></div><div class="col-6"><button
+                    style="
+                      width: 100%;
+                      background: #1e90ff;
+                      color: #fff;
+                      border: 0;
+                      padding: 10px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 14px;
+                    "><i class="fa-solid fa-file-lines me-1"></i><span>Team Reports</span></button></div><div class="col-6"><button
+                    style="
+                      width: 100%;
+                      background: #e63946;
+                      color: #fff;
+                      border: 0;
+                      padding: 10px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 14px;
+                    "><i class="fa-solid fa-user-plus me-1"></i><span>Add Member</span></button></div><div class="col-6"><button
+                    style="
+                      width: 100%;
+                      background: #6c757d;
+                      color: #fff;
+                      border: 0;
+                      padding: 10px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 14px;
+                    "><i class="fa-solid fa-chart-bar me-1"></i><span>Performance</span></button></div><div class="col-6"><button
+                    style="
+                      width: 100%;
+                      background: #f0ad4e;
+                      color: #fff;
+                      border: 0;
+                      padding: 10px;
+                      border-radius: 8px;
+                      font-weight: 600;
+                      font-size: 14px;
+                    "><i class="fa-solid fa-calendar me-1"></i><span>Schedule</span></button></div></div></div></div></div><!-- ==========================================
+      RECENT ANNOUNCEMENTS SECTION
+      ========================================== --><div class="row" style="margin-top: 25px"><!-- LEFT – Recent Announcements --><div class="col-lg-12 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 12px;
+              border: 1px solid #e5e7eb;
+              overflow: hidden;
+              height: auto;
+              display: flex;
+              flex-direction: column;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 14px 18px;
+                font-size: 20px;
+                font-weight: 700;
+              "><i class="fa-solid fa-bullhorn me-2"></i>Recent Announcements
+              <span class="badge bg-light text-dark ms-2">{{ announcements_count }}</span></div><!-- Body --><div style="padding: 18px;">
+              {% if recent_announcements %}
+                <div class="row g-3">
+                  {% for announcement in recent_announcements %}
+                  <div class="col-lg-6 col-md-12"><div
+                      style="
+                        border: 1px solid #e8e8e8;
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-bottom: 16px;
+                        position: relative;
+                        height: 180px;
+                        display: flex;
+                        flex-direction: column;
+                      "><!-- Priority Badge --><div style="position: absolute; right: 15px; top: 15px;">
+                        {% if announcement.priority == "high" %}
+                          <span class="badge bg-danger">High</span>
+                        {% elif announcement.priority == "medium" %}
+                          <span class="badge bg-warning text-dark">Medium</span>
+                        {% elif announcement.priority == "low" %}
+                          <span class="badge bg-secondary">Low</span>
+                        {% elif announcement.priority == "critical" %}
+                          <span class="badge bg-danger">Critical</span>
+                        {% elif announcement.priority == "urgent" %}
+                          <span class="badge bg-danger">Urgent</span>
+                        {% else %}
+                          <span class="badge bg-secondary">{{ announcement.priority }}</span>
+                        {% endif %}
+                      </div><!-- Category Badge --><div style="margin-bottom: 10px;">
+                        {% if announcement.category == "company_news" %}
+                          <span class="badge bg-primary">Company News</span>
+                        {% elif announcement.category == "hr_updates" %}
+                          <span class="badge bg-info">HR Updates</span>
+                        {% elif announcement.category == "policy_changes" %}
+                          <span class="badge bg-danger">Policy Changes</span>
+                        {% elif announcement.category == "events" %}
+                          <span class="badge bg-warning text-dark">Events</span>
+                        {% elif announcement.category == "general" %}
+                          <span class="badge bg-secondary">General</span>
+                        {% elif announcement.category == "holiday" %}
+                          <span class="badge bg-warning text-dark">Holiday Notice</span>
+                        {% else %}
+                          <span class="badge bg-secondary">{{ announcement.category|title }}</span>
+                        {% endif %}
+                      </div><!-- Title --><h6 style="font-weight: 700; margin-bottom: 8px; padding-right: 80px;">
+                        {{ announcement.title }}
+                      </h6><!-- Content Preview --><p style="font-size: 14px; color: #6d7c83; margin-bottom: 8px; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        {{ announcement.content|truncatewords:20 }}
+                      </p><!-- Footer with HR name and date --><div style="border-top: 1px solid #eee; padding-top: 8px; margin-top: auto;"><div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #9aa3a9;"><span><i class="fa-solid fa-user me-1"></i>
+                            By {{ announcement.created_by }}
+                          </span><span><i class="fa-solid fa-calendar me-1"></i>
+                            {{ announcement.created_at|date:"M d, Y" }}
+                          </span></div></div></div></div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="text-center" style="padding: 40px; color: #6d7c83;"><i class="fa-solid fa-bullhorn" style="font-size: 48px; margin-bottom: 15px; color: #ccc;"></i><h5>No Announcements</h5><p>There are no announcements to display at the moment.</p></div>
+              {% endif %}
+            </div></div></div></div></div><!-- ==========================================
+     PENDING LEAVE + TEAM PERFORMANCE (Equal Height)
+     ========================================== --><div class="row" style="margin-top: 25px"><!-- LEFT – Pending Leave Approvals --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 12px;
+              border: 1px solid #e5e7eb;
+              overflow: hidden;
+              height: 430px;
+              display: flex;
+              flex-direction: column;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 14px 18px;
+                font-size: 20px;
+                font-weight: 700;
+              ">
+              Pending Leave Requests
+            </div><!-- Body --><div style="padding: 18px; overflow-y: auto">
+              {% if team_leave_applications %}
+                {% for leave in team_leave_applications %}
+                <div
+                  style="
+                    border: 1px solid #e8e8e8;
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin-bottom: 16px;
+                    position: relative;
+                  "><!-- right side icons --><div
+                    style="
+                      position: absolute;
+                      right: 15px;
+                      top: 15px;
+                      display: flex;
+                      gap: 12px;
+                      font-size: 18px;
+                    "><i
+                      class="fa-solid fa-check"
+                      style="color: #1aaa55; cursor: pointer"
+                      title="Approve"></i><i
+                      class="fa-solid fa-xmark"
+                      style="color: #d64545; cursor: pointer"
+                      title="Reject"></i></div><div
+                    style="font-size: 16px; font-weight: 700; padding-right: 60px">
+                    {{ leave.employee.first_name }} {{ leave.employee.last_name }} – {{ leave.get_leave_type_display|title }}
+                  </div><div style="color: #6d7c83; font-size: 14px">
+                    {{ leave.start_date|date:"M d" }}{% if leave.start_date != leave.end_date %}–{{ leave.end_date|date:"M d, Y" }}{% endif %} ({{ leave.total_days }} {% if leave.total_days == 1 %}day{% else %}days{% endif %})
+                  </div><div style="color: #9aa3a9; font-size: 12px; margin-top: 4px">
+                    Applied {{ leave.applied_at|timesince }} ago
+                  </div>
+                  {% if leave.reason %}
+                  <div style="color: #6d7c83; font-size: 12px; margin-top: 4px; font-style: italic;">
+                    Reason: {{ leave.reason|truncatewords:10 }}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="text-center" style="padding: 40px; color: #6d7c83;"><i class="fa-solid fa-calendar-check" style="font-size: 48px; margin-bottom: 15px; color: #ccc;"></i><h5>No Pending Requests</h5><p>All team leave requests have been processed.</p></div>
+              {% endif %}
+            </div></div></div><!-- RIGHT – Team Performance Overview --><div class="col-lg-6 col-md-12" style="margin-bottom: 20px"><div
+            style="
+              background: #fff;
+              border-radius: 12px;
+              border: 1px solid #e5e7eb;
+              overflow: hidden;
+              height: 430px;
+              display: flex;
+              flex-direction: column;
+            "><!-- Header --><div
+              style="
+                background: #0b7368;
+                color: #fff;
+                padding: 14px 18px;
+                font-size: 20px;
+                font-weight: 700;
+              ">
+              Team Performance Overview
+            </div><!-- Body --><div style="padding: 18px; overflow-y: auto">
+              {% if team_assignments %}
+                {% for assignment in team_assignments %}
+                <div
+                  style="
+                    background: #0b7368;
+                    color: #fff;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                  "><div
+                    style="
+                      background: rgba(255, 255, 255, 0.15);
+                      padding: 10px 14px;
+                      border-radius: 6px;
+                      font-weight: 700;
+                      text-align: center;
+                      line-height: 16px;
+                      min-width: 60px;
+                    "><div style="font-size: 18px">
+                      {% if assignment.employee.resigned_date %}
+                        N/A
+                      {% else %}
+                        100%
+                      {% endif %}
+                    </div><div style="font-size: 10px">Status</div></div><div><div style="font-size: 16px; font-weight: 700">
+                      {{ assignment.employee.first_name }} {{ assignment.employee.last_name }}
+                    </div><div style="font-size: 13px; color: #d6f3ef">
+                      {{ assignment.employee.designation }} | {{ assignment.role }}
+                    </div><div style="font-size: 12px; color: #d6f3ef; margin-top: 2px;">
+                      Assigned: {{ assignment.assignment_date|date:"M d, Y" }}
+                    </div></div></div>
+                {% endfor %}
+              {% else %}
+                <div class="text-center" style="padding: 40px; color: #6d7c83;"><i class="fa-solid fa-users" style="font-size: 48px; margin-bottom: 15px; color: #ccc;"></i><h5>No Team Members</h5><p>No team members have been assigned to you yet.</p></div>
+              {% endif %}
+            </div></div></div></div></main>
+
+
+    {% endblock %}

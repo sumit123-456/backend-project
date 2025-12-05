@@ -1,0 +1,278 @@
+{% extends 'app/base2.html' %}
+
+{% block title %}Employee Attendance Records{% endblock %}
+
+{% block content %}
+<div class="container-fluid"><div class="row"><div class="col-12"><div class="page-title-box d-sm-flex align-items-center justify-content-between"><h4 class="mb-sm-0">My Attendance Records</h4><div class="page-title-right"><ol class="breadcrumb m-0"><li class="breadcrumb-item"><a href="{% url 'employee-dashboard' %}">Dashboard</a></li><li class="breadcrumb-item active">Attendance Records</li></ol></div></div></div></div><!-- Statistics Cards --><div class="row"><div class="col-xl-3 col-md-6"><div class="card"><div class="card-body"><div class="d-flex"><div class="flex-grow-1"><p class="text-muted mb-2">Total Days</p><h5 class="mb-0">{{ total_days }}</h5></div><div class="flex-shrink-0"><div class="avatar-sm rounded"><span class="h5 mb-0 text-primary"><i class="ri-calendar-line"></i></span></div></div></div></div></div></div><div class="col-xl-3 col-md-6"><div class="card"><div class="card-body"><div class="d-flex"><div class="flex-grow-1"><p class="text-muted mb-2">Present Days</p><h5 class="mb-0">{{ present_days }}</h5></div><div class="flex-shrink-0"><div class="avatar-sm rounded"><span class="h5 mb-0 text-success"><i class="ri-check-line"></i></span></div></div></div></div></div></div><div class="col-xl-3 col-md-6"><div class="card"><div class="card-body"><div class="d-flex"><div class="flex-grow-1"><p class="text-muted mb-2">Attendance Rate</p><h5 class="mb-0">{{ attendance_percentage }}%</h5></div><div class="flex-shrink-0"><div class="avatar-sm rounded"><span class="h5 mb-0 text-info"><i class="ri-pie-chart-line"></i></span></div></div></div></div></div></div><div class="col-xl-3 col-md-6"><div class="card"><div class="card-body"><div class="d-flex"><div class="flex-grow-1"><p class="text-muted mb-2">Late Arrivals</p><h5 class="mb-0">{{ late_arrivals }}</h5></div><div class="flex-shrink-0"><div class="avatar-sm rounded"><span class="h5 mb-0 text-warning"><i class="ri-alarm-warning-line"></i></span></div></div></div></div></div></div></div><div class="row"><div class="col-lg-4"><!-- Current Month Stats --><div class="card"><div class="card-header"><h6 class="card-title mb-0"><i class="ri-calendar-event-line me-2"></i>
+                        Current Month Summary
+                    </h6></div><div class="card-body"><div class="row text-center"><div class="col-6"><h4 class="text-success">{{ current_month_stats.present_days }}</h4><p class="text-muted mb-3">Present</p></div><div class="col-6"><h4 class="text-warning">{{ current_month_stats.half_days }}</h4><p class="text-muted mb-3">Half Days</p></div></div><div class="row text-center"><div class="col-6"><h4 class="text-danger">{{ current_month_stats.absent_days }}</h4><p class="text-muted mb-3">Absent</p></div><div class="col-6"><h4 class="text-info">{{ current_month_stats.late_arrivals }}</h4><p class="text-muted mb-0">Late</p></div></div></div></div><!-- Quick Actions --><div class="card"><div class="card-header"><h6 class="card-title mb-0"><i class="ri-time-line me-2"></i>
+                        Quick Actions
+                    </h6></div><div class="card-body"><div class="d-grid gap-2"><a href="{% url 'employee-check-in' %}" class="btn btn-success"><i class="ri-login-circle-line me-2"></i>Check In
+                        </a><a href="{% url 'employee-check-out' %}" class="btn btn-danger"><i class="ri-logout-circle-line me-2"></i>Check Out
+                        </a><a href="{% url 'employee-dashboard' %}" class="btn btn-outline-primary"><i class="ri-arrow-left-line me-2"></i>Back to Dashboard
+                        </a></div></div></div><!-- Employee Info --><div class="card"><div class="card-header"><h6 class="card-title mb-0"><i class="ri-user-line me-2"></i>Employee Details
+                    </h6></div><div class="card-body"><div class="text-center mb-3">
+                        {% if employee.image %}
+                            <img src="{{ employee.image.url }}" alt="{{ employee.first_name }}" class="rounded-circle" width="80" height="80">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;"><i class="ri-user-line fs-1 text-muted"></i></div>
+                        {% endif %}
+                    </div><div class="text-center"><h6 class="mb-1">{{ employee.first_name }} {{ employee.last_name }}</h6><p class="text-muted mb-2">{{ employee.designation }}</p><p class="text-muted mb-2">{{ employee.department }}</p><p class="text-muted mb-0"><small>{{ employee.company_id }}</small></p></div></div></div></div><div class="col-lg-8"><div class="card"><div class="card-header"><h5 class="card-title mb-0"><i class="ri-calendar-line me-2"></i>
+                        Attendance History (Last 30 Days)
+                    </h5></div><div class="card-body">
+                    {% if attendance_records %}
+                        <div class="table-responsive"><table class="table table-hover table-nowrap mb-0"><thead class="table-light"><tr><th>Date</th><th>Day</th><th>Check-in</th><th>Check-out</th><th>Hours Worked</th><th>Status</th><th>Remarks</th><th>Actions</th></tr></thead><tbody>
+                                    {% for attendance in attendance_records %}
+                                    <tr><td><strong>{{ attendance.attendance_date|date:"d M Y" }}</strong></td><td>
+                                            {{ attendance.attendance_date|date:"D" }}
+                                        </td><td>
+                                            {% if attendance.check_in_time %}
+                                                {{ attendance.check_in_time|time:"H:i:s" }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td><td>
+                                            {% if attendance.check_out_time %}
+                                                {{ attendance.check_out_time|time:"H:i:s" }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td><td>
+                                            {% if attendance.total_worked_hours %}
+                                                {{ attendance.total_worked_hours|floatformat:1 }} hrs
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td><td>
+                                            {% if attendance.status == 'present' %}
+                                                <span class="badge bg-success"><i class="ri-check-line me-1"></i>Present
+                                                </span>
+                                            {% elif attendance.status == 'half_day' %}
+                                                <span class="badge bg-warning"><i class="ri-time-line me-1"></i>Half Day
+                                                </span>
+                                            {% elif attendance.status == 'late' %}
+                                                <span class="badge bg-info"><i class="ri-alarm-warning-line me-1"></i>Late Arrival
+                                                </span>
+                                            {% elif attendance.status == 'absent' %}
+                                                <span class="badge bg-danger"><i class="ri-close-line me-1"></i>Absent
+                                                </span>
+                                            {% elif attendance.status == 'leave' %}
+                                                <span class="badge bg-primary"><i class="ri-calendar-line me-1"></i>On Leave
+                                                </span>
+                                            {% elif attendance.status == 'holiday' %}
+                                                <span class="badge bg-secondary"><i class="ri-calendar-event-line me-1"></i>Holiday
+                                                </span>
+                                            {% elif attendance.status == 'weekend' %}
+                                                <span class="badge bg-light text-dark"><i class="ri-calendar-line me-1"></i>Weekend
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ attendance.status|title }}</span>
+                                            {% endif %}
+                                        </td><td>
+                                            {% if attendance.remarks %}
+                                                <small>{{ attendance.remarks|truncatechars:50 }}</small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td><td><button class="btn btn-sm btn-outline-primary" onclick="viewAttendanceDetails({{ attendance.id }})" title="View Details"><i class="ri-eye-line"></i></button></td></tr>
+                                    {% endfor %}
+                                </tbody></table></div>
+                    {% else %}
+                        <div class="text-center py-5"><i class="ri-calendar-line text-muted fs-1"></i><h5 class="mt-3 text-muted">No Attendance Records</h5><p class="text-muted">Your attendance records will appear here after you start checking in.</p><a href="{% url 'employee-check-in' %}" class="btn btn-primary"><i class="ri-login-circle-line me-2"></i>Check In Now
+                            </a></div>
+                    {% endif %}
+                </div></div></div></div><!-- Monthly Overview --><div class="row"><div class="col-12"><div class="card"><div class="card-header"><h6 class="card-title mb-0"><i class="ri-bar-chart-line me-2"></i>
+                        Attendance Overview
+                    </h6></div><div class="card-body"><div class="row"><div class="col-md-3 text-center"><div class="d-flex flex-column align-items-center"><div class="progress-circle" style="width: 80px; height: 80px;"><svg width="80" height="80"><circle cx="40" cy="40" r="35" fill="none" stroke="#e9ecef" stroke-width="8"/><circle cx="40" cy="40" r="35" fill="none" stroke="#28a745" stroke-width="8"
+                                                stroke-dasharray="219.91" 
+                                                stroke-dashoffset="{{ 219.91|floatformat:0|add:219.91|add:present_days|add:219.91|add:total_days|floatformat:0|add:present_days|add:219.91|add:total_days|add:present_days }}"
+                                                transform="rotate(-90 40 40)"/></svg><div class="position-absolute top-50 start-50 translate-middle"><h6 class="mb-0">{{ present_days }}</h6></div></div><p class="text-muted mt-2">Present Days</p></div></div><div class="col-md-3 text-center"><div class="d-flex flex-column align-items-center"><div class="progress-circle" style="width: 80px; height: 80px;"><svg width="80" height="80"><circle cx="40" cy="40" r="35" fill="none" stroke="#e9ecef" stroke-width="8"/><circle cx="40" cy="40" r="35" fill="none" stroke="#ffc107" stroke-width="8"
+                                                stroke-dasharray="219.91" 
+                                                stroke-dashoffset="{{ 219.91|floatformat:0|add:219.91|add:half_days|add:219.91|add:total_days|floatformat:0|add:half_days|add:219.91|add:total_days|add:half_days }}"
+                                                transform="rotate(-90 40 40)"/></svg><div class="position-absolute top-50 start-50 translate-middle"><h6 class="mb-0">{{ half_days }}</h6></div></div><p class="text-muted mt-2">Half Days</p></div></div><div class="col-md-3 text-center"><div class="d-flex flex-column align-items-center"><div class="progress-circle" style="width: 80px; height: 80px;"><svg width="80" height="80"><circle cx="40" cy="40" r="35" fill="none" stroke="#e9ecef" stroke-width="8"/><circle cx="40" cy="40" r="35" fill="none" stroke="#dc3545" stroke-width="8"
+                                                stroke-dasharray="219.91" 
+                                                stroke-dashoffset="{{ 219.91|floatformat:0|add:219.91|add:absent_days|add:219.91|add:total_days|floatformat:0|add:absent_days|add:219.91|add:total_days|add:absent_days }}"
+                                                transform="rotate(-90 40 40)"/></svg><div class="position-absolute top-50 start-50 translate-middle"><h6 class="mb-0">{{ absent_days }}</h6></div></div><p class="text-muted mt-2">Absent Days</p></div></div><div class="col-md-3 text-center"><div class="d-flex flex-column align-items-center"><div class="progress-circle" style="width: 80px; height: 80px;"><svg width="80" height="80"><circle cx="40" cy="40" r="35" fill="none" stroke="#e9ecef" stroke-width="8"/><circle cx="40" cy="40" r="35" fill="none" stroke="#17a2b8" stroke-width="8"
+                                                stroke-dasharray="219.91" 
+                                                stroke-dashoffset="{{ 219.91|floatformat:0|add:219.91|add:late_arrivals|add:219.91|add:total_days|floatformat:0|add:late_arrivals|add:219.91|add:total_days|add:late_arrivals }}"
+                                                transform="rotate(-90 40 40)"/></svg><div class="position-absolute top-50 start-50 translate-middle"><h6 class="mb-0">{{ late_arrivals }}</h6></div></div><p class="text-muted mt-2">Late Arrivals</p></div></div></div><div class="row mt-4"><div class="col-12 text-center"><h5>Overall Attendance Rate: <span class="text-success">{{ attendance_percentage }}%</span></h5>
+                            {% if attendance_percentage>= 95 %}
+                                <p class="text-success mb-0"><i class="ri-star-line me-2"></i>Excellent attendance!</p>
+                            {% elif attendance_percentage>= 85 %}
+                                <p class="text-info mb-0"><i class="ri-thumb-up-line me-2"></i>Good attendance!</p>
+                            {% elif attendance_percentage>= 75 %}
+                                <p class="text-warning mb-0"><i class="ri-alert-line me-2"></i>Attendance needs improvement.</p>
+                            {% else %}
+                                <p class="text-danger mb-0"><i class="ri-error-warning-line me-2"></i>Poor attendance. Please improve.</p>
+                            {% endif %}
+                        </div></div></div></div></div></div></div><!-- Attendance Details Modal --><div class="modal fade" id="attendanceDetailsModal" tabindex="-1" aria-labelledby="attendanceDetailsModalLabel" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="attendanceDetailsModalLabel"><i class="ri-calendar-line me-2"></i>Attendance Details
+                </h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div id="modalContent"><!-- Content will be populated by JavaScript --></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ri-close-line me-1"></i>Close
+                </button><button type="button" class="btn btn-primary" onclick="printAttendanceDetails()"><i class="ri-printer-line me-1"></i>Print
+                </button></div></div></div></div><style>
+.progress-circle {
+    position: relative;
+    display: inline-block;
+}
+
+.progress-circle svg {
+    transform: rotate(-90deg);
+}
+</style><script>
+// View attendance details function
+function viewAttendanceDetails(attendanceId) {
+    // Show loading state
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = `
+        <div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Loading attendance details...</p></div>
+    `;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('attendanceDetailsModal'));
+    modal.show();
+    
+    // Fetch attendance details via AJAX
+    fetch(`/employee/attendance-details/${attendanceId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                populateModalContent(data.attendance);
+            } else {
+                modalContent.innerHTML = `
+                    <div class="text-center py-4"><i class="ri-error-warning-line text-danger fs-1"></i><h5 class="mt-3 text-danger">Error Loading Details</h5><p class="text-muted">${data.message || 'Unable to load attendance details.'}</p></div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalContent.innerHTML = `
+                <div class="text-center py-4"><i class="ri-error-warning-line text-danger fs-1"></i><h5 class="mt-3 text-danger">Error Loading Details</h5><p class="text-muted">Unable to load attendance details. Please try again.</p></div>
+            `;
+        });
+}
+
+// Populate modal with attendance details
+function populateModalContent(attendance) {
+    const modalContent = document.getElementById('modalContent');
+    
+    // Calculate worked hours display
+    let workedHoursDisplay = attendance.total_worked_hours ? 
+        `${parseFloat(attendance.total_worked_hours).toFixed(1)} hours` : 'Not calculated';
+    
+    // Format break duration
+    let breakDurationDisplay = attendance.break_duration_hours ? 
+        `${parseFloat(attendance.break_duration_hours).toFixed(1)} hours` : '0 hours';
+    
+    // Format overtime
+    let overtimeDisplay = attendance.overtime_hours ? 
+        `${parseFloat(attendance.overtime_hours).toFixed(1)} hours` : '0 hours';
+    
+    // Format times
+    const checkInTime = attendance.check_in_time ? new Date(`2000-01-01T${attendance.check_in_time}`).toLocaleTimeString('en-US', {
+        hour12: false, hour: '2-digit', minute: '2-digit'
+    }) : 'Not recorded';
+    
+    const checkOutTime = attendance.check_out_time ? new Date(`2000-01-01T${attendance.check_out_time}`).toLocaleTimeString('en-US', {
+        hour12: false, hour: '2-digit', minute: '2-digit'
+    }) : 'Not recorded';
+    
+    const breakStartTime = attendance.break_start_time ? new Date(`2000-01-01T${attendance.break_start_time}`).toLocaleTimeString('en-US', {
+        hour12: false, hour: '2-digit', minute: '2-digit'
+    }) : 'Not recorded';
+    
+    const breakEndTime = attendance.break_end_time ? new Date(`2000-01-01T${attendance.break_end_time}`).toLocaleTimeString('en-US', {
+        hour12: false, hour: '2-digit', minute: '2-digit'
+    }) : 'Not recorded';
+    
+    // Get status badge
+    function getStatusBadge(status) {
+        const statusMap = {
+            'present': { class: 'bg-success', icon: 'ri-check-line', text: 'Present' },
+            'absent': { class: 'bg-danger', icon: 'ri-close-line', text: 'Absent' },
+            'half_day': { class: 'bg-warning', icon: 'ri-time-line', text: 'Half Day' },
+            'late': { class: 'bg-info', icon: 'ri-alarm-warning-line', text: 'Late Arrival' },
+            'leave': { class: 'bg-primary', icon: 'ri-calendar-line', text: 'On Leave' },
+            'holiday': { class: 'bg-secondary', icon: 'ri-calendar-event-line', text: 'Holiday' },
+            'weekend': { class: 'bg-light text-dark', icon: 'ri-calendar-line', text: 'Weekend' },
+            'remote_work': { class: 'bg-purple', icon: 'ri-computer-line', text: 'Remote Work' },
+            'early_departure': { class: 'bg-orange', icon: 'ri-arrow-left-line', text: 'Early Departure' }
+        };
+        
+        const statusInfo = statusMap[status] || { class: 'bg-secondary', icon: 'ri-information-line', text: status.charAt(0).toUpperCase() + status.slice(1) };
+        
+        return `<span class="badge ${statusInfo.class}"><i class="${statusInfo.icon} me-1"></i>${statusInfo.text}
+                </span>`;
+    }
+    
+    modalContent.innerHTML = `
+        <div class="row"><!-- Employee & Date Information --><div class="col-md-6"><div class="card border-primary"><div class="card-header bg-primary text-white"><h6 class="card-title mb-0"><i class="ri-user-line me-2"></i>Employee Information
+                        </h6></div><div class="card-body"><div class="row"><div class="col-12 mb-3"><strong>Employee Name:</strong><br><span class="text-primary">${attendance.employee_name}</span></div><div class="col-12 mb-3"><strong>Employee ID:</strong><br><span class="text-muted">${attendance.employee_id}</span></div><div class="col-12 mb-3"><strong>Department:</strong><br><span class="text-muted">${attendance.department || 'Not specified'}</span></div><div class="col-12"><strong>Designation:</strong><br><span class="text-muted">${attendance.designation || 'Not specified'}</span></div></div></div></div></div><!-- Date & Status Information --><div class="col-md-6"><div class="card border-success"><div class="card-header bg-success text-white"><h6 class="card-title mb-0"><i class="ri-calendar-line me-2"></i>Attendance Information
+                        </h6></div><div class="card-body"><div class="row"><div class="col-12 mb-3"><strong>Attendance Date:</strong><br><span class="text-success">${attendance.attendance_date}</span></div><div class="col-12 mb-3"><strong>Day:</strong><br><span class="text-muted">${attendance.day_of_week}</span></div><div class="col-12 mb-3"><strong>Status:</strong><br>
+                                ${getStatusBadge(attendance.status)}
+                            </div><div class="col-12"><strong>Shift Type:</strong><br><span class="text-muted">${attendance.shift_type || 'General Shift'}</span></div></div></div></div></div></div><div class="row mt-3"><!-- Time Tracking --><div class="col-12"><div class="card border-info"><div class="card-header bg-info text-white"><h6 class="card-title mb-0"><i class="ri-time-line me-2"></i>Time Tracking Details
+                        </h6></div><div class="card-body"><div class="row"><div class="col-md-3 mb-3"><strong>Check-in Time:</strong><br><span class="${attendance.check_in_time ? 'text-success' : 'text-muted'}"><i class="ri-login-circle-line me-1"></i>${checkInTime}
+                                </span></div><div class="col-md-3 mb-3"><strong>Check-out Time:</strong><br><span class="${attendance.check_out_time ? 'text-danger' : 'text-muted'}"><i class="ri-logout-circle-line me-1"></i>${checkOutTime}
+                                </span></div><div class="col-md-3 mb-3"><strong>Break Start:</strong><br><span class="${attendance.break_start_time ? 'text-warning' : 'text-muted'}"><i class="ri-pause-circle-line me-1"></i>${breakStartTime}
+                                </span></div><div class="col-md-3 mb-3"><strong>Break End:</strong><br><span class="${attendance.break_end_time ? 'text-warning' : 'text-muted'}"><i class="ri-play-circle-line me-1"></i>${breakEndTime}
+                                </span></div></div></div></div></div></div><div class="row mt-3"><!-- Work Hours & Performance --><div class="col-md-6"><div class="card border-warning"><div class="card-header bg-warning text-dark"><h6 class="card-title mb-0"><i class="ri-bar-chart-line me-2"></i>Work Hours Analysis
+                        </h6></div><div class="card-body"><div class="row"><div class="col-12 mb-3"><strong>Total Worked Hours:</strong><br><span class="h5 text-primary">${workedHoursDisplay}</span></div><div class="col-12 mb-3"><strong>Break Duration:</strong><br><span class="text-muted">${breakDurationDisplay}</span></div><div class="col-12"><strong>Overtime Hours:</strong><br><span class="text-info">${overtimeDisplay}</span></div></div></div></div></div><!-- Location & Device Info --><div class="col-md-6"><div class="card border-secondary"><div class="card-header bg-secondary text-white"><h6 class="card-title mb-0"><i class="ri-map-pin-line me-2"></i>Location & Device Info
+                        </h6></div><div class="card-body"><div class="row"><div class="col-12 mb-3"><strong>Check-in Location:</strong><br><span class="text-muted small">
+                                    ${attendance.check_in_location || 'Location not recorded'}
+                                </span></div><div class="col-12 mb-3"><strong>Check-out Location:</strong><br><span class="text-muted small">
+                                    ${attendance.check_out_location || 'Location not recorded'}
+                                </span></div><div class="col-12"><strong>Device Info:</strong><br><span class="text-muted small">
+                                    ${attendance.device_info || 'Device information not available'}
+                                </span></div></div></div></div></div></div><div class="row mt-3"><!-- Approval & Remarks --><div class="col-12"><div class="card border-dark"><div class="card-header bg-dark text-white"><h6 class="card-title mb-0"><i class="ri-file-text-line me-2"></i>Additional Information
+                        </h6></div><div class="card-body"><div class="row"><div class="col-md-6 mb-3"><strong>Approved By:</strong><br><span class="text-muted">${attendance.approved_by || 'Not approved yet'}</span></div><div class="col-md-6 mb-3"><strong>Approval Date:</strong><br><span class="text-muted">${attendance.approval_date || 'Pending approval'}</span></div><div class="col-12"><strong>Remarks:</strong><br><div class="bg-light p-2 rounded mt-1"><span class="text-muted">
+                                        ${attendance.remarks || 'No remarks added'}
+                                    </span></div></div></div></div></div></div></div><div class="row mt-3"><div class="col-12"><div class="alert alert-info d-flex align-items-center" role="alert"><i class="ri-information-line me-2"></i><div><strong>Record Information:</strong> 
+                        Created on ${attendance.created_at} | 
+                        Last updated on ${attendance.updated_at}
+                    </div></div></div></div>
+    `;
+}
+
+// Print attendance details
+function printAttendanceDetails() {
+    const modalContent = document.getElementById('modalContent').innerHTML;
+    const printWindow = window.open('', '_blank');
+    
+    printWindow.document.write(`
+        <!DOCTYPE html><html><head><title>Attendance Details</title><style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .card { border: 1px solid #ddd; margin-bottom: 15px; }
+                .card-header { padding: 10px; font-weight: bold; }
+                .card-body { padding: 15px; }
+                .badge { padding: 3px 8px; border-radius: 3px; }
+                .bg-success { background-color: #28a745; color: white; }
+                .bg-danger { background-color: #dc3545; color: white; }
+                .bg-warning { background-color: #ffc107; color: black; }
+                .bg-info { background-color: #17a2b8; color: white; }
+                .bg-primary { background-color: #007bff; color: white; }
+                .bg-secondary { background-color: #6c757d; color: white; }
+                .text-primary { color: #007bff; }
+                .text-success { color: #28a745; }
+                .text-danger { color: #dc3545; }
+                .text-warning { color: #ffc107; }
+                .text-info { color: #17a2b8; }
+                .text-muted { color: #6c757d; }
+                h5, h6 { margin-bottom: 10px; }
+                .row { margin-bottom: 10px; }
+            </style></head><body><h2>Attendance Details Report</h2><div class="text-muted">Generated on: ${new Date().toLocaleString()}</div><hr>
+            ${modalContent}
+        </body></html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Initialize tooltips and other UI enhancements
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips for action buttons
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

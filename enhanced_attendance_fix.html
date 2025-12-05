@@ -1,0 +1,80 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Enhanced Attendance Management - HR{% endblock %}
+
+{% block content %}
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Page Title Bar -->
+  <div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "
+  >
+    <div class="page-title">
+      <i class="fa-solid fa-clipboard-list me-2"></i>
+      Enhanced Attendance Management
+    </div>
+    <div class="d-flex gap-2">
+      <a
+        href="{% url 'hr-dashboard' %}"
+        style="
+          background: #0b7368;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-home me-1"></i>Dashboard
+      </a>
+      <a
+        href="{% url 'hr-attendance-page' %}"
+        style="
+          background: #17a2b8;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-calendar-check me-1"></i>Basic Attendance
+      </a>
+    </div>
+  </div>
+
+  {% include 'app/enhanced_attendance_content.html' %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Set default dates if not provided
+        const fromDateInput = document.getElementById("from_date");
+        const toDateInput = document.getElementById("to_date");
+
+        if (fromDateInput && !fromDateInput.value) {
+            const firstDayOfMonth = new Date();
+            firstDayOfMonth.setDate(1);
+            fromDateInput.value = firstDayOfMonth.toISOString().split("T")[0];
+        }
+
+        if (toDateInput && !toDateInput.value) {
+            const today = new Date();
+            toDateInput.value = today.toISOString().split("T")[0];
+        }
+    });
+
+    function exportAttendanceData() {
+        alert("Export functionality will be implemented. For now, use browser print to save as PDF.");
+        window.print();
+    }
+</script>
+{% endblock %}

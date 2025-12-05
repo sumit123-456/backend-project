@@ -1,0 +1,50 @@
+# Django Web Framework
+Django==5.2
+
+# Database
+PyMySQL==1.1.1
+mysqlclient==2.2.4
+
+# WSGI Server for Production
+gunicorn==21.2.0
+
+# Environment Configuration
+python-dotenv==1.0.0
+
+# Email Support
+django-smtp-ssl==1.0.0
+
+# Security
+django-cors-headers==4.3.1
+
+# Static Files Management
+whitenoise==6.6.0
+
+# Forms
+django-crispy-forms==2.2
+
+# Bootstrap Integration
+crispy-bootstrap5==2023.10
+
+# Pagination
+django-bootstrap-pagination==1.0.3
+
+# Debug Toolbar (Development only)
+django-debug-toolbar==4.2.0
+
+# Testing
+pytest==7.4.4
+pytest-django==4.7.0
+coverage==7.3.2
+
+# Production Server
+daphne==4.0.0
+
+# File Uploads
+Pillow==10.1.0
+
+# Logging
+python-json-logger==2.0.7
+
+# Development Tools
+django-extensions==3.2.3

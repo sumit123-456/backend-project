@@ -1,0 +1,597 @@
+{% extends 'app/base2.html' %}
+{% load humanize %}
+{% block content %}
+
+
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">My Payroll</div><a href="{% url 'employee-dashboard' %}"><div class="text-muted">Dashboard</div></a></div><!-- PAYROLL OVERVIEW STATISTICS --><div style="display:flex; gap:20px; flex-wrap:wrap; margin:20px 0; font-family:Poppins, sans-serif;"><!-- CARD 1 - Current Net Salary --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#1a73e8; margin-bottom:8px;"><i class="fa-solid fa-dollar-sign"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {% if latest_payroll %}
+                ₹{{ latest_payroll.final_salary|floatformat:0|intcomma }}
+            {% else %}
+                ₹0
+            {% endif %}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Current Monthly Salary</div><div style="font-size:12px; color:#28a745; margin-top:4px;">After deductions</div></div><!-- CARD 2 - Gross Salary --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#0f8f5c; margin-bottom:8px;"><i class="fa-solid fa-calendar-check"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {% if latest_payroll %}
+                ₹{{ latest_payroll.gross_salary|floatformat:0|intcomma }}
+            {% else %}
+                ₹0
+            {% endif %}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Gross Monthly Salary</div><div style="font-size:12px; color:#28a745; margin-top:4px;">Before deductions</div></div><!-- CARD 3 - Total Deductions --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#e63946; margin-bottom:8px;"><i class="fa-solid fa-minus-circle"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {% if latest_payroll %}
+                ₹{{ latest_payroll.total_deductions|floatformat:0|intcomma }}
+            {% else %}
+                ₹0
+            {% endif %}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Total Deductions</div><div style="font-size:12px; color:#dc3545; margin-top:4px;">Tax & other deductions</div></div><!-- CARD 4 - Last Paid Month --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#06b6d4; margin-bottom:8px;"><i class="fa-solid fa-calendar-alt"></i></div><div style="font-size:32px; font-weight:700; color:#000;">
+            {% if last_paid_payroll %}
+                {{ last_paid_payroll.month|slice:":3" }} {{ last_paid_payroll.year }}
+            {% else %}
+                N/A
+            {% endif %}
+        </div><div style="font-size:15px; color:#666; margin-top:4px;">Last Paid</div><div style="font-size:12px; color:#28a745; margin-top:4px;">
+            {% if last_paid_payroll %}Processed{% else %}Pending{% endif %}
+        </div></div></div><!-- PAYROLL ACTIONS --><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0; background: linear-gradient(135deg, #f8fffe 0%, #e8f5f3 100%);"><div style="display:flex; flex-wrap:wrap; align-items:center; justify-content: space-between; gap:20px;"><!-- Current Month Info --><div style="flex: 1; min-width: 250px;"><h5 style="margin:0; font-weight:600; color:#333; margin-bottom:10px;"><i class="fas fa-info-circle me-2" style="color:#0a6d65;"></i><span>Current Month Payroll</span></h5><div style="display:flex; align-items:center; gap:15px;"><div style="font-size:20px; font-weight:700; color:#0a6d65;" id="currentMonth">{{ current_month }}</div><div><div style="font-size:14px; color:#666;" id="payrollStatus">
+              {% if current_month_payroll %}
+                {% if current_month_payroll.is_processed %}
+                  <span style="color: #28a745;">Processed</span>
+                {% else %}
+                  <span style="color: #f2b33d;">In Progress</span>
+                {% endif %}
+              {% else %}
+                <span style="color: #dc3545;">Pending</span>
+              {% endif %}
+            </div><div style="font-size:12px; color:#f2b33d; font-weight:600;" id="payrollDate">
+              {% if current_month_payroll %}
+                <span>Processed: {{ current_month_payroll.processed_date|date:"M d, Y"|default:"N/A" }}</span>
+              {% else %}
+                <span>Expected: End of {{ current_month }}</span>
+              {% endif %}
+            </div></div></div></div><!-- Action Buttons --><div style="display:flex; gap:12px; flex-wrap: wrap;"><!-- Download Latest Button --><button onclick="downloadLatestPayslip()" 
+                style="background:#0a6d65; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-download me-2"></i><span>Download Latest</span></button><!-- View History Button --><button onclick="scrollToPayrollTable()" 
+                style="background:#1a73e8; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-history me-2"></i><span>View History</span></button><!-- Print Button --><button onclick="printPayslip()" 
+                style="background:#28a745; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-print me-2"></i><span>Print</span></button></div></div></div><!-- PAYROLL CHARTS --><div style="margin: 20px 0;"><div class="row g-4"><!-- Monthly Salary Trend Chart --><div class="col-xl-8 col-lg-12"><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+                        border:1px solid #e5e7eb; overflow:hidden;"><div style="padding:20px; border-bottom:1px solid #e5e7eb;"><h5 style="margin:0; font-weight:600; color:#333;"><i class="fas fa-chart-line me-2" style="color:#0a6d65;"></i><span>Monthly Salary Trend</span></h5></div><div style="padding:20px;"><div style="position:relative; height:350px;"><canvas id="salaryTrendChart"></canvas></div></div></div></div><!-- Salary Breakdown --><div class="col-xl-4 col-lg-12"><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+                        border:1px solid #e5e7eb; overflow:hidden;"><div style="padding:20px; border-bottom:1px solid #e5e7eb;"><h5 style="margin:0; font-weight:600; color:#333;"><i class="fas fa-chart-pie me-2" style="color:#0a6d65;"></i><span>Salary Breakdown</span></h5></div><div style="padding:20px;"><div style="position:relative; height:350px;"><canvas id="salaryBreakdownChart"></canvas></div></div></div></div></div></div><!-- PAYROLL FILTERS --><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0;"><div style="display:flex; flex-wrap:wrap; align-items:center; gap:25px;"><!-- Select Year --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Year</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="yearFilter"><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option></select></div><!-- Month Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Month</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="monthFilter"><option value="all">All Months</option><option value="january">January</option><option value="february">February</option><option value="march">March</option><option value="april">April</option><option value="may">May</option><option value="june">June</option><option value="july">July</option><option value="august">August</option><option value="september">September</option><option value="october">October</option><option value="november">November</option><option value="december">December</option></select></div><!-- Status Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Status</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="statusFilter"><option value="all">All Status</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="processing">Processing</option></select></div></div></div><!-- PAYROLL RECORDS TABLE --><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+            border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Table Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb;background-color: #0a6d65;"><h5 style="margin:0; font-weight:600; color:#f5f3f3;">Payroll Records</h5></div><!-- Responsive Table --><div class="table-responsive"><table class="table table-hover mb-0" style="font-family:Poppins, sans-serif;"><thead style="background:#f8f9fa;"><tr><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Period</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Gross Amount</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Deductions</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Net Amount</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Tax</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Status</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Paid Date</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Action</th></tr></thead><tbody id="payrollTableBody">
+                {% if payroll_records %}
+                    {% for payroll in payroll_records %}
+                    <tr><td class="px-4 py-3">{{ payroll.month }} {{ payroll.year }}</td><td class="px-4 py-3">₹{{ payroll.gross_salary|floatformat:0|intcomma }}</td><td class="px-4 py-3">₹{{ payroll.total_deductions|floatformat:0|intcomma }}</td><td class="px-4 py-3 fw-bold" style="color: #28a745;">₹{{ payroll.final_salary|floatformat:0|intcomma }}</td><td class="px-4 py-3">₹{{ payroll.pf_deduction|floatformat:0|intcomma }}</td><td class="px-4 py-3">
+                            {% if payroll.is_processed %}
+                                <span class="badge bg-success">Processed</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td><td class="px-4 py-3">
+                            {% if payroll.processed_date %}
+                                {{ payroll.processed_date|date:"M d, Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td><td class="px-4 py-3"><button class="btn btn-sm btn-outline-primary me-1" onclick="viewPayslipDetails('{{ payroll.id }}')" title="View Details"><i class="fas fa-eye"></i></button><button class="btn btn-sm btn-outline-success" onclick="downloadPayslip('{{ payroll.id }}')" title="Download"><i class="fas fa-download"></i></button></td></tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="8" class="px-4 py-5 text-center"><div style="color: #6c757d;"><i class="fas fa-inbox fa-3x mb-3 d-block"></i><h5>No Payroll Records Found</h5><p>Your payroll records will appear here once HR processes them.</p></div></td></tr>
+                {% endif %}
+            </tbody></table></div></div><!-- PAGINATION CONTROLS --><div class="d-flex justify-content-between align-items-center mt-3" id="paginationControls"><div class="d-flex align-items-center gap-3"><div><label for="recordsPerPage" class="form-label mb-0 me-2">Records per page:</label><select id="recordsPerPage" class="form-select form-select-sm" style="width: auto; display: inline-block;"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div><div id="recordInfo" class="text-muted small">Showing 1-10 of 10 records</div></div><nav aria-label="Payroll table pagination"><ul class="pagination pagination-sm mb-0" id="pagination"><!-- Pagination items will be generated by JavaScript --></ul></nav></div></main><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+
+// Global variable to store payroll data for JavaScript functions
+const payrollData = [
+    {% for payroll in payroll_records %}
+    {
+        id: {{ payroll.id }},
+        period: "{{ payroll.month }} {{ payroll.year }}",
+        grossAmount: {{ payroll.gross_salary|floatformat:2 }},
+        deductions: {{ payroll.total_deductions|floatformat:2 }},
+        netAmount: {{ payroll.final_salary|floatformat:2 }},
+        tax: {{ payroll.pf_deduction|floatformat:2 }},
+        status: "{% if payroll.is_processed %}Paid{% else %}Pending{% endif %}",
+        paymentDate: "{% if payroll.processed_date %}{{ payroll.processed_date|date:'Y-m-d' }}{% else %}-{% endif %}",
+        month: "{{ payroll.month }}",
+        year: {{ payroll.year }},
+        baseSalary: {{ payroll.base_salary|floatformat:2 }},
+        allowances: {{ payroll.allowances|floatformat:2 }},
+        overtimeAmount: {{ payroll.overtime_amount|floatformat:2 }},
+        leaveDeduction: {{ payroll.leave_deduction|floatformat:2 }},
+        otherDeductions: {{ payroll.other_deductions|floatformat:2 }},
+        createdBy: "{{ payroll.created_by }}",
+        createdAt: "{{ payroll.created_at|date:'Y-m-d H:i:s' }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    const dropdownContent = document.getElementById('profileDropdown');
+    
+    if (!profileDropdown.contains(event.target)) {
+        dropdownContent.classList.remove('show');
+    }
+});
+
+// Download latest payslip
+function downloadLatestPayslip() {
+    if (payrollData.length === 0) {
+        showNotification('No payroll records available for download.', 'warning');
+        return;
+    }
+    
+    // Get the most recent payroll record
+    const latestPayroll = payrollData[0];
+    
+    // Create a simple payslip text content
+    const payslipContent = generatePayslipContent(latestPayroll);
+    
+    // Create and download a text file
+    const blob = new Blob([payslipContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Payslip_${latestPayroll.period.replace(' ', '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showNotification(`Payslip for ${latestPayroll.period} downloaded successfully!`, 'success');
+}
+
+// Scroll to payroll table (view history)
+function scrollToPayrollTable() {
+    const table = document.querySelector('.table-responsive');
+    if (table) {
+        table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showNotification('Payroll history displayed below.', 'info');
+    } else {
+        showNotification('No payroll records found.', 'warning');
+    }
+}
+
+// Print payslip
+function printPayslip() {
+    if (payrollData.length === 0) {
+        showNotification('No payroll records available for printing.', 'warning');
+        return;
+    }
+    
+    // Create a print-friendly version
+    const printWindow = window.open('', '_blank');
+    const latestPayroll = payrollData[0];
+    
+    printWindow.document.write(`
+        <!DOCTYPE html><html><head><title>Payslip - ${latestPayroll.period}</title><style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .details { margin: 20px 0; }
+                .amount { font-weight: bold; color: #0b7368; }
+                .deduction { color: #dc3545; }
+                .total { font-size: 18px; font-weight: bold; border-top: 2px solid #0b7368; padding-top: 10px; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+            </style></head><body><div class="header"><h1>Employee Payslip</h1><h2>${latestPayroll.period}</h2></div><div class="details"><h3>Salary Details</h3><table><tr><th>Component</th><th>Amount</th></tr><tr><td>Base Salary</td><td class="amount">₹${latestPayroll.baseSalary.toLocaleString()}</td></tr><tr><td>Allowances</td><td class="amount">₹${latestPayroll.allowances.toLocaleString()}</td></tr><tr><td>Overtime</td><td class="amount">₹${latestPayroll.overtimeAmount.toLocaleString()}</td></tr><tr><td><strong>Gross Salary</strong></td><td class="amount"><strong>₹${latestPayroll.grossAmount.toLocaleString()}</strong></td></tr></table><h3>Deductions</h3><table><tr><th>Type</th><th>Amount</th></tr><tr><td>Leave Deduction</td><td class="deduction">₹${latestPayroll.leaveDeduction.toLocaleString()}</td></tr><tr><td>PF Deduction</td><td class="deduction">₹${latestPayroll.tax.toLocaleString()}</td></tr><tr><td>Other Deductions</td><td class="deduction">₹${latestPayroll.otherDeductions.toLocaleString()}</td></tr><tr><td><strong>Total Deductions</strong></td><td class="deduction"><strong>₹${latestPayroll.deductions.toLocaleString()}</strong></td></tr></table><div class="total"><strong>Net Salary: ₹${latestPayroll.netAmount.toLocaleString()}</strong></div><p><strong>Status:</strong> ${latestPayroll.status}</p><p><strong>Payment Date:</strong> ${latestPayroll.paymentDate}</p></div></body></html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
+    showNotification('Payslip sent to printer.', 'success');
+}
+
+
+
+// View payslip details
+function viewPayslipDetails(payrollId) {
+    const record = payrollData.find(r => r.id == payrollId);
+    if (record) {
+        // Create a modal-like display for payslip details
+        showPayslipModal(record);
+    } else {
+        showNotification('Payslip record not found.', 'error');
+    }
+}
+
+// Download payslip
+function downloadPayslip(payrollId) {
+    const record = payrollData.find(r => r.id == payrollId);
+    if (record) {
+        // Generate and download payslip content
+        const payslipContent = generatePayslipContent(record);
+        
+        const blob = new Blob([payslipContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Payslip_${record.period.replace(' ', '_')}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showNotification(`Payslip for ${record.period} downloaded successfully!`, 'success');
+    } else {
+        showNotification('Payslip record not found.', 'error');
+    }
+}
+
+// Initialize charts
+Chart.defaults.font.family = 'Poppins';
+Chart.defaults.color = '#6d7c83';
+
+const colors = {
+    primary: '#0b7368',
+    success: '#02c202',
+    danger: '#dc3545',
+    warning: '#e2e205',
+    info: '#17a2b8',
+    purple: '#6f42c1',
+    orange: '#fd7e14',
+    teal: '#20c997'
+};
+
+// Salary Trend Chart
+function initSalaryTrendChart() {
+    const ctx = document.getElementById('salaryTrendChart').getContext('2d');
+    
+    // Generate chart data from payroll records
+    const chartData = generateChartData();
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Gross Salary',
+                    data: chartData.grossData,
+                    borderColor: colors.info,
+                    backgroundColor: colors.info + '20',
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Net Salary',
+                    data: chartData.netData,
+                    borderColor: colors.success,
+                    backgroundColor: colors.success + '20',
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Total Deductions',
+                    data: chartData.deductionData,
+                    borderColor: colors.danger,
+                    backgroundColor: colors.danger + '20',
+                    tension: 0.4,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f0f0f0'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Generate chart data from payroll records
+function generateChartData() {
+    if (payrollData.length === 0) {
+        return {
+            labels: ['No Data'],
+            grossData: [0],
+            netData: [0],
+            deductionData: [0]
+        };
+    }
+    
+    // Sort by date and take last 12 records
+    const sortedData = [...payrollData].sort((a, b) => {
+        const dateA = new Date(`${a.year}-${getMonthNumber(a.month)}-01`);
+        const dateB = new Date(`${b.year}-${getMonthNumber(b.month)}-01`);
+        return dateA - dateB;
+    }).slice(-12);
+    
+    const labels = sortedData.map(r => `${r.month.slice(0, 3)} ${r.year.toString().slice(-2)}`);
+    const grossData = sortedData.map(r => r.grossAmount);
+    const netData = sortedData.map(r => r.netAmount);
+    const deductionData = sortedData.map(r => r.deductions);
+    
+    return { labels, grossData, netData, deductionData };
+}
+
+// Helper function to convert month name to number
+function getMonthNumber(monthName) {
+    const months = {
+        'January': '01', 'February': '02', 'March': '03', 'April': '04',
+        'May': '05', 'June': '06', 'July': '07', 'August': '08',
+        'September': '09', 'October': '10', 'November': '11', 'December': '12'
+    };
+    return months[monthName] || '01';
+}
+
+// Salary Breakdown Chart
+function initSalaryBreakdownChart() {
+    const ctx = document.getElementById('salaryBreakdownChart').getContext('2d');
+    
+    // Calculate average breakdown from payroll records
+    const breakdownData = calculateAverageBreakdown();
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Base Salary', 'Allowances', 'Tax Deduction', 'Other Deductions'],
+            datasets: [{
+                data: breakdownData,
+                backgroundColor: [
+                    colors.primary,
+                    colors.success,
+                    colors.danger,
+                    colors.warning
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Calculate average breakdown from payroll records
+function calculateAverageBreakdown() {
+    if (payrollData.length === 0) {
+        return [0, 0, 0, 0];
+    }
+    
+    let totalBaseSalary = 0;
+    let totalAllowances = 0;
+    let totalTax = 0;
+    let totalOtherDeductions = 0;
+    
+    payrollData.forEach(record => {
+        totalBaseSalary += record.baseSalary;
+        totalAllowances += record.allowances;
+        totalTax += record.tax;
+        totalOtherDeductions += record.otherDeductions;
+    });
+    
+    const count = payrollData.length;
+    return [
+        Math.round(totalBaseSalary / count),
+        Math.round(totalAllowances / count),
+        Math.round(totalTax / count),
+        Math.round(totalOtherDeductions / count)
+    ];
+}
+
+// Helper function to generate payslip content
+function generatePayslipContent(record) {
+    return `
+EMPLOYEE PAYSLIP
+================
+
+Period: ${record.period}
+Employee ID: ${record.employeeId || 'N/A'}
+Department: ${record.department || 'N/A'}
+Designation: ${record.designation || 'N/A'}
+
+EARNINGS:
+---------
+Base Salary: ₹${record.baseSalary.toLocaleString()}
+Allowances: ₹${record.allowances.toLocaleString()}
+Overtime: ₹${record.overtimeAmount.toLocaleString()}
+--------------------
+Gross Salary: ₹${record.grossAmount.toLocaleString()}
+
+DEDUCTIONS:
+-----------
+Leave Deduction: ₹${record.leaveDeduction.toLocaleString()}
+PF Deduction: ₹${record.tax.toLocaleString()}
+Other Deductions: ₹${record.otherDeductions.toLocaleString()}
+--------------------
+Total Deductions: ₹${record.deductions.toLocaleString()}
+
+NET SALARY: ₹${record.netAmount.toLocaleString()}
+
+Status: ${record.status}
+Payment Date: ${record.paymentDate}
+Created By: ${record.createdBy}
+Created At: ${record.createdAt}
+    `.trim();
+}
+
+// Helper function to show payslip modal
+function showPayslipModal(record) {
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    `;
+    
+    // Create modal content
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    `;
+    
+    modal.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;"><h2 style="color: #0b7368; margin: 0;">Payslip Details</h2><h3 style="margin: 5px 0; color: #666;">${record.period}</h3></div><div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;"><h4 style="margin: 0 0 10px 0; color: #333;">Employee Information</h4><p style="margin: 5px 0;"><strong>Employee:</strong> {{ employee.first_name }} {{ employee.last_name }}</p><p style="margin: 5px 0;"><strong>Employee ID:</strong> {{ employee.company_id }}</p><p style="margin: 5px 0;"><strong>Department:</strong> {{ employee.department }}</p><p style="margin: 5px 0;"><strong>Designation:</strong> {{ employee.designation }}</p></div><div style="margin-bottom: 20px;"><h4 style="color: #28a745; margin-bottom: 10px;">Earnings</h4><div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>Base Salary:</span><span>₹${record.baseSalary.toLocaleString()}</span></div><div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>Allowances:</span><span>₹${record.allowances.toLocaleString()}</span></div><div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>Overtime:</span><span>₹${record.overtimeAmount.toLocaleString()}</span></div><div style="display: flex; justify-content: space-between; padding: 5px 0; border-top: 1px solid #ddd; margin-top: 10px; padding-top: 10px;"><strong>Gross Salary:</strong><strong style="color: #28a745;">₹${record.grossAmount.toLocaleString()}</strong></div></div><div style="margin-bottom: 20px;"><h4 style="color: #dc3545; margin-bottom: 10px;">Deductions</h4><div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>Leave Deduction:</span><span>₹${record.leaveDeduction.toLocaleString()}</span></div><div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>PF Deduction:</span><span>₹${record.tax.toLocaleString()}</span></div><div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>Other Deductions:</span><span>₹${record.otherDeductions.toLocaleString()}</span></div><div style="display: flex; justify-content: space-between; padding: 5px 0; border-top: 1px solid #ddd; margin-top: 10px; padding-top: 10px;"><strong>Total Deductions:</strong><strong style="color: #dc3545;">₹${record.deductions.toLocaleString()}</strong></div></div><div style="background: #0b7368; color: white; padding: 15px; border-radius: 5px; text-align: center; margin-bottom: 20px;"><h3 style="margin: 0;">Net Salary: ₹${record.netAmount.toLocaleString()}</h3></div><div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;"><p style="margin: 5px 0;"><strong>Status:</strong> ${record.status}</p><p style="margin: 5px 0;"><strong>Payment Date:</strong> ${record.paymentDate}</p><p style="margin: 5px 0;"><strong>Created By:</strong> ${record.createdBy}</p><p style="margin: 5px 0;"><strong>Created At:</strong> ${record.createdAt}</p></div><div style="text-align: center;"><button onclick="this.closest('.modal-overlay').remove()" 
+                    style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                Close
+            </button><button onclick="downloadPayslip(${record.id}); this.closest('.modal-overlay').remove();" 
+                    style="background: #0b7368; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                Download
+            </button></div>
+    `;
+    
+    overlay.className = 'modal-overlay';
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Close modal when clicking overlay
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.remove();
+        }
+    });
+}
+
+// Helper function to show notifications
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        z-index: 9999;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    // Set colors based on type
+    switch(type) {
+        case 'success':
+            notification.style.background = '#28a745';
+            break;
+        case 'error':
+            notification.style.background = '#dc3545';
+            break;
+        case 'warning':
+            notification.style.background = '#ffc107';
+            notification.style.color = '#212529';
+            break;
+        case 'info':
+        default:
+            notification.style.background = '#17a2b8';
+            break;
+    }
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        initSalaryTrendChart();
+        initSalaryBreakdownChart();
+    }, 100);
+});
+</script>
+
+
+{% endblock %}

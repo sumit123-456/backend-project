@@ -1,0 +1,1378 @@
+{% extends "app/base.html" %} {% block content %}
+
+<!-- CONTENT --><main class="content-wrap">
+  {% if messages %} {% for msg in messages %}
+  <div
+    class="alert alert-{{ msg.tags }} alert-dismissible fade show"
+    role="alert">
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endfor %} {% endif %}
+
+  <div
+    class="d-flex justify-content-between mb-4"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    "><div class="page-title">Team Management</div><div class="text-muted">Dashboard</div></div><!-- Team Statistics Cards --><div class="row mb-4"><div class="col-xl-3 col-md-6 mb-3"><div class="k-card stat-card"
+      style="background: linear-gradient(135deg, var(--teal) 0%, #0a5c53 100%); color: white;"><div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-users"></i></div><div><h3 class="mb-0 text-white">{{ total_team_members|default:"0" }}</h3><small class="opacity-75">Total Members</small></div></div></div><div class="col-xl-3 col-md-6 mb-3"><div class="k-card stat-card"
+      style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white;"><div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-user-tie"></i></div><div><h3 class="mb-0 text-white">{{ total_team_leads|default:"0" }}</h3><small class="opacity-75">Team Leaders</small></div></div></div><div class="col-xl-3 col-md-6 mb-3"><div class="k-card stat-card"
+      style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;"><div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-project-diagram"></i></div><div><h3 class="mb-0 text-white">{{ active_projects|default:"0" }}</h3><small class="opacity-75">Active Projects</small></div></div></div><div class="col-xl-3 col-md-6 mb-3"><div class="k-card stat-card"
+      style="background: linear-gradient(135deg, #ffc107 0%, #d39e00 100%); color: white;"><div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-chart-line"></i></div><div><h3 class="mb-0 text-white">{{ avg_productivity|default:"0" }}%</h3><small class="opacity-75">Avg Productivity</small></div></div></div></div><!-- Team Management Actions --><div class="row mb-4"><div class="col-12"><div class="k-card"><div
+          class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h5 class="mb-0"><i class="fas fa-users me-2" style="color: var(--teal)"></i>Team
+            Overview
+          </h5><div class="d-flex gap-2 flex-wrap"><button
+              class="btn"
+              style="background-color: #138496; color: white"
+              onclick="openCreateTLModal()"><i class="fas fa-plus me-1"></i>Create Team Leader
+            </button><button class="btn btn-success" onclick="openAssignMemberModal()"><i class="fas fa-user-plus me-1"></i>Assign Member
+            </button><button class="btn btn-info" onclick="openAssignProjectModal()"><i class="fas fa-project-diagram me-1"></i>Assign Project
+            </button></div></div><!-- Search and Filter Bar --><div class="row mb-3"><div class="col-md-6 mb-2"><div class="input-group"><input
+                type="text"
+                class="form-control"
+                placeholder="Search team members..."
+                id="searchInput"
+                style="border-color: var(--teal)"
+              /><span
+                class="input-group-text"
+                style="border-color: var(--teal); background: #f8f9fa"><i class="fas fa-search" style="color: var(--teal)"></i></span></div></div><div class="col-md-3 mb-2"><select
+              class="form-select"
+              id="departmentFilter"
+              style="border-color: var(--teal)"><option value="">All Departments</option><option value="Engineering">Engineering</option><option value="Design">Design</option><option value="Marketing">Marketing</option><option value="Sales">Sales</option><option value="HR">HR</option><option value="Finance">Finance</option></select></div><div class="col-md-3 mb-2"><select
+              class="form-select"
+              id="statusFilter"
+              style="border-color: var(--teal)"><option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="on-leave">On Leave</option></select></div></div><!-- Desktop Table View --><div class="desktop-table"><!-- Team Table --><div class="table-responsive"><table class="table professional-table table-bordered align-middle"><thead class="table-light"><tr><th>Team Leader</th><th>Department</th><th>Members</th><th>Projects</th><th>Team Size</th><th>Status</th><th>TL Since</th><th>Actions</th></tr></thead><tbody>
+    {% if leaders %}
+        {% for tl in leaders %}
+        <tr><!-- TEAM LEADER --><td><div class="d-flex align-items-center"><div class="rounded-circle bg-info text-white fw-bold me-2"
+                        style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;">
+                        {{ tl.employee.first_name|first }}{{ tl.employee.last_name|first }}
+                    </div><div><strong>{{ tl.employee.first_name }} {{ tl.employee.last_name }}</strong><br><small class="text-muted">{{ tl.employee.company_id }}</small></div></div></td><!-- DEPARTMENT --><td><span class="badge bg-secondary">{{ tl.employee.department }}</span></td><!-- MEMBERS --><td>
+                {% with members=tl.teamassignment_set.all %}
+                    {% if members %}
+                        {% for m in members|slice:":3" %}
+                            <span class="badge bg-light text-dark me-1">
+                                {{ m.employee.first_name }}
+                            </span>
+                        {% endfor %}
+
+                        {% if members|length> 3 %}
+                            <span class="text-muted">+{{ members|length|add:"-3" }} more</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">No Members</span>
+                    {% endif %}
+                {% endwith %}
+            </td><!-- PROJECTS --><td>
+                {% with projects=tl.projectassignment_set.all %}
+                    {% if projects %}
+                        {% for pr in projects|slice:":2" %}
+                            <span class="badge bg-info me-1">{{ pr.project_name }}</span>
+                        {% endfor %}
+
+                        {% if projects|length> 2 %}
+                            <span class="text-muted">+{{ projects|length|add:"-2" }} more</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">No Projects</span>
+                    {% endif %}
+                {% endwith %}
+            </td><!-- TEAM SIZE --><td><span class="badge bg-primary">{{ tl.teamassignment_set.count }}</span></td><!-- STATUS --><td><span class="badge bg-success">Active</span></td><!-- DATE --><td>{{ tl.created_at|date:"d M Y" }}</td><!-- ACTIONS --><td><div class="btn-group"><a class="btn btn-sm btn-outline-primary"
+                       onclick="openTLDetails({{ tl.id }})"><i class="fas fa-eye"></i></a><a class="btn btn-sm btn-outline-danger"
+                       onclick="confirmDelete({{ tl.id }})"><i class="fas fa-trash"></i></a></div></td></tr>
+        {% endfor %}
+    {% else %}
+        <tr><td colspan="8" class="text-center py-4 text-muted">No Team Leaders Found</td></tr>
+    {% endif %}
+</tbody></table></div></div><!-- Mobile Cards View --><div class="mobile-cards" id="mobileTeamCards"><!-- Mobile cards will be populated by JavaScript --></div><!-- Pagination Controls --><div
+          class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2"
+          id="paginationControls"><div><select
+              id="recordsPerPage"
+              class="form-select"
+              style="width: auto; display: inline-block"><option value="5">5 per page</option><option value="10" selected>10 per page</option><option value="25">25 per page</option><option value="50">50 per page</option></select></div><div id="pagination"></div></div><div class="text-center mt-2"><small class="text-muted" id="recordInfo"></small></div></div></div></div></main><!-- Create Team Leader Modal --><div class="modal fade" id="createTLModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><!-- HEADER --><div
+        class="modal-header"
+        style="
+          background: linear-gradient(135deg, var(--teal) 0%, #0a5c53 100%);
+          color: white;
+        "><h5 class="modal-title"><i class="fas fa-user-tie me-2"></i>Create Team Leader
+        </h5><button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"></button></div><!-- FORM --><form method="POST" action="{% url 'create-tl' %}">
+        {% csrf_token %}
+
+        <div class="modal-body"><div class="row"><!-- EMPLOYEE DROPDOWN --><div class="col-12 mb-3"><label class="form-label">Select Employee <span class="text-danger">*</span></label><select name="employee" class="form-select" required><option value="">Choose Employee</option>
+
+                {% for emp in employees %}
+                <option value="{{ emp.id }}">
+                  {{ emp.first_name }} {{ emp.last_name }} - {{ emp.company_id
+                  }}
+                </option>
+                {% endfor %}
+              </select></div><!-- EXPERIENCE --><div class="col-md-6 mb-3"><label class="form-label">Experience (Years)</label><input
+                type="number"
+                min="1"
+                max="50"
+                name="experience"
+                class="form-control"
+                required
+              /></div><!-- TEAM SIZE --><div class="col-md-6 mb-3"><label class="form-label">Team Size</label><select name="teamSize" class="form-select" required><option value="">Select Team Size</option><option value="2-5">2–5 Members</option><option value="5-10">5–10 Members</option><option value="10-15">10–15 Members</option><option value="15+">15+ Members</option></select></div><!-- RESPONSIBILITIES --><div class="col-12 mb-3"><label class="form-label">Responsibilities</label><textarea
+                name="responsibilities"
+                class="form-control"
+                rows="3"></textarea></div></div></div><!-- FOOTER --><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button><button
+            type="submit"
+            class="btn"
+            style="background-color: #008080; color: white">
+            Create Team Leader
+          </button></div></form></div></div></div><!-- BUTTON TO OPEN ASSIGN MODAL --><button
+  class="btn btn-primary mb-3"
+  data-bs-toggle="modal"
+  data-bs-target="#assignMemberModal">
+  Assign Members
+</button><!-- ASSIGN MEMBER MODAL --><div class="modal fade" id="assignMemberModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div
+        class="modal-header"
+        style="
+          background: linear-gradient(135deg, #008080 0%, #064b48 100%);
+          color: white;
+        "><h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Assign Members to Team Leader
+        </h5><button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"></button></div><form method="POST" action="{% url 'assign-member-submit' %}">
+        {% csrf_token %}
+        <div class="modal-body"><!-- TEAM LEADER DROPDOWN (must show leaders) --><div class="mb-3"><label class="form-label">Select Team Leader</label><select class="form-select" name="teamLeader" required><option value="">Choose Team Leader</option>
+              {% for tl in leaders %}
+              <option value="{{ tl.id }}">
+                {{ tl.employee.first_name }} {{ tl.employee.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+            {% if not leaders %}
+            <div class="small text-danger mt-1">
+              No Team Leaders found. Create one above first.
+            </div>
+            {% endif %}
+          </div><!-- EMPLOYEE CHECKBOXES --><div class="mb-3"><label class="form-label">Select Employees</label><div
+              class="border p-2 rounded"
+              style="max-height: 260px; overflow-y: auto">
+              {% for emp in employees %}
+              <div class="form-check mb-1"><input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="members"
+                  value="{{ emp.id }}"
+                  id="emp{{ emp.id }}"
+                /><label class="form-check-label" for="emp{{ emp.id }}">
+                  {{ emp.first_name }} {{ emp.last_name }} —
+                  <small class="text-muted">{{ emp.designation }}</small></label></div>
+              {% endfor %}
+            </div></div><!-- ROLE --><div class="mb-3"><label class="form-label">Role / Position</label><input type="text" name="role" class="form-control" required /></div><!-- DATE --><div class="mb-3"><label class="form-label">Assignment Date</label><input
+              type="date"
+              name="assignmentDate"
+              class="form-control"
+              required
+            /></div><!-- NOTES --><div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="3"></textarea></div></div><div class="modal-footer"><button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal">
+            Cancel
+          </button><button
+            type="submit"
+            class="btn"
+            style="background: #008080; color: white; border: none">
+            Assign Members
+          </button></div></form></div></div></div><!-- Assign Project Modal --><div class="modal fade" id="assignProjectModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><!-- HEADER --><div
+        class="modal-header"
+        style="
+          background: linear-gradient(135deg, var(--teal) 0%, #0a5c53 100%);
+          color: white;
+        "><h5 class="modal-title"><i class="fas fa-project-diagram me-2"></i>Assign Project to Team
+        </h5><button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"></button></div><!-- FORM --><form method="POST" action="{% url 'assign-project-submit' %}">
+        {% csrf_token %}
+        <div class="modal-body"><div class="row"><!-- PROJECT NAME --><div class="col-md-6"><div class="mb-3"><label class="form-label">Project Name <span class="text-danger">*</span></label><input
+                  type="text"
+                  class="form-control"
+                  name="projectName"
+                  required
+                /></div></div><!-- PROJECT CODE --><div class="col-md-6"><div class="mb-3"><label class="form-label">Project Code <span class="text-danger">*</span></label><input
+                  type="text"
+                  class="form-control"
+                  name="projectCode"
+                  required
+                /></div></div><!-- TEAM LEADER DROPDOWN --><div class="col-md-6"><div class="mb-3"><label class="form-label">
+                  Assign to Team Leader <span class="text-danger">*</span></label><select
+                  class="form-select"
+                  name="teamLeaderId"
+                  required
+                  onchange="loadTeamMembers()"><option value="">Choose Team Leader</option>
+
+                  {% for tl in leaders %}
+                  <option value="{{ tl.id }}">
+                    {{ tl.employee.first_name }} {{ tl.employee.last_name }} -
+                    {{ tl.employee.department }} ({{ tl.employee.company_id }})
+                  </option>
+                  {% endfor %}
+                </select></div></div><!-- PRIORITY --><div class="col-md-6"><div class="mb-3"><label class="form-label">Priority <span class="text-danger">*</span></label><select class="form-select" name="priority" required><option value="">Select Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div></div><!-- START DATE --><div class="col-md-6"><div class="mb-3"><label class="form-label">Start Date <span class="text-danger">*</span></label><input
+                  type="date"
+                  class="form-control"
+                  name="startDate"
+                  required
+                /></div></div><!-- END DATE --><div class="col-md-6"><div class="mb-3"><label class="form-label">End Date <span class="text-danger">*</span></label><input
+                  type="date"
+                  class="form-control"
+                  name="endDate"
+                  required
+                /></div></div><!-- DESCRIPTION --><div class="col-12"><div class="mb-3"><label class="form-label">Project Description <span class="text-danger">*</span></label><textarea
+                  class="form-control"
+                  name="description"
+                  rows="3"
+                  required></textarea></div></div><!-- TEAM MEMBERS AUTO-LOAD AREA --><div class="col-12"><div class="mb-3"><label class="form-label">Required Team Members</label><div class="row" id="teamMembersChecklist"><!-- Members will load here via AJAX when TL is selected --><p class="text-muted">
+                    Select a Team Leader to load members...
+                  </p></div></div></div></div></div><!-- FOOTER --><div class="modal-footer"><button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal">
+            Cancel
+          </button><button
+            type="submit"
+            class="btn"
+            style="background: #008080; color: white">
+            Assign Project
+          </button></div></form></div></div></div><!-- Member Details Modal --><div class="modal fade" id="memberDetailsModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div
+        class="modal-header"
+        style="
+          background: linear-gradient(135deg, var(--teal) 0%, #0a5c53 100%);
+          color: white;
+        "><h5 class="modal-title"><i class="fas fa-user me-2"></i>Member Details
+        </h5><button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"></button></div><div class="modal-body" id="memberDetailsContent"><!-- Member details will be populated by JavaScript --></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button><button type="button" class="btn btn-primary" onclick="editMember()">
+          Edit Details
+        </button></div></div></div></div><!-- TEAM LEADER DETAILS MODAL --><div class="modal fade" id="tlDetailsModal" tabindex="-1"><div class="modal-dialog modal-lg"><!-- REDUCED WIDTH --><div class="modal-content" style="border-radius: 14px; overflow: hidden"><!-- HEADER --><div
+        class="modal-header"
+        style="
+          background: linear-gradient(135deg, #007b7b, #005f5f);
+          color: white;
+        "><h5 class="modal-title fw-bold"><i class="fas fa-user-tie me-2"></i>Team Leader Details
+        </h5><button
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"></button></div><!-- BODY --><div class="modal-body" style="background: #f4f7f7"><div class="row g-4"><!-- LEFT PROFILE PANEL --><div class="col-md-4"><div class="card shadow border-0" style="border-radius: 14px"><div class="card-body text-center p-4"><img
+                  id="tlImage"
+                  src=""
+                  class="rounded-circle border border-3 shadow"
+                  style="width: 140px; height: 140px; object-fit: cover"
+                /><h4 id="tlName" class="mt-3 fw-bold text-dark"></h4><p id="tlCompanyId" class="text-muted mb-1"></p><span
+                  id="tlDesignation"
+                  class="badge"
+                  style="
+                    background: #007b7b;
+                    font-size: 0.85rem;
+                    padding: 6px 12px;
+                    border-radius: 8px;
+                  "></span><hr class="my-3" /><div class="text-start px-2 small"><p class="mb-2"><strong>Department:</strong><br /><span id="tlDepartment" class="text-muted"></span></p><p class="mb-2"><strong>Experience:</strong><br /><span id="tlExperience" class="text-muted"></span></p></div></div></div></div><!-- RIGHT SIDE --><div class="col-md-8"><!-- RESPONSIBILITIES --><div
+              class="card border-0 shadow-sm mb-3"
+              style="border-radius: 14px"><div class="card-body p-3"><h5 class="fw-bold text-dark mb-2" style="font-size: 1.05rem"><i class="fas fa-tasks me-2 text-teal"></i> Responsibilities
+                </h5><p
+                  id="tlResponsibilities"
+                  class="small"
+                  style="line-height: 1.5"></p></div></div><!-- PROJECTS --><div
+              class="card border-0 shadow-sm mb-3"
+              style="border-radius: 14px"><div class="card-body p-3"><h5 class="fw-bold text-dark mb-2" style="font-size: 1.05rem"><i class="fas fa-project-diagram me-2 text-teal"></i> Assigned
+                  Projects
+                </h5><ul
+                  id="tlProjects"
+                  class="list-group list-group-flush small"
+                  style="max-height: 180px; overflow-y: auto"><!-- Dynamic Projects --></ul></div></div><!-- TEAM MEMBERS --><div class="card border-0 shadow-sm" style="border-radius: 14px"><div class="card-body p-3"><h5 class="fw-bold text-dark mb-2" style="font-size: 1.05rem"><i class="fas fa-users me-2 text-teal"></i> Team Members
+                </h5><div
+                  id="tlMembers"
+                  class="row g-2"
+                  style="max-height: 200px; overflow-y: auto"><!-- Dynamic Members --></div></div></div></div></div></div><!-- FOOTER --><div class="modal-footer" style="background: #eef2f2"><button class="btn btn-secondary px-4" data-bs-dismiss="modal">
+          Close
+        </button></div></div></div></div><style>
+  .text-teal {
+    color: #007b7b;
+  }
+</style><script>
+  function confirmDelete(tlId) {
+    if (confirm("Are you sure you want to delete this Team Leader?")) {
+      window.location.href = "/delete-team-leader/" + tlId + "/";
+    }
+  }
+</script><script>
+  function openTLDetails(tl_id) {
+    fetch(`/team-leader/details/${tl_id}/`)
+      .then((response) => response.json())
+      .then((resp) => {
+        let data = resp.data;
+
+        // TL DETAILS
+        document.getElementById("tlName").innerText = data.name;
+        document.getElementById("tlCompanyId").innerText = data.company_id;
+        document.getElementById("tlDesignation").innerText = data.designation;
+        document.getElementById("tlDepartment").innerText = data.department;
+        document.getElementById("tlExperience").innerText =
+          data.experience + " Years";
+        document.getElementById("tlResponsibilities").innerText =
+          data.responsibilities;
+
+        document.getElementById("tlImage").src = data.image
+          ? data.image
+          : "/static/default-user.png";
+
+        // TEAM MEMBERS
+        let membersDiv = document.getElementById("tlMembers");
+        membersDiv.innerHTML = "";
+
+        data.members.forEach((m) => {
+          membersDiv.innerHTML += `
+                    <div class="col-md-4 text-center"><img src="${m.image}" class="rounded-circle border mb-2" 
+                             style="width:70px;height:70px;object-fit:cover;"><h6 class="mb-0">${m.name}</h6><small class="text-muted">${m.company_id}</small><br><span class="badge bg-secondary">${m.designation}</span></div>
+                `;
+        });
+
+        // PROJECTS
+        let projList = document.getElementById("tlProjects");
+        projList.innerHTML = "";
+
+        data.projects.forEach((p) => {
+          projList.innerHTML += `
+                    <li class="list-group-item"><strong>${p.name}</strong><span class="badge bg-info ms-2">${p.priority}</span><br><small>Code: ${p.code} | ${p.start_date} - ${p.end_date}</small></li>
+                `;
+        });
+
+        // OPEN MODAL
+        let modal = new bootstrap.Modal(
+          document.getElementById("tlDetailsModal")
+        );
+        modal.show();
+      });
+  }
+</script><script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchInput");
+    const departmentFilter = document.getElementById("departmentFilter");
+    const statusFilter = document.getElementById("statusFilter");
+
+    const rows = document.querySelectorAll("table tbody tr");
+
+    function filterTable() {
+      const searchValue = searchInput.value.toLowerCase().trim();
+      const departmentValue = departmentFilter.value.toLowerCase();
+      const statusValue = statusFilter.value.toLowerCase();
+
+      rows.forEach((row) => {
+        // Extract all required columns
+        const leaderName = row
+          .querySelector("td:nth-child(1)")
+          .innerText.toLowerCase();
+        const department = row
+          .querySelector("td:nth-child(2)")
+          .innerText.toLowerCase();
+        const members = row
+          .querySelector("td:nth-child(3)")
+          .innerText.toLowerCase();
+        const projects = row
+          .querySelector("td:nth-child(4)")
+          .innerText.toLowerCase();
+        const status = row
+          .querySelector("td:nth-child(6)")
+          .innerText.toLowerCase();
+
+        // Search Conditions
+        const matchSearch =
+          leaderName.includes(searchValue) ||
+          department.includes(searchValue) ||
+          members.includes(searchValue) ||
+          projects.includes(searchValue);
+
+        const matchDepartment =
+          !departmentValue || department.includes(departmentValue);
+
+        const matchStatus = !statusValue || status.includes(statusValue);
+
+        if (matchSearch && matchDepartment && matchStatus) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+
+    // Run filter on input change
+    searchInput.addEventListener("input", filterTable);
+    departmentFilter.addEventListener("change", filterTable);
+    statusFilter.addEventListener("change", filterTable);
+  });
+</script><script>
+  function loadTeamMembers() {
+    let tl = document.querySelector("select[name='teamLeaderId']").value;
+
+    if (tl === "") {
+      document.getElementById("teamMembersChecklist").innerHTML =
+        "<p class='text-muted'>Select a Team Leader to load members...</p>";
+      return;
+    }
+
+    fetch(`/get-team-members/?leader_id=${tl}`)
+      .then((res) => res.json())
+      .then((data) => {
+        let area = document.getElementById("teamMembersChecklist");
+        area.innerHTML = "";
+
+        if (data.members.length === 0) {
+          area.innerHTML =
+            "<p class='text-danger'>No members assigned to this Team Leader.</p>";
+          return;
+        }
+
+        data.members.forEach((m) => {
+          area.innerHTML += `
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input"
+                                   type="checkbox"
+                                   name="members"
+                                   value="${m.id}"><label class="form-check-label">
+                                ${m.name} - ${m.designation}
+                            </label></div></div>`;
+        });
+      });
+  }
+</script><script>
+  // Global variables
+  let teamData = [];
+  let filteredData = [];
+  let currentPage = 1;
+  let recordsPerPage = 10;
+  let sortDirection = "asc";
+  let sortColumn = 0;
+
+  // Initialize team data
+  const sampleTeamData = [
+    {
+      id: "TL001",
+      name: "Alice Brown",
+      role: "Engineering Team Lead",
+      department: "Engineering",
+      teamSize: 5,
+      teamMembers: [
+        { id: "EMP001", name: "John Doe", role: "Senior Developer" },
+        { id: "EMP003", name: "Mike Johnson", role: "Backend Developer" },
+        { id: "EMP005", name: "David Chen", role: "DevOps Engineer" },
+        { id: "EMP009", name: "Alex Rodriguez", role: "Frontend Developer" },
+        { id: "EMP011", name: "Tom Wilson", role: "QA Engineer" },
+      ],
+      projects: [
+        { name: "CRM System Upgrade", status: "Active", priority: "High" },
+        { name: "Mobile App v2.0", status: "Active", priority: "Medium" },
+        { name: "API Integration", status: "Planning", priority: "Low" },
+      ],
+      status: "active",
+      tlSince: "2022-01-01",
+      email: "alice.brown@company.com",
+      phone: "+1-555-0201",
+      experience: 8,
+    },
+    {
+      id: "TL002",
+      name: "Bob Davis",
+      role: "Design Team Lead",
+      department: "Design",
+      teamSize: 3,
+      teamMembers: [
+        { id: "EMP002", name: "Jane Smith", role: "UI/UX Designer" },
+        { id: "EMP010", name: "Maria Garcia", role: "Visual Designer" },
+        { id: "EMP013", name: "Kevin Lee", role: "Brand Designer" },
+      ],
+      projects: [
+        { name: "Design System Update", status: "Active", priority: "High" },
+        { name: "Brand Refresh", status: "Planning", priority: "Medium" },
+      ],
+      status: "active",
+      tlSince: "2022-03-15",
+      email: "bob.davis@company.com",
+      phone: "+1-555-0202",
+      experience: 6,
+    },
+    {
+      id: "TL003",
+      name: "Carol Johnson",
+      role: "Marketing Team Lead",
+      department: "Marketing",
+      teamSize: 4,
+      teamMembers: [
+        { id: "EMP004", name: "Sarah Wilson", role: "Marketing Specialist" },
+        {
+          id: "EMP006",
+          name: "Emily Davis",
+          role: "Product Marketing Manager",
+        },
+        { id: "EMP012", name: "James Taylor", role: "Content Creator" },
+        { id: "EMP015", name: "Lisa Wang", role: "Social Media Manager" },
+      ],
+      projects: [
+        { name: "Q4 Campaign Launch", status: "Active", priority: "High" },
+        { name: "SEO Optimization", status: "Active", priority: "Medium" },
+        { name: "Partner Portal", status: "Planning", priority: "Low" },
+      ],
+      status: "active",
+      tlSince: "2022-02-10",
+      email: "carol.johnson@company.com",
+      phone: "+1-555-0203",
+      experience: 7,
+    },
+    {
+      id: "TL004",
+      name: "Michael Thompson",
+      role: "Sales Team Lead",
+      department: "Sales",
+      teamSize: 6,
+      teamMembers: [
+        { id: "EMP007", name: "Robert Brown", role: "Sales Representative" },
+        { id: "EMP014", name: "Jennifer White", role: "Account Manager" },
+        { id: "EMP016", name: "Daniel Kim", role: "Sales Executive" },
+        { id: "EMP018", name: "Rachel Green", role: "Business Development" },
+        { id: "EMP019", name: "Mark Davis", role: "Sales Representative" },
+        { id: "EMP021", name: "Nancy Clark", role: "Sales Coordinator" },
+      ],
+      projects: [
+        { name: "Enterprise Sales Drive", status: "Active", priority: "High" },
+        { name: "CRM Migration", status: "Active", priority: "Medium" },
+        { name: "Sales Training Program", status: "Planning", priority: "Low" },
+      ],
+      status: "active",
+      tlSince: "2021-11-20",
+      email: "michael.thompson@company.com",
+      phone: "+1-555-0204",
+      experience: 9,
+    },
+    {
+      id: "TL005",
+      name: "Amanda Wilson",
+      role: "HR Team Lead",
+      department: "HR",
+      teamSize: 3,
+      teamMembers: [
+        { id: "EMP008", name: "Lisa Anderson", role: "HR Specialist" },
+        { id: "EMP017", name: "Steve Miller", role: "Recruiter" },
+        { id: "EMP020", name: "Patricia Brown", role: "HR Analyst" },
+      ],
+      projects: [
+        {
+          name: "Employee Engagement Program",
+          status: "Active",
+          priority: "Medium",
+        },
+        {
+          name: "Performance Review System",
+          status: "Planning",
+          priority: "Low",
+        },
+      ],
+      status: "active",
+      tlSince: "2023-01-15",
+      email: "amanda.wilson@company.com",
+      phone: "+1-555-0205",
+      experience: 5,
+    },
+    {
+      id: "TL006",
+      name: "David Martinez",
+      role: "Finance Team Lead",
+      department: "Finance",
+      teamSize: 4,
+      teamMembers: [
+        { id: "EMP022", name: "Susan Taylor", role: "Financial Analyst" },
+        { id: "EMP023", name: "Paul Johnson", role: "Accountant" },
+        { id: "EMP024", name: "Helen Davis", role: "Budget Manager" },
+        { id: "EMP025", name: "George Wilson", role: "Financial Coordinator" },
+      ],
+      projects: [
+        { name: "Budget Planning FY2024", status: "Active", priority: "High" },
+        {
+          name: "Expense Management System",
+          status: "Planning",
+          priority: "Medium",
+        },
+      ],
+      status: "active",
+      tlSince: "2022-08-01",
+      email: "david.martinez@company.com",
+      phone: "+1-555-0206",
+      experience: 10,
+    },
+  ];
+
+  // Initialize dashboard
+  document.addEventListener("DOMContentLoaded", function () {
+    teamData = [...sampleTeamData];
+    filteredData = [...teamData];
+    updateStatistics();
+    renderTeamTable();
+    renderMobileCards();
+    renderChart();
+    setupEventListeners();
+  });
+
+  // Setup event listeners
+  function setupEventListeners() {
+    // Search input
+    document
+      .getElementById("searchInput")
+      .addEventListener("input", function () {
+        filterData();
+      });
+
+    // Filters
+    document
+      .getElementById("departmentFilter")
+      .addEventListener("change", function () {
+        filterData();
+      });
+
+    document
+      .getElementById("statusFilter")
+      .addEventListener("change", function () {
+        filterData();
+      });
+
+    // Records per page
+    document
+      .getElementById("recordsPerPage")
+      .addEventListener("change", function () {
+        recordsPerPage = parseInt(this.value);
+        currentPage = 1;
+        renderTeamTable();
+        renderMobileCards();
+        updatePagination();
+        updateRecordInfo();
+      });
+
+    // Sort headers
+    const headers = document.querySelectorAll(".table th");
+    headers.forEach((header, index) => {
+      if (index < 7) {
+        // Only clickable columns
+        header.style.cursor = "pointer";
+        header.style.userSelect = "none";
+      }
+    });
+  }
+
+  // Update statistics
+  function updateStatistics() {
+    const totalTeamLeads = teamData.length;
+    const totalTeamMembers = teamData.reduce((sum, tl) => sum + tl.teamSize, 0);
+    const activeProjects = teamData.reduce(
+      (sum, tl) =>
+        sum + tl.projects.filter((p) => p.status === "Active").length,
+      0
+    );
+    const avgProductivity = 87; // Sample data
+
+    document.getElementById("totalTeamMembers").textContent = totalTeamMembers;
+    document.getElementById("totalTeamLeads").textContent = totalTeamLeads;
+    document.getElementById("activeProjects").textContent = activeProjects;
+    document.getElementById("avgProductivity").textContent =
+      avgProductivity + "%";
+  }
+
+  // Filter data based on search and filters
+  function filterData() {
+    const searchTerm = document
+      .getElementById("searchInput")
+      .value.toLowerCase();
+    const departmentFilter = document.getElementById("departmentFilter").value;
+    const statusFilter = document.getElementById("statusFilter").value;
+
+    filteredData = teamData.filter((tl) => {
+      const memberNames = tl.teamMembers
+        .map((member) => member.name)
+        .join(" ")
+        .toLowerCase();
+      const projectNames = tl.projects
+        .map((project) => project.name)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch =
+        tl.name.toLowerCase().includes(searchTerm) ||
+        tl.role.toLowerCase().includes(searchTerm) ||
+        memberNames.includes(searchTerm) ||
+        projectNames.includes(searchTerm) ||
+        tl.department.toLowerCase().includes(searchTerm);
+      const matchesDepartment =
+        !departmentFilter || tl.department === departmentFilter;
+      const matchesStatus = !statusFilter || tl.status === statusFilter;
+
+      return matchesSearch && matchesDepartment && matchesStatus;
+    });
+
+    currentPage = 1;
+    renderTeamTable();
+    renderMobileCards();
+    updatePagination();
+    updateRecordInfo();
+  }
+
+  // Sort table
+  function sortTable(columnIndex) {
+    const headers = [
+      "name",
+      "department",
+      "teamMembers",
+      "projects",
+      "teamSize",
+      "status",
+      "tlSince",
+    ];
+    const header = headers[columnIndex];
+
+    if (sortColumn === columnIndex) {
+      sortDirection = sortDirection === "asc" ? "desc" : "asc";
+    } else {
+      sortColumn = columnIndex;
+      sortDirection = "asc";
+    }
+
+    filteredData.sort((a, b) => {
+      let aVal = a[header];
+      let bVal = b[header];
+
+      if (header === "tlSince") {
+        aVal = new Date(aVal);
+        bVal = new Date(bVal);
+      } else if (header === "teamSize") {
+        aVal = parseInt(aVal);
+        bVal = parseInt(bVal);
+      } else if (header === "teamMembers") {
+        aVal = a.teamMembers.length;
+        bVal = b.teamMembers.length;
+      } else if (header === "projects") {
+        aVal = a.projects.length;
+        bVal = b.projects.length;
+      } else {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal> bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    renderTeamTable();
+    renderMobileCards();
+    updateSortIcons();
+  }
+
+  // Update sort icons
+  function updateSortIcons() {
+    const headers = document.querySelectorAll(".table th i");
+    headers.forEach((icon) => {
+      icon.className = "fas fa-sort ms-1";
+    });
+
+    if (sortColumn < 7) {
+      const activeHeader = document.querySelectorAll(".table th")[sortColumn];
+      const icon = activeHeader.querySelector("i");
+      icon.className =
+        sortDirection === "asc"
+          ? "fas fa-sort-up ms-1"
+          : "fas fa-sort-down ms-1";
+    }
+  }
+
+  // Get project priority badge
+  function getProjectPriorityBadge(priority) {
+    switch (priority.toLowerCase()) {
+      case "high":
+        return "bg-danger";
+      case "medium":
+        return "bg-warning";
+      case "low":
+        return "bg-success";
+      default:
+        return "bg-secondary";
+    }
+  }
+
+  // Render team table
+  function renderTeamTable() {
+    const tbody = document.getElementById("teamTableBody");
+    const startIndex = (currentPage - 1) * recordsPerPage;
+    const endIndex = startIndex + recordsPerPage;
+    const pageData = filteredData.slice(startIndex, endIndex);
+
+    if (pageData.length === 0) {
+      tbody.innerHTML = `
+      <tr><td colspan="8" class="text-center py-5"><div class="table-empty-state"><i class="fas fa-users-cog"></i><h6>No team leaders found</h6><p>Try adjusting your search criteria or filters</p></div></td></tr>
+    `;
+      return;
+    }
+
+    tbody.innerHTML = pageData
+      .map(
+        (tl) => `
+    <tr><td><div class="employee-info"><div class="avatar tl-avatar">
+            ${tl.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </div><div class="employee-details"><h6>${tl.name}</h6><small>${tl.id} • ${tl.role}</small></div></div></td><td><span class="badge bg-light">${tl.department}</span></td><td><div class="team-members-list">
+          ${tl.teamMembers
+            .slice(0, 3)
+            .map(
+              (member) => `
+            <div class="team-member-mini"><span class="member-avatar">${member.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}</span><span class="member-name">${member.name}</span></div>
+          `
+            )
+            .join("")}
+          ${
+            tl.teamMembers.length> 3
+              ? `<div class="more-members">+${
+                  tl.teamMembers.length - 3
+                } more</div>`
+              : ""
+          }
+        </div></td><td><div class="projects-list">
+          ${tl.projects
+            .slice(0, 2)
+            .map(
+              (project) => `
+            <div class="project-item"><span class="badge ${getProjectPriorityBadge(
+                project.priority
+              )}">${project.name}</span></div>
+          `
+            )
+            .join("")}
+          ${
+            tl.projects.length> 2
+              ? `<div class="more-projects">+${
+                  tl.projects.length - 2
+                } more</div>`
+              : ""
+          }
+        </div></td><td><div class="team-size-display"><span class="badge bg-info">${tl.teamSize}</span><small class="text-muted">members</small></div></td><td><span class="badge ${getStatusBadge(tl.status)}">${tl.status}</span></td><td><span style="font-weight: 500; color: #4a5568;">${formatDate(
+          tl.tlSince
+        )}</span></td><td><div class="btn-group"><button class="btn btn-outline-primary" onclick="viewTeamLeaderDetails('${
+            tl.id
+          }')" title="View Details"><i class="fas fa-eye"></i></button><button class="btn btn-outline-success" onclick="assignTeamMember('${
+            tl.id
+          }')" title="Assign Member"><i class="fas fa-user-plus"></i></button><button class="btn btn-outline-info" onclick="assignProjectToTL('${
+            tl.id
+          }')" title="Assign Project"><i class="fas fa-project-diagram"></i></button><button class="btn btn-outline-secondary" onclick="editTeamLeader('${
+            tl.id
+          }')" title="Edit TL"><i class="fas fa-edit"></i></button></div></td></tr>
+  `
+      )
+      .join("");
+  }
+
+  // Render mobile cards
+  function renderMobileCards() {
+    const container = document.getElementById("mobileTeamCards");
+    const startIndex = (currentPage - 1) * recordsPerPage;
+    const endIndex = startIndex + recordsPerPage;
+    const pageData = filteredData.slice(startIndex, endIndex);
+
+    if (pageData.length === 0) {
+      container.innerHTML = `
+      <div class="employee-card text-center py-5"><div class="table-empty-state"><i class="fas fa-users-cog"></i><h6>No team leaders found</h6><p>Try adjusting your search criteria or filters</p></div></div>
+    `;
+      return;
+    }
+
+    container.innerHTML = pageData
+      .map(
+        (tl) => `
+    <div class="employee-card"><div class="d-flex justify-content-between align-items-start mb-2"><div class="d-flex align-items-center"><div class="avatar tl-avatar" style="width: 50px; height: 50px;">
+            ${tl.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </div><div><h6 class="mb-0">${tl.name}</h6><small class="text-muted">${tl.id} • ${tl.role}</small></div></div><span class="badge ${getStatusBadge(tl.status)}">${tl.status}</span></div><div class="row text-sm mb-3"><div class="col-6"><strong>Department:</strong><br>${tl.department}
+        </div><div class="col-6"><strong>Team Size:</strong><br>${tl.teamSize} members
+        </div><div class="col-12"><strong>Team Members:</strong><br>
+          ${tl.teamMembers
+            .map(
+              (member) =>
+                `<span class="badge bg-light me-1 mb-1">${member.name}</span>`
+            )
+            .join("")}
+        </div><div class="col-12"><strong>Active Projects:</strong><br>
+          ${tl.projects
+            .filter((p) => p.status === "Active")
+            .map(
+              (project) =>
+                `<span class="badge ${getProjectPriorityBadge(
+                  project.priority
+                )} me-1 mb-1">${project.name}</span>`
+            )
+            .join("")}
+        </div><div class="col-6"><strong>TL Since:</strong><br>${formatDate(tl.tlSince)}
+        </div></div><div class="mt-3 d-flex gap-2"><button class="btn btn-sm btn-outline-primary flex-fill" onclick="viewTeamLeaderDetails('${
+          tl.id
+        }')"><i class="fas fa-eye me-1"></i>View Details
+        </button><button class="btn btn-sm btn-outline-success flex-fill" onclick="assignTeamMember('${
+          tl.id
+        }')"><i class="fas fa-user-plus me-1"></i>Add Member
+        </button><button class="btn btn-sm btn-outline-info flex-fill" onclick="assignProjectToTL('${
+          tl.id
+        }')"><i class="fas fa-project-diagram me-1"></i>Assign Project
+        </button></div></div>
+  `
+      )
+      .join("");
+  }
+
+  // Get status badge class
+  function getStatusBadge(status) {
+    switch (status) {
+      case "active":
+        return "bg-success";
+      case "inactive":
+        return "bg-secondary";
+      case "on-leave":
+        return "bg-warning";
+      default:
+        return "bg-secondary";
+    }
+  }
+
+  // Format date
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  // Update pagination
+  function updatePagination() {
+    const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+    const pagination = document.getElementById("pagination");
+
+    let paginationHTML = "";
+
+    // Previous button
+    paginationHTML += `
+    <button class="btn btn-sm btn-outline-primary me-1" onclick="changePage(${
+      currentPage - 1
+    })" ${currentPage === 1 ? "disabled" : ""}><i class="fas fa-chevron-left"></i></button>
+  `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i>= currentPage - 1 && i <= currentPage + 1)
+      ) {
+        paginationHTML += `
+        <button class="btn btn-sm ${
+          i === currentPage ? "btn-primary" : "btn-outline-primary"
+        } me-1" onclick="changePage(${i})">
+          ${i}
+        </button>
+      `;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        paginationHTML += '<span class="me-1">...</span>';
+      }
+    }
+
+    // Next button
+    paginationHTML += `
+    <button class="btn btn-sm btn-outline-primary" onclick="changePage(${
+      currentPage + 1
+    })" ${currentPage === totalPages ? "disabled" : ""}><i class="fas fa-chevron-right"></i></button>
+  `;
+
+    pagination.innerHTML = paginationHTML;
+  }
+
+  // Change page
+  function changePage(page) {
+    const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+    if (page>= 1 && page <= totalPages) {
+      currentPage = page;
+      renderTeamTable();
+      renderMobileCards();
+      updatePagination();
+      updateRecordInfo();
+    }
+  }
+
+  // Update record info
+  function updateRecordInfo() {
+    const startIndex = (currentPage - 1) * recordsPerPage + 1;
+    const endIndex = Math.min(
+      currentPage * recordsPerPage,
+      filteredData.length
+    );
+    const recordInfo = document.getElementById("recordInfo");
+
+    if (filteredData.length === 0) {
+      recordInfo.textContent = "No records found";
+    } else {
+      recordInfo.textContent = `Showing ${startIndex} to ${endIndex} of ${filteredData.length} records`;
+    }
+  }
+
+  // Render performance chart
+  function renderChart() {
+    const ctx = document
+      .getElementById("teamPerformanceChart")
+      .getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        datasets: [
+          {
+            label: "Team Productivity %",
+            data: [78, 82, 85, 88, 87, 92],
+            backgroundColor: "rgba(11, 115, 104, 0.8)",
+            borderColor: "rgba(11, 115, 104, 1)",
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function (value) {
+                return value + "%";
+              },
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
+      },
+    });
+  }
+
+  // Modal functions
+  function openCreateTLModal() {
+    try {
+      const modalElement = document.getElementById("createTLModal");
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      } else {
+        console.error("Create TL Modal element not found");
+        alert(
+          "Error: Modal element not found. Please refresh the page and try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error opening Create TL modal:", error);
+      alert("Error opening modal. Please check console for details.");
+    }
+  }
+
+  function openAssignMemberModal() {
+    try {
+      const modalElement = document.getElementById("assignMemberModal");
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      } else {
+        console.error("Assign Member Modal element not found");
+        alert(
+          "Error: Modal element not found. Please refresh the page and try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error opening Assign Member modal:", error);
+      alert("Error opening modal. Please check console for details.");
+    }
+  }
+
+  function openAssignProjectModal() {
+    try {
+      const modalElement = document.getElementById("assignProjectModal");
+      if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      } else {
+        console.error("Assign Project Modal element not found");
+        alert(
+          "Error: Modal element not found. Please refresh the page and try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error opening Assign Project modal:", error);
+      alert("Error opening modal. Please check console for details.");
+    }
+  }
+
+  // Form submission functions
+  function createTL() {
+    const form = document.getElementById("createTLForm");
+    const formData = new FormData(form);
+
+    // Add validation
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    // Create new team leader data
+    const tlData = {};
+    for (let [key, value] of formData.entries()) {
+      tlData[key] = value;
+    }
+
+    console.log("Creating Team Leader:", tlData);
+    alert("Team Leader created successfully!");
+
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("createTLModal")
+    );
+    modal.hide();
+    form.reset();
+  }
+
+  function assignMember() {
+    const form = document.getElementById("assignMemberForm");
+    const formData = new FormData(form);
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const memberData = {};
+    for (let [key, value] of formData.entries()) {
+      memberData[key] = value;
+    }
+
+    console.log("Assigning Member:", memberData);
+    alert("Member assigned to team successfully!");
+
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("assignMemberModal")
+    );
+    modal.hide();
+    form.reset();
+  }
+
+  function assignProject() {
+    const form = document.getElementById("assignProjectForm");
+    const formData = new FormData(form);
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const projectData = {};
+    for (let [key, value] of formData.entries()) {
+      projectData[key] = value;
+    }
+
+    // Get selected team members
+    const selectedMembers = [];
+    document
+      .querySelectorAll('#teamMembersChecklist input[type="checkbox"]:checked')
+      .forEach((checkbox) => {
+        selectedMembers.push(checkbox.value);
+      });
+    projectData.selectedMembers = selectedMembers;
+
+    console.log("Assigning Project:", projectData);
+    alert("Project assigned to team successfully!");
+
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("assignProjectModal")
+    );
+    modal.hide();
+    form.reset();
+    document
+      .querySelectorAll('#teamMembersChecklist input[type="checkbox"]')
+      .forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+  }
+
+  // Team Leader action functions
+  function viewTeamLeaderDetails(tlId) {
+    const tl = teamData.find((t) => t.id === tlId);
+    if (!tl) return;
+
+    const modal = new bootstrap.Modal(
+      document.getElementById("memberDetailsModal")
+    );
+    const content = document.getElementById("memberDetailsContent");
+
+    content.innerHTML = `
+    <div class="row"><div class="col-md-4 text-center"><div class="avatar tl-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2rem;">
+          ${tl.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")}
+        </div><h5>${tl.name}</h5><p class="text-muted">${tl.id}</p></div><div class="col-md-8"><div class="row"><div class="col-sm-6 mb-3"><strong>Role:</strong><br>${tl.role}
+          </div><div class="col-sm-6 mb-3"><strong>Department:</strong><br>${tl.department}
+          </div><div class="col-sm-6 mb-3"><strong>Team Size:</strong><br>${tl.teamSize} members
+          </div><div class="col-sm-6 mb-3"><strong>Email:</strong><br>${tl.email}
+          </div><div class="col-sm-6 mb-3"><strong>Phone:</strong><br>${tl.phone}
+          </div><div class="col-sm-6 mb-3"><strong>Experience:</strong><br>${tl.experience} years
+          </div><div class="col-sm-6 mb-3"><strong>Status:</strong><br><span class="badge ${getStatusBadge(
+              tl.status
+            )}">${tl.status}</span></div><div class="col-sm-6 mb-3"><strong>Active Projects:</strong><br>${
+              tl.projects.filter((p) => p.status === "Active").length
+            }
+          </div><div class="col-sm-6 mb-3"><strong>TL Since:</strong><br>${formatDate(tl.tlSince)}
+          </div></div><div class="row mt-3"><div class="col-12"><strong>Team Members:</strong><div class="mt-2">
+              ${tl.teamMembers
+                .map(
+                  (member) => `
+                <span class="badge bg-light text-dark me-1 mb-1">${member.name} - ${member.role}</span>
+              `
+                )
+                .join("")}
+            </div></div><div class="col-12 mt-3"><strong>Current Projects:</strong><div class="mt-2">
+              ${tl.projects
+                .map(
+                  (project) => `
+                <div class="mb-2"><span class="badge ${getProjectPriorityBadge(
+                    project.priority
+                  )} me-1">${project.name}</span><small class="text-muted">(${project.status} - ${
+                    project.priority
+                  })</small></div>
+              `
+                )
+                .join("")}
+            </div></div></div></div></div>
+  `;
+
+    modal.show();
+  }
+
+  function assignTeamMember(tlId) {
+    console.log("Assigning team member to TL:", tlId);
+    openAssignMemberModal();
+    // Pre-select the TL in the modal
+    setTimeout(() => {
+      const tlSelect = document.querySelector(
+        '#assignMemberForm select[name="teamLeaderId"]'
+      );
+      if (tlSelect) {
+        tlSelect.value = tlId;
+      }
+    }, 100);
+  }
+
+  function assignProjectToTL(tlId) {
+    console.log("Assigning project to TL:", tlId);
+    openAssignProjectModal();
+    // Pre-select the TL in the modal
+    setTimeout(() => {
+      const tlSelect = document.querySelector(
+        '#assignProjectForm select[name="teamLeaderId"]'
+      );
+      if (tlSelect) {
+        tlSelect.value = tlId;
+      }
+    }, 100);
+  }
+
+  function editTeamLeader(tlId) {
+    console.log("Editing team leader:", tlId);
+    alert("Edit Team Leader functionality would open here");
+  }
+
+  // Legacy member functions (kept for compatibility)
+  function viewMemberDetails(memberId) {
+    console.log("Legacy view member function called:", memberId);
+  }
+
+  function editMember(memberId) {
+    console.log("Legacy edit member function called:", memberId);
+    alert("Edit functionality would open here");
+  }
+
+  function deleteMember(memberId) {
+    console.log("Legacy delete member function called:", memberId);
+    if (confirm("Are you sure you want to delete this member?")) {
+      alert("Delete functionality would open here");
+    }
+  }
+
+  // Sidebar toggle and profile functions
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const menuToggle = document.getElementById("menuToggle");
+
+  menuToggle.onclick = () => {
+    if (sidebar.classList.contains("open")) {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    } else {
+      sidebar.classList.add("open");
+      overlay.classList.add("show");
+    }
+  };
+
+  overlay.onclick = () => {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+  };
+
+  // Profile Dropdown Functions
+  function toggleProfileDropdown() {
+    const dropdown = document.getElementById("profileDropdown");
+    dropdown.classList.toggle("show");
+  }
+
+  function viewProfile() {
+    alert("HR Profile page would open here");
+    toggleProfileDropdown();
+    // In real implementation, this would navigate to profile page
+  }
+
+  function handleLogout() {
+    if (confirm("Are you sure you want to logout?")) {
+      alert("Logging out...");
+      // In real implementation, this would handle logout
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function (event) {
+    const profileDropdown = document.querySelector(".profile-dropdown");
+    const dropdownContent = document.getElementById("profileDropdown");
+
+    if (!profileDropdown.contains(event.target)) {
+      dropdownContent.classList.remove("show");
+    }
+  });
+</script>
+
+{% endblock %}

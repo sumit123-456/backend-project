@@ -1,0 +1,354 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Employee Dashboard - CRM{% endblock %}</title>
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- POPPINS FONT -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+    
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <nav id="sidebar" class="sidebar">
+      <div class="brand d-flex align-items-center gap-2 px-2">
+        <img
+          src="{% static 'assets/img/sidebar1.png' %}"
+          class="full-logo"
+        /><img src="{% static 'assets/img/sidebar.png' %}" class="small-logo" />
+      </div>
+      <hr />
+      <div class="px-2 mt-2">
+        <a href="{% url 'employee-dashboard' %}" class="side-link" data-url-name="employee-dashboard"
+          ><div class="side-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="side-text"><b>Dashboard</b></div></a
+        ><a href="{% url 'enhanced-attendance' %}" class="side-link" data-url-name="enhanced-attendance"
+          ><div class="side-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div class="side-text">Enhanced Attendance</div></a
+        ><a href="{% url 'attendance-table' %}" class="side-link" data-url-name="attendance-table"
+          ><div class="side-icon">
+            <i class="fa-solid fa-table"></i>
+          </div>
+          <div class="side-text">Attendance Table</div></a
+        ><a href="{% url 'apply-leave' %}" class="side-link" data-url-name="apply-leave"
+          ><div class="side-icon">
+            <i class="fa-solid fa-calendar-xmark"></i>
+          </div>
+          <div class="side-text">Apply Leave</div></a
+        >
+        
+        <a href="{% url 'employee-project-dashboard' %}" class="side-link" data-url-name="employee-project-dashboard"
+          ><div class="side-icon">
+            <i class="fa-solid fa-project-diagram"></i>
+          </div>
+          <div class="side-text">Project Dashboard</div></a
+        >
+        
+        
+        <a href="{% url 'payroll-emp' %}" class="side-link" data-url-name="payroll-emp"
+          ><div class="side-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="side-text">Payroll</div></a
+        ><a href="{% url 'employee-profile' %}" class="side-link" data-url-name="employee-profile"
+          ><div class="side-icon"><i class="fa-solid fa-user"></i></div>
+          <div class="side-text">My Profile</div></a
+        ><a href="#" class="side-link" onclick="handleLogout()" data-url-name="logout"
+          ><div class="side-icon">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </div>
+          <div class="side-text">Logout</div></a
+        >
+      </div>
+    </nav>
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <!-- DESKTOP SIDEBAR TOGGLE BUTTON --><button
+        id="desktopSidebarToggle"
+        class="desktop-toggle-btn bg-transparent border-0"
+        title="Toggle Sidebar"
+      >
+        <i class="fa-solid fa-bars"></i></button
+      ><!-- SINGLE MOBILE/TABLET TOGGLE BUTTON --><button
+        id="menuToggle"
+        class="bg-transparent border-0"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div style="flex: 1"></div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="profile-dropdown">
+          <div class="profile-circle" onclick="toggleProfileDropdown()">
+            EMP
+          </div>
+          <div class="profile-dropdown-content" id="profileDropdown">
+            <a href="{% url 'employee-profile' %}" onclick="viewProfile()"
+              >My Profile</a
+            ><button onclick="handleLogout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    {% block content %} {% endblock %}
+
+    <div id="overlay" class="overlay"></div>
+    <script src="{% static 'assets/js/attendance.js' %}"></script>
+    <script src="{% static 'assets/js/leave-approval.js' %}"></script>
+    <script src="{% static 'assets/js/logout-handler.js' %}"></script>
+    <!-- ===========================
+     CHART.JS
+     =========================== -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Small Slider Script -->
+    <script>
+      let pos = 0;
+      function slideUp() {
+        pos += 1;
+        document.getElementById("activityList").style.bottom = pos + "px";
+        if (pos >= 140) {
+          pos = 0;
+        }
+      }
+      setInterval(slideUp, 55);
+    </script>
+    <script>
+      /* ---------------- BAR CHART ---------------- */
+      const barCtx = document.getElementById("monthlyAttendanceChart");
+      const barBadge = document.getElementById("barBadge");
+
+      const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+      const attendanceData = [21, 22, 20, 23, 21, 22];
+
+      const monthlyAttendanceChart = new Chart(barCtx, {
+        type: "bar",
+        data: {
+          labels: monthLabels,
+          datasets: [
+            {
+              data: attendanceData,
+              backgroundColor: [
+                "#0B5C63",
+                "#0B7368",
+                "#0FA088",
+                "#2BA68B",
+                "#F2B33D",
+                "#D64550",
+              ],
+              borderRadius: 12,
+              barThickness: 30,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          onHover: (e, chartItem) => {
+            if (chartItem.length) {
+              const i = chartItem[0].index;
+              barBadge.style.display = "block";
+              barBadge.innerHTML =
+                monthLabels[i] + " : <b>" + attendanceData[i] + " days</b>";
+              barBadge.style.top = e.y + 14 + "px";
+              barBadge.style.left = e.x + 14 + "px";
+            } else {
+              barBadge.style.display = "none";
+            }
+          },
+        },
+      });
+
+      /* ---------------- PIE CHART ---------------- */
+      const pieCtx = document.getElementById("leaveStatusChart");
+      const pieBadge = document.getElementById("pieBadge");
+
+      const pieLabels = ["Annual", "Sick", "Personal", "Emergency"];
+      const pieValues = [8, 4, 2, 1];
+      const pieColors = ["#0b7368", "#f2b33d", "#2ba68b", "#d64550"];
+
+      const leaveStatusChart = new Chart(pieCtx, {
+        type: "doughnut",
+        data: {
+          labels: pieLabels,
+          datasets: [
+            {
+              data: pieValues,
+              backgroundColor: pieColors,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "55%",
+          plugins: { legend: { display: false } },
+          onHover: (e, chartItem) => {
+            if (chartItem.length) {
+              const i = chartItem[0].index;
+              pieBadge.style.display = "block";
+              pieBadge.innerHTML =
+                pieLabels[i] + " : <b>" + pieValues[i] + " days</b>";
+              pieBadge.style.top = e.y + 14 + "px";
+              pieBadge.style.left = e.x + 14 + "px";
+            } else {
+              pieBadge.style.display = "none";
+            }
+          },
+        },
+      });
+    </script>
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      const menuToggle = document.getElementById("menuToggle");
+      const desktopToggle = document.getElementById("desktopSidebarToggle");
+
+      // Mobile/Tablet menu toggle
+      menuToggle.onclick = () => {
+        if (sidebar.classList.contains("open")) {
+          sidebar.classList.remove("open");
+          overlay.classList.remove("show");
+        } else {
+          sidebar.classList.add("open");
+          overlay.classList.add("show");
+        }
+      };
+
+      // Desktop sidebar toggle
+      desktopToggle.onclick = () => {
+        if (sidebar.classList.contains("hidden")) {
+          sidebar.classList.remove("hidden");
+          desktopToggle.classList.remove("collapsed");
+        } else {
+          sidebar.classList.add("hidden");
+          desktopToggle.classList.add("collapsed");
+        }
+      };
+
+      overlay.onclick = () => {
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+      };
+
+      // Profile Dropdown Functions
+      function toggleProfileDropdown() {
+        const dropdown = document.getElementById("profileDropdown");
+        dropdown.classList.toggle("show");
+      }
+
+      function viewProfile() {
+        window.location.href = "{% url 'employee-profile' %}";
+        toggleProfileDropdown();
+      }
+
+      function handleLogout() {
+        // Redirect to logout confirmation page
+        window.location.href = "{% url 'logout_confirmation' %}";
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        const profileDropdown = document.querySelector(".profile-dropdown");
+        const dropdownContent = document.getElementById("profileDropdown");
+
+        if (!profileDropdown.contains(event.target)) {
+          dropdownContent.classList.remove("show");
+        }
+      });
+
+      // Sidebar Active State Management
+      function setActiveSidebarLink() {
+        // Get current page URL name
+        const currentUrl = window.location.pathname;
+        let currentUrlName = '';
+
+        // Map URLs to URL names for employee module
+        const urlMapping = {
+          '/employee-dashboard/': 'employee-dashboard',
+          '/enhanced-attendance/': 'enhanced-attendance',
+          '/attendance-table/': 'attendance-table',
+          '/apply-leave/': 'apply-leave',
+          '/employee-project-dashboard/': 'employee-project-dashboard',
+          '/payroll-emp/': 'payroll-emp',
+          '/employee-profile/': 'employee-profile'
+        };
+
+        // Find matching URL
+        for (const [url, urlName] of Object.entries(urlMapping)) {
+          if (currentUrl.includes(url)) {
+            currentUrlName = urlName;
+            break;
+          }
+        }
+
+        // Also check for direct URL name matching
+        if (!currentUrlName) {
+          const pageTitle = document.querySelector('title');
+          if (pageTitle) {
+            const titleText = pageTitle.textContent;
+            if (titleText.includes('Dashboard')) currentUrlName = 'employee-dashboard';
+            else if (titleText.includes('Enhanced Attendance')) currentUrlName = 'enhanced-attendance';
+            else if (titleText.includes('Attendance Table')) currentUrlName = 'attendance-table';
+            else if (titleText.includes('Leave')) currentUrlName = 'apply-leave';
+            else if (titleText.includes('Project')) currentUrlName = 'employee-project-dashboard';
+            else if (titleText.includes('Payroll')) currentUrlName = 'payroll-emp';
+            else if (titleText.includes('Profile')) currentUrlName = 'employee-profile';
+          }
+        }
+
+        // Remove active class from all sidebar links
+        const sidebarLinks = document.querySelectorAll('.side-link');
+        sidebarLinks.forEach(link => {
+          link.classList.remove('active');
+        });
+
+        // Add active class to current page link
+        if (currentUrlName) {
+          const activeLink = document.querySelector(`[data-url-name="${currentUrlName}"]`);
+          if (activeLink) {
+            activeLink.classList.add('active');
+          }
+        } else {
+          // Default to dashboard if no match found
+          const dashboardLink = document.querySelector('[data-url-name="employee-dashboard"]');
+          if (dashboardLink) {
+            dashboardLink.classList.add('active');
+          }
+        }
+      }
+
+      // Initialize active state on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        setActiveSidebarLink();
+      });
+
+      // Update active state on navigation (for SPA-like behavior)
+      document.addEventListener('click', function(event) {
+        // Check if clicked on a sidebar link with data-url-name
+        const sidebarLink = event.target.closest('.side-link[data-url-name]');
+        if (sidebarLink) {
+          // Add active class immediately for better UX
+          setActiveSidebarLink();
+        }
+      });
+    </script>
+  </body>
+</html>

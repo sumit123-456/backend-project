@@ -1,0 +1,128 @@
+{% extends "app/base.html" %}
+{% block content %}
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">Leave Approval Management</div><a href="{% url 'hr-dashboard' %}"><div class="text-muted">Dashboard</div></a></div><!-- LEAVE APPROVAL STATISTICS --><div style="display:flex; gap:20px; flex-wrap:wrap; margin:20px 0; font-family:Poppins, sans-serif;"><!-- CARD 1 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#1a73e8; margin-bottom:8px;"><i class="fa-solid fa-clock"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ total_pending }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Pending Approvals</div></div><!-- CARD 2 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#28a745; margin-bottom:8px;"><i class="fa-solid fa-check-circle"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ approved_this_month }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Approved This Month</div></div><!-- CARD 3 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#dc3545; margin-bottom:8px;"><i class="fa-solid fa-times-circle"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ rejected_this_month }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Rejected This Month</div></div><!-- CARD 4 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#6f42c1; margin-bottom:8px;"><i class="fa-solid fa-calendar-days"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ total_leave_days }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Total Leave Days</div></div></div><!-- LEAVE FILTERS --><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0;"><div style="display:flex; flex-wrap:wrap; align-items:center; gap:25px;"><!-- Status Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Status</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="statusFilter"><option value="all">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><!-- Leave Type Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Leave Type</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="leaveTypeFilter"><option value="all">All Types</option><option value="annual">Annual Leave</option><option value="sick">Sick Leave</option><option value="emergency">Emergency Leave</option><option value="maternity">Maternity Leave</option><option value="personal">Personal Leave</option></select></div><!-- Department Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Department</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="departmentFilter"><option value="all">All Departments</option><option value="IT">IT</option><option value="HR">HR</option><option value="Sales">Sales</option><option value="Finance">Finance</option><option value="Operations">Operations</option></select></div><!-- Date Range --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Date Range</label><input type="date" id="dateFilter"
+                   style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                          border-radius:6px; outline:none; font-size:14px;" /></div><!-- SEARCH BOX WITH ICON INSIDE --><div style="display:flex; flex-direction:column; position:relative;"><label style="font-weight:600; color:#333; font-size:14px;">Search</label><input type="text" placeholder="Search employee or reason..." id="searchInput"
+                   style="padding:10px 45px 10px 15px; width:220px; border:1px solid #ddd;
+                          border-radius:6px; outline:none; font-size:14px;" /><!-- Icon inside box (Right side) --><i class="fa-solid fa-magnifying-glass"
+               style="position:absolute; right:12px; top:38px; color:#777;
+                      font-size:14px;"></i></div><!-- Buttons --><div style="margin-left:auto; display:flex; gap:12px;"><!-- Export Button --><button onclick="exportLeaveData()" style="background:#34a853; color:#fff; border:none;
+                           padding:10px 22px; border-radius:6px; font-size:18px;"><i class="fa-solid fa-download"></i></button></div></div></div><!-- LEAVE REQUESTS TABLE --><div style="background:teal;color: white; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+            border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Table Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb;"><div class="d-flex justify-content-between align-items-center"><h5 style="margin:0; font-weight:600; color:#fdfbfb;">Leave Requests</h5><div class="btn-group" role="group"><button type="button" class="btn btn-secondary btn-sm active" id="allViewBtn"><i class="fas fa-list"></i> All
+                </button><button type="button" class="btn btn-warning btn-sm" id="pendingViewBtn"><i class="fas fa-clock"></i> Pending
+                </button><button type="button" class="btn btn-success btn-sm" id="approvedViewBtn"><i class="fas fa-check"></i> Approved
+                </button><button type="button" class="btn btn-danger btn-sm" id="rejectedViewBtn"><i class="fas fa-times"></i> Rejected
+                </button></div></div></div><!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin: 20px;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Responsive Table --><div class="table-responsive"><table class="table table-hover mb-0" style="font-family:Poppins, sans-serif;"><thead style="background:#f8f9fa;"><tr><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Employee</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Leave Type</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Start Date</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">End Date</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Days</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Reason</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Applied On</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Status</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Actions</th></tr></thead><tbody>
+                {% for leave in pending_hr_approval %}
+                <tr><td class="px-4 py-3" style="font-size:14px; color:#333;"><div><div style="font-weight:600;">{{ leave.employee.first_name }} {{ leave.employee.last_name }}</div><div style="font-size:12px; color:#666;">{{ leave.employee.company_id }} • {{ leave.employee.department }}</div></div></td><td class="px-4 py-3"><span class="badge bg-primary">{{ leave.get_leave_type_display }}</span></td><td class="px-4 py-3" style="font-size:14px; color:#333;">{{ leave.start_date|date:"M d, Y" }}</td><td class="px-4 py-3" style="font-size:14px; color:#333;">{{ leave.end_date|date:"M d, Y" }}</td><td class="px-4 py-3" style="font-size:14px; color:#333; font-weight:600;">{{ leave.total_days }}</td><td class="px-4 py-3" style="font-size:14px; color:#333;"><div style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ leave.reason }}">
+                            {{ leave.reason|truncatechars:50 }}
+                        </div></td><td class="px-4 py-3" style="font-size:14px; color:#333;">{{ leave.applied_at|date:"M d, Y" }}</td><td class="px-4 py-3">
+                        {% if leave.status == 'approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% elif leave.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% elif leave.status == 'rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ leave.status|title }}</span>
+                        {% endif %}
+                    </td><td class="px-4 py-3"><button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#leaveDetailsModal{{ leave.id }}"><i class="fas fa-eye"></i></button>
+                        {% if leave.status == 'pending' and leave.tl_approved %}
+                        <form method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve"><input type="hidden" name="leave_id" value="{{ leave.id }}"><button type="submit" class="btn btn-sm btn-outline-success me-1" onclick="return confirm('Are you sure you want to approve this leave request?')"><i class="fas fa-check"></i></button></form><button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ leave.id }}"><i class="fas fa-times"></i></button>
+                        {% endif %}
+                    </td></tr><!-- Leave Details Modal --><div class="modal fade" id="leaveDetailsModal{{ leave.id }}" tabindex="-1" aria-labelledby="leaveDetailsModalLabel{{ leave.id }}" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content" style="border:none; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15);"><div class="modal-header" style="background:linear-gradient(135deg, #0a6d65 0%, #1a7370 100%); color:white; border-radius:15px 15px 0 0; border:none;"><h5 class="modal-title fw-bold" id="leaveDetailsModalLabel{{ leave.id }}"><i class="fas fa-calendar-alt me-2"></i>Leave Request Details
+                                </h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-4"><div class="row"><div class="col-md-6"><h6 class="fw-bold">Employee Information</h6><p><strong>Name:</strong> {{ leave.employee.first_name }} {{ leave.employee.last_name }}</p><p><strong>Employee ID:</strong> {{ leave.employee.company_id }}</p><p><strong>Department:</strong> {{ leave.employee.department }}</p><p><strong>Designation:</strong> {{ leave.employee.designation }}</p><p><strong>Applied On:</strong> {{ leave.applied_at|date:"F d, Y" }}</p>
+                                        {% if leave.tl_approved %}
+                                        <p><strong>Team Leader:</strong> {{ leave.tl_approved_by }}</p><p><strong>TL Approval Date:</strong> {{ leave.tl_approval_date|date:"F d, Y" }}</p>
+                                        {% endif %}
+                                    </div><div class="col-md-6"><h6 class="fw-bold">Leave Details</h6><p><strong>Leave Type:</strong> {{ leave.get_leave_type_display }}</p><p><strong>Start Date:</strong> {{ leave.start_date|date:"F d, Y" }}</p><p><strong>End Date:</strong> {{ leave.end_date|date:"F d, Y" }}</p><p><strong>Total Days:</strong> {{ leave.total_days }}</p><p><strong>Status:</strong> 
+                                            {% if leave.status == 'approved' %}
+                                                <span class="badge bg-success">Approved</span>
+                                            {% elif leave.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif leave.status == 'rejected' %}
+                                                <span class="badge bg-danger">Rejected</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ leave.status|title }}</span>
+                                            {% endif %}
+                                        </p></div></div><div class="row mt-3"><div class="col-12"><h6 class="fw-bold">Reason for Leave</h6><p>{{ leave.reason|linebreaks }}</p></div></div>
+                                {% if leave.contact_details %}
+                                <div class="row mt-3"><div class="col-12"><h6 class="fw-bold">Contact Information</h6><p>{{ leave.contact_details }}</p></div></div>
+                                {% endif %}
+                                {% if leave.emergency_contact %}
+                                <div class="row mt-3"><div class="col-12"><h6 class="fw-bold">Emergency Contact</h6><p>{{ leave.emergency_contact }}</p></div></div>
+                                {% endif %}
+                                {% if leave.tl_comments %}
+                                <div class="row mt-3"><div class="col-12"><h6 class="fw-bold">Team Leader Comments</h6><p>{{ leave.tl_comments }}</p></div></div>
+                                {% endif %}
+                            </div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                                        style="border-radius:8px; padding:8px 20px; font-weight:500;">
+                                    Close
+                                </button>
+                                {% if leave.status == 'pending' and leave.tl_approved %}
+                                <form method="POST" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve"><input type="hidden" name="leave_id" value="{{ leave.id }}"><button type="submit" class="btn btn-success me-2" 
+                                            onclick="return confirm('Are you sure you want to approve this leave request?')"
+                                            style="border-radius:8px; padding:8px 20px; font-weight:500;"><i class="fas fa-check me-1"></i>Approve
+                                    </button></form><button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ leave.id }}"
+                                        style="border-radius:8px; padding:8px 20px; font-weight:500;"><i class="fas fa-times me-1"></i>Reject
+                                </button>
+                                {% endif %}
+                            </div></div></div></div><!-- Rejection Modal --><div class="modal fade" id="rejectModal{{ leave.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ leave.id }}" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15);"><div class="modal-header" style="background:linear-gradient(135deg, #dc3545 0%, #c82333 100%); color:white; border-radius:15px 15px 0 0; border:none;"><h5 class="modal-title fw-bold" id="rejectModalLabel{{ leave.id }}"><i class="fas fa-times-circle me-2"></i>Reject Leave Request
+                                </h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject"><input type="hidden" name="leave_id" value="{{ leave.id }}"><div class="modal-body p-4"><div class="mb-3"><label for="hr_comments{{ leave.id }}" class="form-label fw-bold">Please provide a reason for rejection:</label><textarea class="form-control" id="hr_comments{{ leave.id }}" name="hr_comments" rows="4" 
+                                                  placeholder="Enter rejection reason..." required
+                                                  style="border:1px solid #ddd; border-radius:8px; padding:10px; resize:vertical;"></textarea></div></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                                            style="border-radius:8px; padding:8px 20px; font-weight:500;">
+                                        Cancel
+                                    </button><button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('Are you sure you want to reject this leave request?')"
+                                            style="border-radius:8px; padding:8px 20px; font-weight:500;"><i class="fas fa-times me-1"></i>Reject Leave
+                                    </button></div></form></div></div></div>
+                {% empty %}
+                <tr><td colspan="9" class="px-4 py-5 text-center"><div style="color:#6c757d;"><i class="fas fa-calendar-times fa-3x mb-3"></i><p class="mb-0">No pending leave requests for HR approval.</p><small>Leave requests approved by Team Leaders will appear here for final HR approval.</small></div></td></tr>
+                {% endfor %}
+            </tbody></table></div></div><!-- PAGINATION CONTROLS --><div class="d-flex justify-content-between align-items-center mt-3" id="paginationControls" style="display: none;"><div class="d-flex align-items-center gap-3"><div><label for="recordsPerPage" class="form-label mb-0 me-2">Records per page:</label><select id="recordsPerPage" class="form-select form-select-sm" style="width: auto; display: inline-block;"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div><div id="recordInfo" class="text-muted small">
+            Showing 1-8 of 8 records
+        </div></div><nav aria-label="Leave table pagination"><ul class="pagination pagination-sm mb-0" id="pagination"><!-- Pagination items will be generated by JavaScript --></ul></nav></div><!-- LEAVE REQUEST DETAILS MODAL --><div class="modal fade" id="leaveDetailsModal" tabindex="-1" aria-labelledby="leaveDetailsModalLabel" aria-hidden="true"><br><br><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content" style="border:none; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15);"><div class="modal-header" style="background:linear-gradient(135deg, #0a6d65 0%, #1a7370 100%); color:white; border-radius:15px 15px 0 0; border:none;"><h5 class="modal-title fw-bold" id="leaveDetailsModalLabel"><i class="fas fa-calendar-alt me-2"></i>Leave Request Details
+                </h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-4"><div id="leaveModalContent"><!-- Content will be populated by JavaScript --></div></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                        style="border-radius:8px; padding:8px 20px; font-weight:500;">
+                    Close
+                </button><button type="button" class="btn btn-success me-2" id="approveBtn" onclick="approveLeave()" style="border-radius:8px; padding:8px 20px; font-weight:500;"><i class="fas fa-check me-1"></i>Approve
+                </button><button type="button" class="btn btn-danger" id="rejectBtn" onclick="rejectLeave()" style="border-radius:8px; padding:8px 20px; font-weight:500;"><i class="fas fa-times me-1"></i>Reject
+                </button></div></div></div></div><!-- REJECTION REASON MODAL --><div class="modal fade" id="rejectionReasonModal" tabindex="-1" aria-labelledby="rejectionReasonModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border:none; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15);"><div class="modal-header" style="background:linear-gradient(135deg, #dc3545 0%, #c82333 100%); color:white; border-radius:15px 15px 0 0; border:none;"><h5 class="modal-title fw-bold" id="rejectionReasonModalLabel"><i class="fas fa-times-circle me-2"></i>Rejection Reason
+                </h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-4"><form id="rejectionForm"><div class="mb-3"><label for="rejectionReason" class="form-label fw-bold">Please provide a reason for rejection:</label><textarea class="form-control" id="rejectionReason" rows="4" 
+                                  placeholder="Enter rejection reason..."
+                                  style="border:1px solid #ddd; border-radius:8px; padding:10px; resize:vertical;" required></textarea></div></form></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                        style="border-radius:8px; padding:8px 20px; font-weight:500;">
+                    Cancel
+                </button><button type="button" class="btn btn-danger" onclick="confirmRejection()" style="border-radius:8px; padding:8px 20px; font-weight:500;"><i class="fas fa-times me-1"></i>Reject Leave
+                </button></div></div></div></div></main>
+
+
+{% endblock %}

@@ -1,0 +1,1156 @@
+{% extends "app/base.html" %}
+{% block content %}
+
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">Reports Management</div><div class="text-muted">Dashboard</div></div><!-- ANALYTICS REPORTS CONTENT --><!-- Overview Statistics Cards --><div class="row mb-4"><!-- Total Employees --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="card h-100 border" style="border-top:4px solid #008080 !important;"><div class="card-body"><div class="d-flex align-items-center gap-3"><div class="rounded-3 d-flex align-items-center justify-content-center p-3 bg-primary-subtle"><i class="fa-solid fa-users text-primary fs-4"></i></div><div><div class="fw-bold fs-3">{{ total_employees }}</div><div class="text-muted small">Total Employees</div><div class="text-success small"><i class="fa-solid fa-arrow-up"></i> Active employees
+            </div></div></div></div></div></div><!-- Present Today --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="card h-100 border" style="border-top:4px solid #008080 !important;"><div class="card-body"><div class="d-flex align-items-center gap-3"><div class="rounded-3 d-flex align-items-center justify-content-center p-3 bg-success-subtle"><i class="fa-solid fa-calendar-check text-success fs-4"></i></div><div><div class="fw-bold fs-3">{{ active_employees }}</div><div class="text-muted small">Active Employees</div><div class="text-success small"><i class="fa-solid fa-arrow-up"></i> Currently employed
+            </div></div></div></div></div></div><!-- Inactive/Resigned Employees --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="card h-100 border" style="border-top:4px solid #008080 !important;"><div class="card-body"><div class="d-flex align-items-center gap-3"><div class="rounded-3 d-flex align-items-center justify-content-center p-3 bg-danger-subtle"><i class="fa-solid fa-calendar-xmark text-danger fs-4"></i></div><div><div class="fw-bold fs-3">{{ total_employees|add:"-"|add:active_employees }}</div><div class="text-muted small">Resigned Employees</div><div class="text-danger small"><i class="fa-solid fa-arrow-down"></i> No longer active
+            </div></div></div></div></div></div><!-- Employees with Payroll --><div class="col-lg-3 col-md-6 col-12 mb-3"><div class="card h-100 border" style="border-top:4px solid #008080 !important;"><div class="card-body"><div class="d-flex align-items-center gap-3"><div class="rounded-3 d-flex align-items-center justify-content-center p-3 bg-info-subtle"><i class="fa-solid fa-money-bill-wave text-info fs-4"></i></div><div><div class="fw-bold fs-3">{{ recent_payrolls|length }}</div><div class="text-muted small">Payroll Records</div><div class="text-info small"><i class="fa-solid fa-chart-line"></i> Recent transactions
+            </div></div></div></div></div></div></div><!-- Enhanced Employee & Payroll Analytics Summary --><div class="row mb-4"><div class="col-12"><div class="card border" style="border-top:4px solid #0b7368 !important;"><div class="card-header bg-light"><h5 class="card-title mb-0"><i class="fa-solid fa-chart-line me-2"></i>Employee & Payroll Analytics Summary
+        </h5></div><div class="card-body"><div class="row g-4"><!-- Employee Statistics --><div class="col-lg-3 col-md-6"><div class="stat-item text-center p-3 border rounded-3"><div class="stat-icon mb-2"><i class="fa-solid fa-users fs-1 text-primary"></i></div><div class="stat-value fw-bold fs-3 text-primary">{{ total_employees }}</div><div class="stat-label text-muted">Total Employees</div><div class="stat-trend text-success small"><i class="fa-solid fa-arrow-up"></i> All time registrations
+              </div></div></div><div class="col-lg-3 col-md-6"><div class="stat-item text-center p-3 border rounded-3"><div class="stat-icon mb-2"><i class="fa-solid fa-user-check fs-1 text-success"></i></div><div class="stat-value fw-bold fs-3 text-success">{{ active_employees }}</div><div class="stat-label text-muted">Active Employees</div><div class="stat-trend text-success small"><i class="fa-solid fa-percent"></i> 
+                {% if total_employees > 0 %}
+                  {{ active_percentage }}% of total
+                {% else %}
+                  0% of total
+                {% endif %}
+              </div></div></div><div class="col-lg-3 col-md-6"><div class="stat-item text-center p-3 border rounded-3"><div class="stat-icon mb-2"><i class="fa-solid fa-user-minus fs-1 text-danger"></i></div><div class="stat-value fw-bold fs-3 text-danger">{{ total_employees|add:"-"|add:active_employees }}</div><div class="stat-label text-muted">Resigned Employees</div><div class="stat-trend text-muted small"><i class="fa-solid fa-clock"></i> Historical data
+              </div></div></div><div class="col-lg-3 col-md-6"><div class="stat-item text-center p-3 border rounded-3"><div class="stat-icon mb-2"><i class="fa-solid fa-money-bill-trend-up fs-1 text-info"></i></div><div class="stat-value fw-bold fs-3 text-info">{{ recent_payrolls|length }}</div><div class="stat-label text-muted">Payroll Records</div><div class="stat-trend text-info small"><i class="fa-solid fa-chart-bar"></i> Recent transactions
+              </div></div></div></div><!-- Additional Insights --><div class="row mt-4"><div class="col-lg-4"><div class="insight-box p-3 bg-light rounded-3"><h6 class="text-primary mb-2"><i class="fa-solid fa-lightbulb me-1"></i>Payroll Processing
+              </h6><p class="mb-0 text-muted small">
+                Recent payroll processing activity showing latest employee transactions and salary distributions
+              </p></div></div><div class="col-lg-4"><div class="insight-box p-3 bg-light rounded-3"><h6 class="text-success mb-2"><i class="fa-solid fa-chart-pie me-1"></i>Active Rate
+              </h6><p class="mb-0 text-muted small">
+                {{ active_employees }} out of {{ total_employees }} employees are currently active ({{ active_percentage }}%)
+              </p></div></div><div class="col-lg-4"><div class="insight-box p-3 bg-light rounded-3"><h6 class="text-info mb-2"><i class="fa-solid fa-coins me-1"></i>Payroll Investment
+              </h6><p class="mb-0 text-muted small">
+                ₹{{ total_payroll|floatformat:2 }} total payroll distributed with ₹{{ avg_salary|floatformat:2 }} average salary
+              </p></div></div></div></div></div></div></div><!-- Analytics Charts Row --><div class="row mb-4"><!-- Monthly Attendance Chart --><div class="col-lg-8 col-md-12 mb-4"><div class="chart-card bg-white rounded-3 border p-4 h-100"><div class="chart-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="chart-title mb-1">Employee Growth & Payroll Trends</h5><p class="chart-subtitle text-muted mb-0">Comprehensive analysis of employee registration, active status, and payroll processing over 12 months</p></div><div class="chart-actions"><select class="form-select form-select-sm" style="width: auto;"><option>Last 12 months</option><option>Last 6 months</option><option>This year</option></select></div></div><div class="chart-container" style="height: 350px; position: relative;"><canvas id="attendanceChart"></canvas></div></div></div><!-- Enhanced Department Payroll Distribution --><div class="col-lg-4 col-md-12 mb-4"><div class="chart-card bg-white rounded-3 border p-4 h-100"><div class="chart-header mb-4"><div class="d-flex justify-content-between align-items-center"><div><h5 class="chart-title mb-1"><i class="fa-solid fa-chart-pie me-2"></i>Department Payroll Distribution
+              </h5><p class="chart-subtitle text-muted mb-0">Comprehensive payroll analysis by department</p></div><div class="dropdown"><button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fa-solid fa-filter"></i></button><ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="filterDepartmentChart('all')"><i class="fa-solid fa-list me-2"></i>All Departments
+                </a></li><li><a class="dropdown-item" href="#" onclick="filterDepartmentChart('top5')"><i class="fa-solid fa-trophy me-2"></i>Top 5 Departments
+                </a></li><li><a class="dropdown-item" href="#" onclick="filterDepartmentChart('by_employees')"><i class="fa-solid fa-users me-2"></i>By Employee Count
+                </a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#" onclick="exportDepartmentData()"><i class="fa-solid fa-download me-2"></i>Export Data
+                </a></li><li><a class="dropdown-item" href="#" onclick="generateDepartmentReport()"><i class="fa-solid fa-file-alt me-2"></i>Generate Report
+                </a></li></ul></div></div></div><!-- Enhanced Department Stats Summary --><div class="row g-2 mb-3"><div class="col-4"><div class="stat-small bg-light p-2 rounded text-center"><div class="small-value fw-bold text-primary">₹{{ total_payroll|floatformat:0 }}</div><div class="small-label text-muted">Total Payroll</div></div></div><div class="col-4"><div class="stat-small bg-light p-2 rounded text-center"><div class="small-value fw-bold text-info">{{ avg_salary|floatformat:0 }}</div><div class="small-label text-muted">Avg Salary</div></div></div><div class="col-4"><div class="stat-small bg-light p-2 rounded text-center"><div class="small-value fw-bold text-success">{{ payroll_by_dept|length }}</div><div class="small-label text-muted">Departments</div></div></div></div><!-- Department Performance Indicators --><div class="department-metrics mb-3"><div class="row g-2"><div class="col-6"><div class="metric-card bg-primary-subtle rounded p-2 text-center"><div class="metric-value fw-bold text-primary">{{ current_month_payroll|floatformat:0 }}</div><div class="metric-label text-muted small">This Month</div></div></div><div class="col-6"><div class="metric-card bg-success-subtle rounded p-2 text-center"><div class="metric-value fw-bold text-success">{{ monthly_share_percentage }}%</div><div class="metric-label text-muted small">Monthly Share</div></div></div></div></div><div class="chart-container" style="height: 280px; position: relative;"><canvas id="departmentChart"></canvas></div><!-- Enhanced Department List with Interactive Features --><div class="department-list mt-3" style="max-height: 200px; overflow-y: auto;"><div class="d-flex justify-content-between align-items-center mb-2"><div class="small fw-bold text-muted">Department Breakdown</div><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="deptView" id="deptViewList" checked><label class="btn btn-outline-primary btn-sm" for="deptViewList"><i class="fa-solid fa-list"></i></label><input type="radio" class="btn-check" name="deptView" id="deptViewGrid"><label class="btn btn-outline-primary btn-sm" for="deptViewGrid"><i class="fa-solid fa-th-large"></i></label></div></div><div id="departmentBreakdown" class="department-breakdown-list">
+            {% for dept in payroll_by_dept %}
+            <div class="dept-item border rounded p-2 mb-2 bg-light" data-dept="{{ dept.employee__department }}"><div class="d-flex justify-content-between align-items-center"><div class="dept-info"><div class="dept-name fw-medium">{{ dept.employee__department|default:"Unknown" }}</div><div class="dept-details text-muted small">
+                    {{ dept.employee_count }} employees • Avg: ₹{{ dept.avg_salary_per_dept|floatformat:0 }}
+                  </div></div><div class="dept-amount text-end"><div class="amount fw-bold text-primary">₹{{ dept.total_payroll|floatformat:0 }}</div><div class="percentage text-muted small">
+                    {{ dept.percentage }}%
+                  </div></div></div><!-- Progress Bar --><div class="progress mt-2" style="height: 4px;"><div class="progress-bar bg-primary" 
+                     style="width: {{ dept.percentage }}%"></div></div></div>
+            {% empty %}
+            <div class="text-center text-muted py-3"><i class="fa-solid fa-chart-pie fa-2x mb-2"></i><div>No payroll data available</div></div>
+            {% endfor %}
+          </div></div><!-- Department Insights --><div class="department-insights mt-3 p-3 bg-light rounded-3"><h6 class="text-primary mb-2"><i class="fa-solid fa-lightbulb me-1"></i>Department Insights
+          </h6><div class="insight-item mb-2"><div class="insight-title fw-medium small">Highest Payroll Department</div><div class="insight-value text-muted small">
+              {% if payroll_by_dept %}
+                {{ payroll_by_dept.0.employee__department|default:"N/A" }} (₹{{ payroll_by_dept.0.total_payroll|floatformat:0 }})
+              {% else %}
+                No data available
+              {% endif %}
+            </div></div><div class="insight-item"><div class="insight-title fw-medium small">Payroll Distribution</div><div class="insight-value text-muted small">
+              {% if payroll_by_dept %}
+                Average: ₹{{ avg_payroll_per_dept|floatformat:0 }} per department
+              {% else %}
+                No data available
+              {% endif %}
+            </div></div></div></div></div></div><!-- Additional Analytics Cards --><div class="row mb-4"><!-- Leave Analytics --><div class="col-lg-6 col-md-12 mb-4"><div class="analytics-card bg-white rounded-3 border p-4 h-100"><div class="card-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="card-title mb-1">Leave Analytics</h5><p class="card-subtitle text-muted mb-0">Leave requests and approvals</p></div><div class="card-actions"><button class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-plus"></i> Generate Report
+            </button></div></div><div class="row g-3 mb-4"><div class="col-6"><div class="metric-box bg-primary-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-primary">156</div><div class="metric-label text-muted small">Total Requests</div></div></div><div class="col-6"><div class="metric-box bg-success-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-success">142</div><div class="metric-label text-muted small">Approved</div></div></div></div><div class="chart-container" style="height: 200px; position: relative;"><canvas id="leaveChart"></canvas></div></div></div><!-- Payroll Summary --><div class="col-lg-6 col-md-12 mb-4"><div class="analytics-card bg-white rounded-3 border p-4 h-100"><div class="card-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="card-title mb-1">Payroll Summary</h5><p class="card-subtitle text-muted mb-0">Monthly payroll overview</p></div><div class="card-actions"><button class="btn btn-outline-success btn-sm" onclick="exportPayrollData()"><i class="fa-solid fa-download"></i> Export
+            </button></div></div><div class="row g-3 mb-4"><div class="col-6"><div class="metric-box bg-success-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-success">₹{{ total_payroll|floatformat:2 }}</div><div class="metric-label text-muted small">Total Payroll</div></div></div><div class="col-6"><div class="metric-box bg-info-subtle rounded-3 p-3 text-center"><div class="metric-value fw-bold fs-4 text-info">₹{{ avg_salary|floatformat:2 }}</div><div class="metric-label text-muted small">Avg. Salary</div></div></div></div><div class="chart-container" style="height: 200px; position: relative;"><canvas id="payrollChart"></canvas></div></div></div></div><!-- Performance & Activity Analytics --><div class="row mb-4"><!-- Employee Performance --><div class="col-lg-4 col-md-12 mb-4"><div class="performance-card bg-white rounded-3 border p-4 h-100"><div class="card-header mb-4"><h5 class="card-title mb-1">Performance Overview</h5><p class="card-subtitle text-muted mb-0">Employee performance metrics</p></div><div class="performance-metrics"><div class="metric-item d-flex justify-content-between align-items-center mb-3"><div class="metric-info"><div class="metric-title">Excellent Performance</div><div class="metric-subtitle text-muted small">Above 90% rating</div></div><div class="metric-badge bg-success text-white px-3 py-1 rounded-pill"><span class="fw-bold">245</span></div></div><div class="metric-item d-flex justify-content-between align-items-center mb-3"><div class="metric-info"><div class="metric-title">Good Performance</div><div class="metric-subtitle text-muted small">75-90% rating</div></div><div class="metric-badge bg-primary text-white px-3 py-1 rounded-pill"><span class="fw-bold">186</span></div></div><div class="metric-item d-flex justify-content-between align-items-center mb-3"><div class="metric-info"><div class="metric-title">Needs Improvement</div><div class="metric-subtitle text-muted small">Below 75% rating</div></div><div class="metric-badge bg-warning text-white px-3 py-1 rounded-pill"><span class="fw-bold">54</span></div></div></div></div></div><!-- Enhanced Recent Activities --><div class="col-lg-8 col-md-12 mb-4"><div class="activity-card bg-white rounded-3 border p-4 h-100"><div class="card-header d-flex justify-content-between align-items-center mb-4"><div><h5 class="card-title mb-1"><i class="fa-solid fa-clock-rotate-left me-2"></i>Latest HR Activities & Updates
+            </h5><p class="card-subtitle text-muted mb-0">Comprehensive HR activity timeline with real-time updates</p></div><div class="card-actions d-flex gap-2"><select class="form-select form-select-sm" id="activityFilter" style="width: auto;"><option value="all">All Activities</option><option value="payroll">Payroll</option><option value="announcement">Announcements</option><option value="team_assignment">Team Assignments</option><option value="project">Projects</option><option value="employee">Employee Changes</option></select><button class="btn btn-outline-secondary btn-sm" onclick="refreshActivities()"><i class="fa-solid fa-sync-alt"></i> Refresh
+            </button></div></div><!-- Activity Summary Cards --><div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="metric-box bg-success-subtle rounded-3 p-2 text-center"><div class="metric-value fw-bold fs-6 text-success">{{ recent_payrolls|length }}</div><div class="metric-label text-muted small">Recent Payrolls</div></div></div><div class="col-6 col-lg-3"><div class="metric-box bg-info-subtle rounded-3 p-2 text-center"><div class="metric-value fw-bold fs-6 text-info">{{ recent_activities|length }}</div><div class="metric-label text-muted small">Announcements</div></div></div><div class="col-6 col-lg-3"><div class="metric-box bg-primary-subtle rounded-3 p-2 text-center"><div class="metric-value fw-bold fs-6 text-primary">{{ recent_activities|length }}</div><div class="metric-label text-muted small">Team Changes</div></div></div><div class="col-6 col-lg-3"><div class="metric-box bg-warning-subtle rounded-3 p-2 text-center"><div class="metric-value fw-bold fs-6 text-warning">{{ recent_activities|length }}</div><div class="metric-label text-muted small">New Employees</div></div></div></div><!-- Enhanced Activity List --><div class="activity-list" id="activityList">
+          {% for activity in recent_activities %}
+          <div class="activity-item d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border activity-type-{{ activity.type }}"><div class="activity-icon bg-{{ activity.icon_bg }}-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid {{ activity.icon }} text-{{ activity.icon_bg }}"></i></div><div class="activity-content flex-grow-1"><div class="activity-title fw-medium">{{ activity.title }}</div><div class="activity-subtitle text-muted small">{{ activity.subtitle }}</div><div class="activity-details text-muted small"><i class="fa-solid fa-info-circle me-1"></i>{{ activity.details }}
+              </div><div class="activity-meta d-flex justify-content-between align-items-center mt-1"><div class="activity-time text-muted small"><i class="fa-solid fa-clock me-1"></i>{{ activity.time_ago }}
+                </div><div class="activity-by text-muted small"><i class="fa-solid fa-user me-1"></i>by {{ activity.by }}
+                </div></div></div><div class="activity-actions"><div class="dropdown"><button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown"><i class="fa-solid fa-ellipsis-v"></i></button><ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="viewActivityDetails('{{ activity.type }}', {{ forloop.counter0 }})"><i class="fa-solid fa-eye me-2"></i>View Details
+                  </a></li><li><a class="dropdown-item" href="#"><i class="fa-solid fa-share me-2"></i>Share
+                  </a></li></ul></div></div></div>
+          {% empty %}
+          <div class="activity-item d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border"><div class="activity-icon bg-info-subtle rounded-3 d-flex align-items-center justify-content-center"><i class="fa-solid fa-info-circle text-info"></i></div><div class="activity-content flex-grow-1"><div class="activity-title fw-medium">No recent HR activities</div><div class="activity-subtitle text-muted small">HR activities will appear here as they happen</div><div class="activity-time text-muted small">--</div></div></div>
+          {% endfor %}
+        </div><!-- Activity Insights --><div class="activity-insights mt-4 p-3 bg-light rounded-3"><h6 class="text-primary mb-2"><i class="fa-solid fa-lightbulb me-1"></i>Activity Insights
+          </h6><div class="row g-3"><div class="col-md-6"><div class="insight-item"><div class="insight-title fw-medium">Most Active Department</div><div class="insight-value text-muted small">Engineering (45 activities)</div></div></div><div class="col-md-6"><div class="insight-item"><div class="insight-title fw-medium">This Week's Activities</div><div class="insight-value text-muted small">{{ recent_activities|length }} total activities</div></div></div></div></div></div></div></div></main><script>
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    const dropdownContent = document.getElementById('profileDropdown');
+    
+    if (!profileDropdown.contains(event.target)) {
+        dropdownContent.classList.remove('show');
+    }
+});
+
+// ===========================
+// ANALYTICS CHARTS CONFIGURATION
+// ===========================
+
+// Chart.js default settings
+Chart.defaults.font.family = 'Poppins';
+Chart.defaults.color = '#6d7c83';
+
+// Color palette
+const colors = {
+    primary: '#0b7368',
+    success: '#02c202',
+    danger: '#dc3545',
+    warning: '#e2e205',
+    info: '#17a2b8',
+    purple: '#6f42c1',
+    orange: '#fd7e14',
+    teal: '#20c997'
+};
+
+// 1. Enhanced Employee Count Trends Chart (comprehensive analysis)
+async function initAttendanceChart() {
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    
+    try {
+        const response = await fetch('/api/payroll-data/');
+        const data = await response.json();
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.employee_counts.labels,
+                datasets: [
+                    {
+                        label: 'Total Employees Registered',
+                        data: data.employee_counts.total_employees,
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '20',
+                        tension: 0.4,
+                        fill: false,
+                        borderWidth: 3,
+                        pointBackgroundColor: colors.primary,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Active Employees (Not Resigned)',
+                        data: data.employee_counts.active_employees,
+                        borderColor: colors.success,
+                        backgroundColor: colors.success + '20',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 2,
+                        pointBackgroundColor: colors.success,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Employees with Payroll',
+                        data: data.employee_counts.payroll_employees,
+                        borderColor: colors.info,
+                        backgroundColor: colors.info + '20',
+                        tension: 0.4,
+                        fill: false,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: colors.info,
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        callbacks: {
+                            afterBody: function(context) {
+                                const dataIndex = context[0].dataIndex;
+                                const totalEmp = data.employee_counts.total_employees[dataIndex];
+                                const activeEmp = data.employee_counts.active_employees[dataIndex];
+                                const payrollEmp = data.employee_counts.payroll_employees[dataIndex];
+                                
+                                const resignedEmp = totalEmp - activeEmp;
+                                const payrollCoverage = totalEmp > 0 ? ((payrollEmp / totalEmp) * 100).toFixed(1) : 0;
+                                
+                                return [
+                                    '',
+                                    `Resigned: ${resignedEmp}`,
+                                    `Payroll Coverage: ${payrollCoverage}%`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        },
+                        ticks: {
+                            stepSize: 5
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading employee count data:', error);
+        // Fallback to static data if API fails
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                datasets: [
+                    {
+                        label: 'Total Employees',
+                        data: [420, 435, 445, 438, 452, 460, 475, 485],
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '20',
+                        tension: 0.4,
+                        fill: false,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Active Employees',
+                        data: [400, 420, 430, 425, 440, 448, 462, 472],
+                        borderColor: colors.success,
+                        backgroundColor: colors.success + '20',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Employees with Payroll',
+                        data: [380, 395, 410, 405, 420, 430, 445, 455],
+                        borderColor: colors.info,
+                        backgroundColor: colors.info + '20',
+                        tension: 0.4,
+                        fill: false,
+                        borderDash: [5, 5],
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// 2. Department Distribution Chart with real data
+async function initDepartmentChart() {
+    const ctx = document.getElementById('departmentChart').getContext('2d');
+    
+    try {
+        const response = await fetch('/api/payroll-data/');
+        const data = await response.json();
+        
+        // Generate colors for departments
+        const deptColors = [
+            colors.primary,
+            colors.success,
+            colors.info,
+            colors.warning,
+            colors.purple,
+            colors.orange,
+            colors.teal,
+            '#ff6b6b',
+            '#4ecdc4',
+            '#45b7d1'
+        ];
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.departments.labels,
+                datasets: [{
+                    data: data.departments.data,
+                    backgroundColor: deptColors.slice(0, data.departments.labels.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ₹${value.toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading department data:', error);
+        // Fallback to static data if API fails
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance'],
+                datasets: [{
+                    data: [145, 98, 67, 45, 78],
+                    backgroundColor: [
+                        colors.primary,
+                        colors.success,
+                        colors.info,
+                        colors.warning,
+                        colors.purple
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// 3. Leave Analytics Chart
+function initLeaveChart() {
+    const ctx = document.getElementById('leaveChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Leave Requests',
+                data: [23, 28, 31, 25, 27, 22],
+                backgroundColor: colors.primary + '80',
+                borderColor: colors.primary,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 4. Payroll Summary Chart with real data
+async function initPayrollChart() {
+    const ctx = document.getElementById('payrollChart').getContext('2d');
+    
+    try {
+        const response = await fetch('/api/payroll-data/');
+        const data = await response.json();
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.months,
+                datasets: [{
+                    label: 'Monthly Payroll',
+                    data: data.payroll_data,
+                    borderColor: colors.success,
+                    backgroundColor: colors.success + '20',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading payroll data:', error);
+        // Fallback to static data if API fails
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Monthly Payroll',
+                    data: [0, 0, 0, 0, 0, 0],
+                    borderColor: colors.success,
+                    backgroundColor: colors.success + '20',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Initialize all charts when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure all canvases are rendered
+    setTimeout(async () => {
+        // Initialize charts with proper error handling
+        try {
+            await initAttendanceChart();
+            await initDepartmentChart();
+            initLeaveChart();  // Static chart
+            await initPayrollChart();
+            initializeDepartmentBreakdown();
+            initializeActivityFiltering();
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+        }
+    }, 100);
+});
+
+// Export payroll data functionality
+function exportPayrollData() {
+    // Create a download link for payroll data
+    const link = document.createElement('a');
+    link.href = '/export-payroll/';
+    link.download = `payroll_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ===================================
+// ENHANCED ACTIVITY MANAGEMENT
+// ===================================
+
+// Initialize activity filtering
+function initializeActivityFiltering() {
+    const filterSelect = document.getElementById('activityFilter');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            filterActivities(this.value);
+        });
+    }
+}
+
+// Filter activities by type
+function filterActivities(activityType) {
+    const activityItems = document.querySelectorAll('.activity-item');
+    
+    activityItems.forEach(item => {
+        if (activityType === 'all') {
+            item.style.display = 'flex';
+        } else {
+            if (item.classList.contains(`activity-type-${activityType}`)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        }
+    });
+    
+    // Update activity count
+    updateActivityCount();
+}
+
+// Update activity count display
+function updateActivityCount() {
+    const visibleItems = document.querySelectorAll('.activity-item[style*="flex"], .activity-item:not([style*="none"])');
+    console.log(`Showing ${visibleItems.length} activities`);
+}
+
+// Refresh activities
+function refreshActivities() {
+    // Show loading indicator
+    const activityList = document.getElementById('activityList');
+    if (activityList) {
+        activityList.innerHTML = `
+            <div class="d-flex justify-content-center p-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
+        `;
+    }
+    
+    // Simulate refresh (in real app, this would be an AJAX call)
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// View activity details
+function viewActivityDetails(activityType, activityIndex) {
+    console.log(`Viewing details for activity type: ${activityType}, index: ${activityIndex}`);
+    
+    // In a real application, this would show a modal or navigate to a detail page
+    alert(`Activity Details:\nType: ${activityType}\nIndex: ${activityIndex}\n\nThis would show detailed information about the activity.`);
+}
+
+// ===================================
+// ENHANCED DEPARTMENT MANAGEMENT
+// ===================================
+
+// Initialize department breakdown features
+function initializeDepartmentBreakdown() {
+    // Add click handlers to department items
+    const deptItems = document.querySelectorAll('.dept-item');
+    deptItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const deptName = this.dataset.dept;
+            highlightDepartment(deptName);
+        });
+    });
+    
+    // Initialize view toggle
+    initializeViewToggle();
+}
+
+// Initialize view toggle between list and grid
+function initializeViewToggle() {
+    const listView = document.getElementById('deptViewList');
+    const gridView = document.getElementById('deptViewGrid');
+    const breakdown = document.getElementById('departmentBreakdown');
+    
+    if (listView && gridView && breakdown) {
+        listView.addEventListener('change', function() {
+            if (this.checked) {
+                breakdown.className = 'department-breakdown-list';
+            }
+        });
+        
+        gridView.addEventListener('change', function() {
+            if (this.checked) {
+                breakdown.className = 'department-breakdown-grid';
+                breakdown.style.display = 'grid';
+                breakdown.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+                breakdown.style.gap = '10px';
+            }
+        });
+    }
+}
+
+// Filter department chart
+function filterDepartmentChart(filterType) {
+    console.log(`Filtering department chart by: ${filterType}`);
+    
+    // This would typically make an AJAX call to get filtered data
+    // For now, we'll just show an alert
+    alert(`Department chart filtered by: ${filterType}\n\nThis would update the chart with ${filterType} data.`);
+    
+    // In a real implementation, you would:
+    // 1. Make an AJAX call to get filtered data
+    // 2. Update the chart with new data
+    // 3. Update the department breakdown list
+}
+
+// Highlight specific department
+function highlightDepartment(deptName) {
+    const deptItems = document.querySelectorAll('.dept-item');
+    
+    deptItems.forEach(item => {
+        if (item.dataset.dept === deptName) {
+            item.classList.add('highlighted');
+            item.style.backgroundColor = '#e3f2fd';
+            item.style.borderColor = '#2196f3';
+        } else {
+            item.classList.remove('highlighted');
+            item.style.backgroundColor = '';
+            item.style.borderColor = '';
+        }
+    });
+    
+    console.log(`Highlighted department: ${deptName}`);
+}
+
+
+
+// Generate department report
+function generateDepartmentReport() {
+    alert('Generating comprehensive department payroll report...\n\nThis would create a detailed PDF report with charts and analysis.');
+}
+
+// Convert JSON to CSV
+function convertToCSV(data) {
+    if (data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(header => {
+            const value = row[header];
+            return typeof value === 'string' ? `"${value}"` : value;
+        }).join(','))
+    ].join('\n');
+    
+    return csvContent;
+}
+
+// ===================================
+// ENHANCED CHARTS WITH INTERACTIVITY
+// ===================================
+
+// Make charts more interactive
+function enhanceChartInteractivity() {
+    // Add click handlers to chart elements
+    const charts = ['attendanceChart', 'departmentChart', 'leaveChart', 'payrollChart'];
+    
+    charts.forEach(chartId => {
+        const canvas = document.getElementById(chartId);
+        if (canvas) {
+            canvas.addEventListener('click', function(event) {
+                const chart = Chart.getChart(this);
+                if (chart) {
+                    handleChartClick(chart, event);
+                }
+            });
+        }
+    });
+}
+
+// Handle chart click events
+function handleChartClick(chart, event) {
+    const points = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+    
+    if (points.length) {
+        const firstPoint = points[0];
+        const label = chart.data.labels[firstPoint.index];
+        const value = chart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+        
+        console.log(`Chart clicked - Label: ${label}, Value: ${value}`);
+        
+        // Show detailed tooltip or modal
+        showChartDetails(label, value, chart.canvas.id);
+    }
+}
+
+// Show chart details
+function showChartDetails(label, value, chartType) {
+    let message = `Chart: ${chartType}\nLabel: ${label}\nValue: ${value}`;
+    
+    if (chartType === 'departmentChart') {
+        message += `\n\nClick on the department name in the breakdown to see more details.`;
+    }
+    
+    alert(message);
+}
+
+// Enhanced responsive utilities
+function handleChartResize() {
+    // Redraw charts on window resize
+    setTimeout(() => {
+        // Chart.js automatically handles responsive, but we can add custom logic here
+        enhanceChartInteractivity();
+    }, 250);
+}
+
+// Initialize enhanced features
+document.addEventListener('DOMContentLoaded', function() {
+    enhanceChartInteractivity();
+});
+
+window.addEventListener('resize', handleChartResize);
+
+// ===================================
+// UTILITY FUNCTIONS
+// ===================================
+
+// Format currency
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}
+
+// Format percentage
+function formatPercentage(value) {
+    return `${(value * 100).toFixed(1)}%`;
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Simple notification system
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Export functionality for departments
+function exportDepartmentData() {
+    try {
+        // Create CSV data
+        const deptData = [];
+        const deptItems = document.querySelectorAll('.dept-item');
+        
+        deptItems.forEach(item => {
+            const deptName = item.querySelector('.dept-name').textContent;
+            const deptDetails = item.querySelector('.dept-details').textContent;
+            const amount = item.querySelector('.amount').textContent;
+            const percentage = item.querySelector('.percentage').textContent;
+            
+            deptData.push({
+                Department: deptName,
+                Details: deptDetails,
+                Amount: amount,
+                Percentage: percentage
+            });
+        });
+        
+        // Convert to CSV and download
+        const csv = convertToCSV(deptData);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `department_payroll_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Department data exported successfully!', 'success');
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Error exporting data. Please try again.', 'error');
+    }
+}
+</script><style>
+/* Enhanced Styles for HR Reports */
+
+/* Activity Card Enhancements */
+.activity-item {
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.activity-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #0b7368;
+}
+
+.activity-icon {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    min-width: 0;
+}
+
+.activity-title {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.activity-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 2px;
+}
+
+.activity-details {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.activity-meta {
+    font-size: 11px;
+}
+
+/* Department Breakdown Enhancements */
+.dept-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dept-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dept-item.highlighted {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.dept-name {
+    font-size: 13px;
+    color: #374151;
+}
+
+.dept-details {
+    font-size: 11px;
+}
+
+.dept-amount .amount {
+    font-size: 14px;
+    color: #0b7368;
+}
+
+.dept-amount .percentage {
+    font-size: 10px;
+}
+
+/* Chart Enhancements */
+.chart-card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chart-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chart-title {
+    font-size: 16px;
+    color: #374151;
+    font-weight: 600;
+}
+
+.chart-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Metric Cards */
+.metric-card {
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-small {
+    transition: all 0.3s ease;
+}
+
+.stat-small:hover {
+    background-color: #f3f4f6 !important;
+}
+
+/* Insights Boxes */
+.insight-box {
+    transition: all 0.3s ease;
+}
+
+.insight-box:hover {
+    background-color: #f9fafb !important;
+    transform: translateY(-1px);
+}
+
+.department-insights {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Activity Insights */
+.activity-insights {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+}
+
+/* Dropdown Enhancements */
+.dropdown-menu {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+    font-size: 13px;
+    padding: 8px 16px;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+    color: #0b7368;
+}
+
+/* Progress Bar Enhancements */
+.progress {
+    background-color: #f3f4f6;
+    border-radius: 2px;
+}
+
+.progress-bar {
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+
+/* Button Enhancements */
+.btn-group-sm .btn {
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+/* Department Grid View */
+.department-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.department-breakdown-grid .dept-item {
+    margin-bottom: 0;
+}
+
+/* Notification Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto;
+    }
+    
+    .dept-item {
+        text-align: center;
+    }
+    
+    .dept-amount {
+        text-align: center !important;
+    }
+}
+
+/* Animation for new items */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.activity-item {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.dept-item {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Chart Container Enhancements */
+.chart-container {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* Activity Type Specific Styling */
+.activity-type-payroll {
+    border-left: 4px solid #02c202;
+}
+
+.activity-type-announcement {
+    border-left: 4px solid #17a2b8;
+}
+
+.activity-type-team_assignment {
+    border-left: 4px solid #0b7368;
+}
+
+.activity-type-project {
+    border-left: 4px solid #e2e205;
+}
+
+.activity-type-employee {
+    border-left: 4px solid #02c202;
+}
+
+/* Enhanced Hover Effects */
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    transition: transform 0.3s ease;
+}
+
+/* Chart Legend Enhancements */
+.chart-container .legend {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Custom Scrollbar for Department List */
+.department-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.department-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.department-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+.department-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
+
+{% endblock %}

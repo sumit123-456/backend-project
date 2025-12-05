@@ -1,0 +1,706 @@
+{% load static %}
+
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Kavya Infoweb - HR Profile Management System</title><link
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+    rel="stylesheet"
+  /><link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+  /><link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  /><style>
+    :root {
+      --primary-color: #0b7368;
+      --primary-dark: #064e3b;
+      --primary-light: #0d9488;
+      --secondary-color: #64748b;
+      --accent-color: #14b8a6;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --light-bg: #f0fdfa;
+      --white: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border-color: #ccfbf1;
+      --shadow-sm: 0 1px 2px 0 rgba(11, 115, 104, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(11, 115, 104, 0.1), 0 2px 4px -1px rgba(11, 115, 104, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(11, 115, 104, 0.1), 0 4px 6px -2px rgba(11, 115, 104, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(11, 115, 104, 0.1), 0 10px 10px -5px rgba(11, 115, 104, 0.04);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .top-bar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .top-bar h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .top-bar h1 i {
+      font-size: 32px;
+      color: var(--accent-color);
+    }
+
+    /* Main Container */
+    .main-container {
+      display: flex;
+      min-height: 100vh;
+      margin-top: 80px;
+      gap: 0;
+    }
+
+    /* Logo Section - Fixed/Sticky */
+    .logo-section {
+      flex: 0 0 40%;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 80px 40px 40px;
+      position: fixed;
+      top: 80px;
+      left: 0;
+      width: 40%;
+      height: calc(100vh - 80px);
+      color: white;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .logo-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .logo-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .company-logo {
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-xl);
+      transition: transform 0.3s ease;
+    }
+
+    .company-logo:hover {
+      transform: translateY(-5px);
+    }
+
+    .company-logo h3 {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-text h4 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-text p {
+      font-size: 18px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    /* Form Section */
+    .form-section {
+      flex: 1;
+      background: var(--white);
+      padding: 60px;
+      overflow-y: auto;
+      position: relative;
+      margin-left: 40%;
+      min-height: calc(100vh - 80px);
+    }
+
+    .form-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    /* Scrollbar Styling */
+    .form-section::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .form-section::-webkit-scrollbar-track {
+      background: var(--light-bg);
+      border-radius: 4px;
+    }
+
+    .form-section::-webkit-scrollbar-thumb {
+      background: var(--primary-light);
+      border-radius: 4px;
+    }
+
+    .form-section::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-color);
+    }
+
+    /* Section Titles */
+    .section-title {
+      color: var(--primary-color);
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 3px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title i {
+      font-size: 30px;
+      color: var(--accent-color);
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 28px;
+    }
+
+    .form-label {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 16px;
+      display: block;
+    }
+
+    .form-control,
+    .form-select {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: var(--white);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(11, 115, 104, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .form-control:hover,
+    .form-select:hover {
+      border-color: var(--primary-light);
+    }
+
+    .form-control::placeholder {
+      color: var(--text-secondary);
+    }
+
+    /* File Upload Styling */
+    .form-control[type="file"] {
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .form-control[type="file"]:hover {
+      background-color: var(--light-bg);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      min-width: 160px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      color: white;
+      text-decoration: none;
+    }
+
+    .btn-outline-primary {
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+    }
+
+    .btn-success {
+      background: var(--success-color);
+      color: white;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Required Field Indicator */
+    .required {
+      color: var(--danger-color);
+      font-weight: 700;
+    }
+
+    /* HR List Section */
+    .hr-list-section {
+      background: var(--light-bg);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hr-list-section.show {
+      display: block;
+    }
+
+    /* Table Styling */
+    .table {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .table thead th {
+      background: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      padding: 16px;
+      border: none;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(11, 115, 104, 0.02);
+    }
+
+    .table tbody tr:hover {
+      background-color: rgba(11, 115, 104, 0.05);
+    }
+
+    /* WhatsApp Links Styling */
+    .whatsapp-links {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .whatsapp-links h5 {
+      color: white;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .whatsapp-links .btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      margin: 4px;
+      padding: 8px 16px;
+      font-size: 14px;
+      min-width: auto;
+    }
+
+    .whatsapp-links .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .form-section {
+        padding: 40px;
+        margin-left: 40%;
+      }
+      
+      .logo-section {
+        padding: 40px 30px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .logo-section {
+        flex: none;
+        width: 100%;
+        position: relative;
+        top: 0;
+        height: auto;
+        min-height: 300px;
+        padding: 40px 20px;
+      }
+
+      .company-logo {
+        width: 150px;
+        height: 150px;
+      }
+
+      .company-logo h3 {
+        font-size: 32px;
+      }
+
+      .logo-text h4 {
+        font-size: 24px;
+      }
+
+      .logo-text p {
+        font-size: 16px;
+      }
+
+      .form-section {
+        flex: none;
+        padding: 30px 20px;
+        margin-left: 0;
+        min-height: auto;
+      }
+
+      .top-bar h1 {
+        font-size: 22px;
+      }
+
+      .section-title {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .form-section {
+        padding: 20px 15px;
+      }
+
+      .top-bar {
+        padding: 12px 20px;
+      }
+
+      .top-bar h1 {
+        font-size: 18px;
+      }
+
+      .section-title {
+        font-size: 20px;
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+      }
+
+      .company-logo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 20px;
+      }
+
+      .company-logo h3 {
+        font-size: 24px;
+      }
+
+      .btn {
+        width: 100%;
+        margin-bottom: 12px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-section {
+        padding: 15px 10px;
+      }
+
+      .logo-section {
+        padding: 30px 15px;
+      }
+
+      .company-logo {
+        width: 100px;
+        height: 100px;
+      }
+
+      .company-logo h3 {
+        font-size: 20px;
+      }
+
+      .logo-text h4 {
+        font-size: 18px;
+      }
+
+      .section-title {
+        font-size: 18px;
+      }
+
+      .form-control,
+      .form-select {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+
+      .top-bar h1 {
+        font-size: 16px;
+      }
+    }
+
+    /* Loading States */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-section {
+      animation: fadeInUp 0.6s ease-out;
+    }
+  </style></head><body><div class="top-bar"><h1><i class="fas fa-building"></i> Kavya Infoweb Private Limited - HR Profile Management
+    </h1></div>
+
+  {% if messages or success_message %}
+  <div class="container-fluid" style="position: fixed; top: 80px; left: 0; right: 0; z-index: 9999; padding: 0 30px;"><div class="row"><div class="col-12">
+        {% if success_message %}
+        <div class="alert alert-success text-center" style="font-size: 18px; font-weight: 600; margin-bottom: 0; border-radius: 0 0 16px 16px; box-shadow: var(--shadow-lg); border: none;"><i class="fas fa-check-circle me-2"></i> {{ success_message }}
+        </div>
+        {% endif %}
+        {% for message in messages %}
+        <div
+          class="alert alert-{{ message.tags }} text-center"
+          style="font-size: 18px; font-weight: 600; margin-bottom: 0; border-radius: 0 0 16px 16px; box-shadow: var(--shadow-lg); border: none;">
+          {% if message.tags == 'success' %}
+            <i class="fas fa-check-circle me-2"></i>
+          {% elif message.tags == 'error' or message.tags == 'danger' %}
+            <i class="fas fa-exclamation-circle me-2"></i>
+          {% elif message.tags == 'warning' %}
+            <i class="fas fa-exclamation-triangle me-2"></i>
+          {% elif message.tags == 'info' %}
+            <i class="fas fa-info-circle me-2"></i>
+          {% endif %}
+          {{ message }}
+        </div>
+        {% endfor %}
+        
+        <!-- WhatsApp Links Section -->
+        {% if show_whatsapp_links and whatsapp_links %}
+        <div class="whatsapp-links"><div class="row"><div class="col-12 text-center"><h5><i class="fab fa-whatsapp me-2"></i> WhatsApp Message Links for {{ hr_name }} ({{ hr_mobile }})</h5><p class="mb-3" style="color: rgba(255,255,255,0.9);">Click any link below to send WhatsApp message (opens in new tab):</p><div class="d-flex justify-content-center flex-wrap gap-2">
+                {% if whatsapp_links.mobile %}
+                <a href="{{ whatsapp_links.mobile }}" target="_blank" class="btn"><i class="fab fa-whatsapp me-2"></i> WhatsApp App
+                </a>
+                {% endif %}
+                
+                {% if whatsapp_links.web %}
+                <a href="{{ whatsapp_links.web }}" target="_blank" class="btn"><i class="fas fa-globe me-2"></i> WhatsApp Web
+                </a>
+                {% endif %}
+                
+                {% if whatsapp_links.direct %}
+                <a href="{{ whatsapp_links.direct }}" target="_blank" class="btn"><i class="fas fa-link me-2"></i> Direct Link
+                </a>
+                {% endif %}
+              </div><div class="mt-3"><small style="color: rgba(255,255,255,0.8);"><i class="fas fa-lightbulb me-1"></i><strong>Quick Action:</strong> Click any button above - it will open WhatsApp with the message ready to send!
+                </small></div></div></div></div>
+        {% endif %}
+        
+      </div></div></div>
+  {% endif %}
+
+  <div class="main-container"><div class="logo-section"><div class="logo-content"><div class="company-logo"><h3>KAVYA<br>INFOWEB<br>HR</h3></div><div class="logo-text"><h4>Global HR Portal</h4><p>Your Professional HR Management Solution</p></div></div></div><div class="form-section">
+      {% if show_list %}
+      <div class="hr-list-section show"><div class="section-title"><i class="fas fa-users"></i> HR Members List ({{ total_hr }})
+        </div>
+        {% if hr_list %}
+        <div class="table-responsive"><table class="table table-striped"><thead><tr><th>ID</th><th>Name</th><th>Employee ID</th><th>Email</th><th>Mobile</th><th>Designation</th><th>Department</th><th>Access Level</th></tr></thead><tbody>
+              {% for hr in hr_list %}
+              <tr><td>{{ hr.id }}</td><td>{{ hr.full_name }}</td><td>{{ hr.employee_id }}</td><td>{{ hr.email }}</td><td>{{ hr.mobile }}</td><td>{{ hr.designation }}</td><td>{{ hr.department }}</td><td>{{ hr.access_level }}</td></tr>
+              {% endfor %}
+            </tbody></table></div>
+        {% else %}
+        <p class="text-center">No HR members found.</p>
+        {% endif %}
+        <div class="text-center mt-3"><a href="{% url 'create-hr' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add New HR
+          </a></div></div>
+      {% endif %}
+
+      <form id="hrForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Personal Information --><div class="mb-4"><div class="section-title"><i class="fas fa-user"></i> Personal Information
+          </div><div class="row"><div class="col-md-6 form-group"><label class="form-label">Full Name <span class="required">*</span></label><input type="text" class="form-control" name="fullName" required /></div><div class="col-md-6 form-group"><label class="form-label">Employee ID <span class="required">*</span></label><input type="text" class="form-control" name="employeeId" required /></div><div class="col-md-6 form-group"><label class="form-label">Email Address <span class="required">*</span></label><input type="email" class="form-control" name="email" required /></div><div class="col-md-6 form-group"><label class="form-label">Mobile Number <span class="required">*</span></label><input type="tel" class="form-control" name="mobile" required /></div><div class="col-md-6 form-group"><label class="form-label">Profile Photo</label><input type="file" class="form-control" name="profileImage" accept="image/*" /><small class="form-text text-muted">Upload a profile photo (optional)</small></div></div></div><!-- Official Information --><div class="mb-4"><div class="section-title"><i class="fas fa-briefcase"></i> Official Information
+          </div><div class="row"><div class="col-md-6 form-group"><label class="form-label">Designation <span class="required">*</span></label><input type="text" class="form-control" name="designation" value="HR Manager" required /></div><div class="col-md-6 form-group"><label class="form-label">Department <span class="required">*</span></label><input type="text" class="form-control" name="department" value="Human Resources" required /></div><div class="col-md-6 form-group"><label class="form-label">Date of Joining <span class="required">*</span></label><input type="date" class="form-control" name="dateOfJoining" required /></div><div class="col-md-6 form-group"><label class="form-label">Work Location <span class="required">*</span></label><input type="text" class="form-control" name="workLocation" required /></div></div></div><!-- CRM Access Credentials --><div class="mb-4"><div class="section-title"><i class="fas fa-key"></i> CRM Access Credentials
+          </div><div class="row"><div class="col-md-6 form-group"><label class="form-label">Username/User ID <span class="required">*</span></label><input type="text" class="form-control" name="username" required /></div><div class="col-md-6 form-group"><label class="form-label">Temporary Password <span class="required">*</span></label><input type="password" class="form-control" name="password" required /></div><div class="col-md-6 form-group"><label class="form-label">Confirm Password <span class="required">*</span></label><input type="password" class="form-control" name="confirmPassword" required /></div><div class="col-md-6 form-group"><label class="form-label">Access Level <span class="required">*</span></label><select class="form-select" name="accessLevel" required><option value="">Select Access Level</option><option value="Admin">Admin</option><option value="HR">HR</option><option value="Manager">Manager</option></select></div></div></div><div class="text-center mt-4"><div class="d-flex justify-content-center gap-3 flex-wrap"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create HR Profile
+            </button><a href="{% url 'hr-list' %}" class="btn btn-outline-primary"><i class="fas fa-users"></i> Show HR List
+            </a></div></div></form></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script><script>
+    // Form Submission - Clean form submission with validation and WhatsApp timing
+    document.getElementById("hrForm").addEventListener("submit", function (e) {
+      const password = document.querySelector('[name="password"]').value;
+      const confirmPassword = document.querySelector('[name="confirmPassword"]').value;
+
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert("Passwords do not match!");
+        return false;
+      }
+
+      // Form will submit normally to Django view
+      // Show loading state with WhatsApp timing
+      const submitBtn = document.querySelector('button[type="submit"]');
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating HR & Sending WhatsApp...';
+      submitBtn.disabled = true;
+      
+      // Add countdown for WhatsApp timing (4 seconds)
+      let seconds = 4;
+      const countdown = setInterval(() => {
+        submitBtn.innerHTML = `<i class="fas fa-clock"></i> Sending WhatsApp in ${seconds}s...`;
+        seconds--;
+        
+        if (seconds < 0) {
+          clearInterval(countdown);
+          submitBtn.innerHTML = '<i class="fas fa-check"></i> Completed!';
+        }
+      }, 1000);
+    });
+
+    // Set today's date as default for date of joining
+    if (document.querySelector('[name="dateOfJoining"]')) {
+      document.querySelector('[name="dateOfJoining"]').value = new Date().toISOString().split('T')[0];
+    }
+
+    // Auto-hide all messages after 3 seconds
+    function autoHideMessages() {
+      const allAlerts = document.querySelectorAll('.alert');
+      allAlerts.forEach(alert => {
+        setTimeout(() => {
+          if (alert.parentElement) {
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => {
+              if (alert.parentElement) {
+                alert.parentElement.style.display = 'none';
+              }
+            }, 500);
+          }
+        }, 3000); // 3 seconds
+      });
+    }
+
+    // Run auto-hide function when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      autoHideMessages();
+    });
+
+    // Also run after form submission
+    document.getElementById('hrForm').addEventListener('submit', function() {
+      setTimeout(() => {
+        autoHideMessages();
+      }, 1000);
+    });
+  </script></body></html>

@@ -1,0 +1,43 @@
+{% extends "app/base.html" %}
+{% block content %}
+
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:rgb(250, 252, 252);border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title" style="color: teal;">Edit Announcement</div><a href="{% url 'hr-announcements' %}"><div class="text" style="color: teal;"><i class="fas fa-arrow-left me-1"></i>Back to Announcements
+      </div></a></div><!-- Edit Announcement Form --><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+              border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Form Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb; background:#f8f9fa;"><h5 style="margin:0; font-weight:600; color:#333;"><i class="fas fa-edit me-2"></i>Edit Announcement: {{ announcement.title }}
+      </h5><small class="text-muted">Created: {{ announcement.created_at|date:"M d, Y" }} | Last updated: {{ announcement.updated_at|date:"M d, Y" }}</small></div><!-- Form Body --><div style="padding:30px;"><form method="POST" action="{% url 'update-announcement' announcement.id %}">
+        {% csrf_token %}
+        
+        <div class="row"><div class="col-md-6"><div class="mb-3"><label for="announcementTitle" class="form-label fw-bold">
+                Title <span class="text-danger">*</span></label><input type="text" class="form-control" 
+                     id="announcementTitle" name="announcementTitle" required
+                     value="{{ announcement.title }}"
+                     style="border:1px solid #ddd; border-radius:8px; padding:12px;"
+                     placeholder="Enter announcement title"></div></div><div class="col-md-6"><div class="mb-3"><label for="announcementCategory" class="form-label fw-bold">
+                Category <span class="text-danger">*</span></label><select class="form-select" id="announcementCategory" name="announcementCategory" required
+                      style="border:1px solid #ddd; border-radius:8px; padding:12px;"><option value="">Select Category</option><option value="company_news" {% if announcement.category == "company_news" %}selected{% endif %}>Company News</option><option value="hr_updates" {% if announcement.category == "hr_updates" %}selected{% endif %}>HR Updates</option><option value="policy_changes" {% if announcement.category == "policy_changes" %}selected{% endif %}>Policy Changes</option><option value="events" {% if announcement.category == "events" %}selected{% endif %}>Events</option><option value="general" {% if announcement.category == "general" %}selected{% endif %}>General</option><option value="holiday" {% if announcement.category == "holiday" %}selected{% endif %}>Holiday Notice</option><option value="training" {% if announcement.category == "training" %}selected{% endif %}>Training & Development</option><option value="awards" {% if announcement.category == "awards" %}selected{% endif %}>Awards & Recognition</option><option value="technology" {% if announcement.category == "technology" %}selected{% endif %}>Technology Updates</option><option value="facilities" {% if announcement.category == "facilities" %}selected{% endif %}>Facilities & Infrastructure</option><option value="safety" {% if announcement.category == "safety" %}selected{% endif %}>Safety & Security</option><option value="compliance" {% if announcement.category == "compliance" %}selected{% endif %}>Compliance & Legal</option><option value="financial" {% if announcement.category == "financial" %}selected{% endif %}>Financial Updates</option><option value="product" {% if announcement.category == "product" %}selected{% endif %}>Product Updates</option><option value="marketing" {% if announcement.category == "marketing" %}selected{% endif %}>Marketing & Sales</option></select></div></div></div><div class="row"><div class="col-md-6"><div class="mb-3"><label for="announcementPriority" class="form-label fw-bold">
+                Priority <span class="text-danger">*</span></label><select class="form-select" id="announcementPriority" name="announcementPriority" required
+                      style="border:1px solid #ddd; border-radius:8px; padding:12px;"><option value="">Select Priority</option><option value="high" {% if announcement.priority == "high" %}selected{% endif %}>High</option><option value="medium" {% if announcement.priority == "medium" %}selected{% endif %}>Medium</option><option value="low" {% if announcement.priority == "low" %}selected{% endif %}>Low</option><option value="critical" {% if announcement.priority == "critical" %}selected{% endif %}>Critical</option><option value="urgent" {% if announcement.priority == "urgent" %}selected{% endif %}>Urgent</option></select></div></div><div class="col-md-6"><div class="mb-3"><label for="announcementExpiry" class="form-label fw-bold">Expiry Date</label><input type="date" class="form-control" id="announcementExpiry" name="announcementExpiry"
+                     value="{{ announcement.expiry_date|date:"Y-m-d" }}" 
+                     style="border:1px solid #ddd; border-radius:8px; padding:12px;"><small class="form-text text-muted">Leave empty for no expiry date</small></div></div></div><div class="mb-4"><label for="announcementContent" class="form-label fw-bold">
+            Content <span class="text-danger">*</span></label><textarea class="form-control" id="announcementContent" name="announcementContent"
+                    rows="8" required
+                    placeholder="Enter announcement content..."
+                    style="border:1px solid #ddd; border-radius:8px; padding:12px; resize:vertical;">{{ announcement.content }}</textarea><small class="form-text text-muted">Provide detailed content for the announcement</small></div><!-- Current Status Display --><div class="mb-4"><div style="padding:15px; background:#f8f9fa; border-radius:8px; border:1px solid #dee2e6;"><h6 class="mb-2">Current Status</h6><div class="row"><div class="col-md-4"><strong>Status:</strong> 
+                {% if announcement.status == "published" %}
+                  <span class="badge bg-success">Active</span>
+                {% elif announcement.status == "draft" %}
+                  <span class="badge bg-warning text-dark">Draft</span>
+                {% elif announcement.status == "scheduled" %}
+                  <span class="badge bg-info">Scheduled</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ announcement.get_status_display }}</span>
+                {% endif %}
+              </div><div class="col-md-4"><strong>Views:</strong> {{ announcement.read_by_count }}
+              </div><div class="col-md-4"><strong>Likes:</strong> {{ announcement.likes_count }}
+              </div></div></div></div><!-- Form Actions --><div style="border-top:1px solid #e5e7eb; padding-top:20px; margin-top:20px;"><div class="d-flex justify-content-between"><div><a href="{% url 'hr-announcements' %}" class="btn btn-secondary" 
+                 style="border-radius:8px; padding:10px 20px; font-weight:500;"><i class="fas fa-times me-1"></i>Cancel
+              </a></div><div><button type="submit" class="btn btn-primary" 
+                      style="border-radius:8px; padding:10px 20px; font-weight:500; background:#0a6d65; border-color:#0a6d65;"><i class="fas fa-save me-1"></i>Update Announcement
+              </button></div></div></div></form></div></div></main>
+
+{% endblock %}

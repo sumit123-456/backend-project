@@ -1,0 +1,883 @@
+{% extends "app/base.html" %}
+
+{% block extra_css %}
+<style>
+/* Calendar Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #e9ecef;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-day-header {
+    background: #343a40;
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.calendar-day {
+    background: white;
+    min-height: 80px;
+    padding: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.calendar-day:hover {
+    background: #f8f9fa;
+    transform: scale(1.02);
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.calendar-day.empty {
+    background: #f8f9fa;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    background: #f8f9fa;
+    transform: none;
+    box-shadow: none;
+}
+
+.calendar-day.weekend {
+    background: #f8f9fa;
+}
+
+.calendar-day.today {
+    border: 2px solid #007bff;
+    background: #e7f3ff;
+}
+
+.day-number {
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+}
+
+.calendar-day.weekend .day-number {
+    color: #6c757d;
+}
+
+.status-indicator {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 4px;
+}
+
+.status-indicator.present {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-indicator.late-mark {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-indicator.absent {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.present-day {
+    background: #d4edda !important;
+    border-left: 4px solid #28a745;
+}
+
+.present-day .day-number {
+    color: #155724;
+}
+
+.late-mark-day {
+    background: #fff3cd !important;
+    border-left: 4px solid #ffc107;
+}
+
+.late-mark-day .day-number {
+    color: #856404;
+}
+
+.absent-day {
+    background: #f8d7da !important;
+    border-left: 4px solid #dc3545;
+}
+
+.absent-day .day-number {
+    color: #721c24;
+}
+
+.day-buttons {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: flex;
+    gap: 2px;
+}
+
+.day-buttons .btn {
+    padding: 2px 6px;
+    font-size: 10px;
+    min-width: auto;
+}
+
+.has-buttons:hover .day-buttons {
+    display: flex;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 60px;
+        padding: 4px;
+    }
+    
+    .day-number {
+        font-size: 12px;
+    }
+    
+    .status-indicator {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+    
+    .day-buttons {
+        position: static;
+        margin-top: 4px;
+        justify-content: center;
+    }
+    
+    .day-buttons .btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Enhanced Attendance Content Template -->
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            <h1 class="page-title">
+                <i class="fas fa-clipboard-list me-3"></i>
+                {% if user_role == 'HR' %}
+                    Enhanced Attendance Management
+                {% elif user_role == 'TL' %}
+                    Team Enhanced Attendance
+                {% else %}
+                    My Enhanced Attendance
+                {% endif %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% if user_role == 'HR' %}
+                    Comprehensive attendance tracking and management for all employees
+                {% elif user_role == 'TL' %}
+                    Enhanced attendance tracking for your team members
+                {% else %}
+                    Manage your daily attendance and work completion
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Overview Cards -->
+<div class="row mb-4">
+    {% if user_role == 'HR' %}
+    <!-- HR Overview Cards -->
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card">
+            <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_employees|default:0 }}</div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #28a745;">
+            <div class="stat-icon" style="color: #28a745;">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_present|default:0 }}</div>
+                <div class="stat-label">Present Today</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #dc3545;">
+            <div class="stat-icon" style="color: #dc3545;">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_absent|default:0 }}</div>
+                <div class="stat-label">Absent Today</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #ffc107;">
+            <div class="stat-icon" style="color: #ffc107;">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_late_mark|default:0 }}</div>
+                <div class="stat-label">Late Mark Today</div>
+            </div>
+        </div>
+    </div>
+    {% elif user_role == 'TL' %}
+    <!-- TL Overview Cards -->
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card">
+            <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ team_size|default:0 }}</div>
+                <div class="stat-label">Team Members</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #28a745;">
+            <div class="stat-icon" style="color: #28a745;">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_present|default:0 }}</div>
+                <div class="stat-label">Present Today</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #dc3545;">
+            <div class="stat-icon" style="color: #dc3545;">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_absent|default:0 }}</div>
+                <div class="stat-label">Absent Today</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #ffc107;">
+            <div class="stat-icon" style="color: #ffc107;">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ total_late_mark|default:0 }}</div>
+                <div class="stat-label">Late Mark Today</div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Employee Overview Cards -->
+    {% if present_today %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #28a745;">
+            <div class="stat-icon" style="color: #28a745;">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <div class="stat-number">✓</div>
+                <div class="stat-label">Present Today</div>
+                <small class="text-muted">Marked at: {{ present_today.marked_time|date:"H:i:s" }}</small>
+            </div>
+        </div>
+    </div>
+    {% elif absent_today %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #dc3545;">
+            <div class="stat-icon" style="color: #dc3545;">
+                <i class="fa-solid fa-times"></i>
+            </div>
+            <div>
+                <div class="stat-number">✗</div>
+                <div class="stat-label">Absent Today</div>
+                <small class="text-muted">Marked at: {{ absent_today.marked_time|date:"H:i:s" }}</small>
+            </div>
+        </div>
+    </div>
+    {% elif late_mark_today %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #ffc107;">
+            <div class="stat-icon" style="color: #ffc107;">
+                <i class="fa-solid fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <div class="stat-number">!</div>
+                <div class="stat-label">Late Mark Today</div>
+                <small class="text-muted">{{ late_mark_today.late_minutes }} minutes late</small>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #6c757d;">
+            <div class="stat-icon" style="color: #6c757d;">
+                <i class="fa-solid fa-question"></i>
+            </div>
+            <div>
+                <div class="stat-number">?</div>
+                <div class="stat-label">No Attendance</div>
+                <small class="text-muted">Please mark your attendance</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if work_completion_today %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #17a2b8;">
+            <div class="stat-icon" style="color: #17a2b8;">
+                <i class="fa-solid fa-tasks"></i>
+            </div>
+            <div>
+                <div class="stat-number">✓</div>
+                <div class="stat-label">Work Completed</div>
+                <small class="text-muted">Submitted: {{ work_completion_today.work_completion_time|date:"H:i:s" }}</small>
+            </div>
+        </div>
+    </div>
+    {% elif is_office_closing_time %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #17a2b8;">
+            <div class="stat-icon" style="color: #17a2b8;">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-number">🕕</div>
+                <div class="stat-label">Work Time</div>
+                <small class="text-muted">Submit your daily work</small>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid #6c757d;">
+            <div class="stat-icon" style="color: #6c757d;">
+                <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+            <div>
+                <div class="stat-number">⏰</div>
+                <div class="stat-label">Work Pending</div>
+                <small class="text-muted">Available after 6:30 PM</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="k-card stat-card" style="border-left: 4px solid var(--teal);">
+            <div class="stat-icon" style="color: var(--teal);">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-number">{{ current_time|date:"H:i" }}</div>
+                <div class="stat-label">Current Time</div>
+                <small class="text-muted">{{ current_time|date:"M d, Y" }}</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Employee Module Specific Content -->
+{% if user_role == 'Employee' %}
+<!-- Time Information Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            <h5 class="mb-3">
+                <i class="fas fa-info-circle me-2"></i>Time Information
+            </h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="p-3 rounded" style="background: #f8f9fa; border-left: 4px solid #007bff;">
+                        <strong>Late Mark Threshold:</strong> {{ late_threshold|date:"H:i" }}
+                        <br><small class="text-muted">After this time, attendance will be marked as Late Mark</small>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="p-3 rounded" style="background: #f8f9fa; border-left: 4px solid #17a2b8;">
+                        <strong>Office Closing Time:</strong> {{ office_closing_time|date:"H:i" }}
+                        <br><small class="text-muted">Work completion submission time</small>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="p-3 rounded" style="background: #f8f9fa; border-left: 4px solid #6c757d;">
+                        <strong>Current Time:</strong> {{ current_time|date:"H:i:s" }}
+                        <br><small class="text-muted">{{ current_time|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+            {% if is_late_mark %}
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle me-2"></i> 
+                <strong>Current time is after late mark threshold</strong>
+            </div>
+            {% endif %}
+            {% if is_office_closing_time %}
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-check-circle me-2"></i> 
+                <strong>Office closing time reached - Work completion available</strong>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Calendar View Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Monthly Attendance Calendar
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="previousMonth()">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span id="currentMonth" class="badge bg-primary fs-6 px-3 py-2"></span>
+                    <button class="btn btn-outline-primary btn-sm" onclick="nextMonth()">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="calendarLoading" class="text-center py-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading calendar...</p>
+            </div>
+            
+            <div id="calendarContainer">
+                <!-- Calendar will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Actions -->
+{% if not has_marked_attendance %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card text-center">
+            <h5 class="mb-3">
+                <i class="fas fa-hand-pointer me-2"></i>Mark Your Attendance
+            </h5>
+            <button id="btnPresent" class="btn btn-success me-2" onclick="markPresent()">
+                <i class="fas fa-check me-1"></i> Present
+            </button>
+            <button id="btnAbsent" class="btn btn-danger" onclick="markAbsent()">
+                <i class="fas fa-times me-1"></i> Absent
+            </button>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i> 
+            <strong>Attendance already marked for today.</strong> You cannot change your attendance status.
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Absent Reason Form -->
+<div id="absentForm" class="row mb-4" style="display: none;">
+    <div class="col-12">
+        <div class="k-card">
+            <h5 class="mb-3">
+                <i class="fas fa-comment me-2"></i>Provide Reason for Absence
+            </h5>
+            <form id="absentReasonForm">
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason for Absence:</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="3" 
+                              placeholder="Please provide a brief reason for your absence..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger me-2">
+                    <i class="fas fa-times me-1"></i> Confirm Absence
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="hideAbsentForm()">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Work Completion Form -->
+{% if is_office_closing_time and not work_completion_today %}
+<div id="workCompletionForm" class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            <h5 class="mb-3">
+                <i class="fas fa-tasks me-2"></i>Submit Daily Work Completion
+            </h5>
+            <p class="text-muted mb-3">Please provide details about your work completion for today.</p>
+            <form id="workDetailsForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="tasksCompleted" class="form-label">Tasks Completed Today *</label>
+                        <textarea class="form-control" id="tasksCompleted" name="tasks_completed" rows="3" 
+                                  placeholder="List the main tasks you completed today..." required></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="challengesFaced" class="form-label">Challenges Faced</label>
+                        <textarea class="form-control" id="challengesFaced" name="challenges_faced" rows="3" 
+                                  placeholder="Any challenges or blockers encountered..."></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="tomorrowPlan" class="form-label">Tomorrow's Plan</label>
+                        <textarea class="form-control" id="tomorrowPlan" name="tomorrow_plan" rows="2" 
+                                  placeholder="What you plan to work on tomorrow..."></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="additionalNotes" class="form-label">Additional Notes</label>
+                        <textarea class="form-control" id="additionalNotes" name="additional_notes" rows="2" 
+                                  placeholder="Any additional comments or notes..."></textarea>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-check me-1"></i> Submit Work Completion
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+
+<!-- Team Module Specific Content -->
+{% if user_role == 'TL' %}
+<!-- Team Members Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            <h5 class="mb-3" style="color: var(--teal);">
+                <i class="fa-solid fa-users me-2"></i>Team Members Overview
+            </h5>
+            
+            <div class="row">
+                {% for member in team_members %}
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="k-card" style="border-left: 4px solid var(--teal);">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="avatar me-3">
+                                {{ member.first_name.0 }}{{ member.last_name.0 }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748; font-size: 14px">
+                                    {{ member.first_name }} {{ member.last_name }}
+                                </div>
+                                <div style="font-size: 12px; color: #718096">
+                                    {{ member.company_id }} | {{ member.designation }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Today's Status -->
+                        {% with found_status=False %}
+                        {% for present in present_records %} 
+                        {% if not found_status and present.employee_id == member.id %}
+                        <div class="text-center p-2 rounded" style="background: #d4edda; color: #155724; font-size: 12px;">
+                            <i class="fa-solid fa-check me-1"></i>Present Today
+                        </div>
+                        {% with found_status=True %}
+                        {% endwith %}
+                        {% endif %} 
+                        {% endfor %} 
+                        
+                        {% if not found_status %}
+                        {% for absent in absent_records %}
+                        {% if absent.employee_id == member.id %}
+                        <div class="text-center p-2 rounded" style="background: #f8d7da; color: #721c24; font-size: 12px;">
+                            <i class="fa-solid fa-times me-1"></i>Absent Today
+                        </div>
+                        {% with found_status=True %}
+                        {% endwith %}
+                        {% endif %} 
+                        {% endfor %} 
+                        {% endif %}
+                        
+                        {% if not found_status %}
+                        {% for late_mark in late_mark_records %} 
+                        {% if late_mark.employee_id == member.id %}
+                        <div class="text-center p-2 rounded" style="background: #fff3cd; color: #856404; font-size: 12px;">
+                            <i class="fa-solid fa-exclamation-triangle me-1"></i>Late Mark ({{ late_mark.late_minutes }} min)
+                        </div>
+                        {% with found_status=True %}
+                        {% endwith %}
+                        {% endif %} 
+                        {% endfor %} 
+                        {% endif %}
+                        
+                        {% if not found_status %}
+                        <div class="text-center p-2 rounded" style="background: #e2e3e5; color: #383d41; font-size: 12px;">
+                            <i class="fa-solid fa-question me-1"></i>No Record Today
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Filters Section (HR and TL) -->
+{% if user_role != 'Employee' %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            {% if user_role == 'HR' %}
+            <form method="GET" action="{% url 'hr-enhanced-attendance' %}">
+            {% else %}
+            <form method="GET" action="{% url 'tl-enhanced-attendance' %}">
+            {% endif %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="from_date" class="form-label">From Date:</label>
+                        <input type="date" id="from_date" name="from_date" class="form-control" value="{{ from_date|date:'Y-m-d'|default:'' }}" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="to_date" class="form-label">To Date:</label>
+                        <input type="date" id="to_date" name="to_date" class="form-control" value="{{ to_date|date:'Y-m-d'|default:'' }}" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        {% if user_role == 'HR' %}
+                        <a href="{% url 'hr-enhanced-attendance' %}" class="btn btn-secondary w-100">
+                        {% else %}
+                        <a href="{% url 'tl-enhanced-attendance' %}" class="btn btn-secondary w-100">
+                        {% endif %}
+                            <i class="fas fa-refresh me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Summary Sections -->
+<div class="row mb-4">
+    <!-- Present Records -->
+    <div class="col-lg-6 col-md-12 mb-4">
+        <div class="k-card" style="border-left: 4px solid #28a745;">
+            <h6 class="mb-3">
+                <i class="fas fa-check-circle me-2"></i>Present Records ({{ present_records|length|default:0 }})
+            </h6>
+            <div style="max-height: 200px; overflow-y: auto;">
+                {% if present_records %}
+                    {% for record in present_records|slice:":5" %}
+                    <div class="k-card mb-2" style="background: #d4edda; border: 1px solid #c3e6cb;">
+                        <strong>{{ record.employee.first_name }} {{ record.employee.last_name }}</strong>
+                        <br>
+                        <small>{{ record.attendance_date|date:"M d, Y" }} at {{ record.marked_time|date:"H:i:s" }}</small>
+                    </div>
+                    {% endfor %}
+                    {% if present_records|length > 5 %}
+                    <div class="text-center">
+                        <small class="text-muted">...and {{ present_records|length|add:"-5" }} more</small>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="text-center text-muted p-3">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <div>No present records found</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Late Mark Records -->
+    <div class="col-lg-6 col-md-12 mb-4">
+        <div class="k-card" style="border-left: 4px solid #ffc107;">
+            <h6 class="mb-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>Late Mark Records ({{ late_mark_records|length|default:0 }})
+            </h6>
+            <div style="max-height: 200px; overflow-y: auto;">
+                {% if late_mark_records %}
+                    {% for record in late_mark_records|slice:":5" %}
+                    <div class="k-card mb-2" style="background: #fff3cd; border: 1px solid #ffeaa7;">
+                        <strong>{{ record.employee.first_name }} {{ record.employee.last_name }}</strong>
+                        <br>
+                        <small>{{ record.attendance_date|date:"M d, Y" }} - {{ record.late_minutes }} min late</small>
+                    </div>
+                    {% endfor %}
+                    {% if late_mark_records|length > 5 %}
+                    <div class="text-center">
+                        <small class="text-muted">...and {{ late_mark_records|length|add:"-5" }} more</small>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="text-center text-muted p-3">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <div>No late mark records found</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Attendance Table (HR and TL) -->
+{% if user_role != 'Employee' %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="k-card">
+            <h6 class="mb-3">
+                <i class="fas fa-table me-2"></i>Detailed Attendance Records
+            </h6>
+            <div class="table-scroll">
+                <table class="professional-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in present_records %}
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="avatar">
+                                        {{ record.employee.first_name.0 }}{{ record.employee.last_name.0 }}
+                                    </div>
+                                    <div class="employee-details">
+                                        <h6>{{ record.employee.first_name }} {{ record.employee.last_name }}</h6>
+                                        <small>{{ record.employee.company_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ record.attendance_date|date:"M d, Y" }}</td>
+                            <td><span class="badge bg-success">Present</span></td>
+                            <td>{{ record.marked_time|date:"H:i:s" }}</td>
+                            <td>Checked in at {{ record.check_in_time|date:"H:i:s" }}</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% for record in late_mark_records %}
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="avatar">
+                                        {{ record.employee.first_name.0 }}{{ record.employee.last_name.0 }}
+                                    </div>
+                                    <div class="employee-details">
+                                        <h6>{{ record.employee.first_name }} {{ record.employee.last_name }}</h6>
+                                        <small>{{ record.employee.company_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ record.attendance_date|date:"M d, Y" }}</td>
+                            <td><span class="badge bg-warning text-dark">Late Mark</span></td>
+                            <td>{{ record.marked_time|date:"H:i:s" }}</td>
+                            <td>{{ record.late_minutes }} minutes late</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% for record in absent_records %}
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="avatar">
+                                        {{ record.employee.first_name.0 }}{{ record.employee.last_name.0 }}
+                                    </div>
+                                    <div class="employee-details">
+                                        <h6>{{ record.employee.first_name }} {{ record.employee.last_name }}</h6>
+                                        <small>{{ record.employee.company_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ record.attendance_date|date:"M d, Y" }}</td>
+                            <td><span class="badge bg-danger">Absent</span></td>
+                            <td>{{ record.marked_time|date:"H:i:s" }}</td>
+                            <td>{{ record.reason|default:"No reason provided" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="k-card text-center">
+            {% if user_role == 'HR' %}
+            <a href="{% url 'hr-dashboard' %}" class="btn btn-primary me-2">
+                <i class="fas fa-home me-1"></i>Back to Dashboard
+            </a>
+            {% elif user_role == 'TL' %}
+            <a href="{% url 'tl-dashboard' %}" class="btn btn-primary me-2">
+                <i class="fas fa-home me-1"></i>Back to Dashboard
+            </a>
+            <a href="{% url 'tl-manage-team' %}" class="btn btn-info">
+                <i class="fas fa-users-cog me-1"></i>Manage Team
+            </a>
+            {% else %}
+            <a href="{% url 'employee-dashboard' %}" class="btn btn-outline-info me-2">
+                <i class="fas fa-home me-1"></i>Back to Dashboard
+            </a>
+            <a href="{% url 'attendance-table' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-table me-1"></i>View Attendance Table
+            </a>
+            {% endif %}
+            <button class="btn btn-success" onclick="exportAttendanceData()">
+                <i class="fas fa-download me-1"></i>Export Data
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,525 @@
+{% extends "app/base2.html" %}
+{% block content%}
+{% csrf_token %}
+
+<!-- CONTENT -->
+ 
+
+<main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">My Attendance</div><a href="{% url 'employee-dashboard' %}"><div class="text-muted">Dashboard</div></a></div><!-- MY ATTENDANCE STATISTICS --><div style="display:flex; gap:20px; flex-wrap:wrap; margin:20px 0; font-family:Poppins, sans-serif;"><!-- CARD 1 - Total Working Days This Month --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#1a73e8; margin-bottom:8px;"><i class="fa-solid fa-calendar-days"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ current_month_stats.total_days }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Working Days This Month</div></div><!-- CARD 2 - Present This Month --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#0f8f5c; margin-bottom:8px;"><i class="fa-solid fa-calendar-check"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ current_month_stats.present_days }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Present This Month</div></div><!-- CARD 3 - Absent This Month --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#e63946; margin-bottom:8px;"><i class="fa-solid fa-calendar-xmark"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ current_month_stats.absent_days }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Absent This Month</div></div><!-- CARD 4 - Attendance Rate --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#06b6d4; margin-bottom:8px;"><i class="fa-solid fa-percent"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ attendance_percentage }}%</div><div style="font-size:15px; color:#666; margin-top:4px;">Attendance Rate</div></div></div><!-- AUTO CHECKOUT MESSAGE (appears for 3 seconds) -->
+  {% if auto_checkout_triggered %}
+  <div id="autoCheckoutMessage" style="
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white; padding: 20px 25px; border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    font-family: 'Poppins', sans-serif; font-weight: 600;
+    font-size: 16px; text-align: center; min-width: 300px;
+    animation: slideInRight 0.5s ease-out;
+  "><div style="font-size: 24px; margin-bottom: 8px;">🏠</div><div>✅ Auto Check-out Successful!</div><div style="font-size: 14px; margin-top: 5px; opacity: 0.9;">
+      You have been automatically checked out at 6:30 PM.<br>
+      Time to go home! Have a great day! 👋
+    </div></div>
+  {% endif %}
+
+  <!-- ATTENDANCE ACTIONS --><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0; background: linear-gradient(135deg, #f8fffe 0%, #e8f5f3 100%);"><div style="display:flex; flex-wrap:wrap; align-items:center; justify-content: space-between; gap:20px;"><!-- Current Time & Status --><div style="flex: 1; min-width: 250px;"><h5 style="margin:0; font-weight:600; color:#333; margin-bottom:10px;"><i class="fas fa-clock me-2" style="color:#0a6d65;"></i><span>Current Status</span>
+          {% if auto_checkout_time %}
+          <small style="color: #666; font-weight: 400; font-size: 12px; margin-left: 10px;">
+            (Auto checkout at {{ auto_checkout_time|time:"H:i" }})
+          </small>
+          {% endif %}
+        </h5><div style="display:flex; align-items:center; gap:15px;"><div style="font-size:24px; font-weight:700; color:#0a6d65;" id="currentTime">{% now "H:i" %}</div><div><div style="font-size:14px; color:#666;" id="currentDate">{% now "F d, Y" %}</div><div style="font-size:12px; color:#6c757d; font-weight:600;" id="attendanceStatus"><!-- Status will be updated by JavaScript based on today's attendance --></div></div></div></div><!-- Action Buttons --><div style="display:flex; gap:12px; flex-wrap: wrap;"><!-- Check In Button --><button id="checkInBtn" onclick="checkIn()" 
+                style="background:#28a745; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; display:none; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-sign-in-alt me-2"></i><span>Check In</span></button><!-- Check Out Button --><button id="checkOutBtn" onclick="checkOut()" 
+                style="background:#dc3545; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; display:none; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-sign-out-alt me-2"></i><span>Check Out</span></button><!-- View Report Button --><button onclick="viewAttendanceReport()" 
+                style="background:#1a73e8; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-file-lines me-2"></i><span>View Report</span></button><!-- Export Button --><button onclick="exportAttendance()" 
+                style="background:#34a853; color:#fff; border:none;
+                       padding:12px 24px; border-radius:8px; font-weight:600; 
+                       font-size:14px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-download me-2"></i><span>Export</span></button></div></div></div><!-- MY ATTENDANCE FILTERS --><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0;"><div style="display:flex; flex-wrap:wrap; align-items:center; gap:25px;"><!-- Status Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Status Filter</label><select style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                           border-radius:6px; outline:none; font-size:14px;" id="statusFilter"><option value="all">All Records</option><option value="present">Present Only</option><option value="late">Late Arrivals</option><option value="half_day">Half Days</option><option value="absent">Absent Days</option></select></div><!-- Date Range --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Date Filter</label><input type="date" id="dateFilter"
+                   style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                          border-radius:6px; outline:none; font-size:14px;" /></div><!-- SEARCH BOX WITH ICON INSIDE --><div style="display:flex; flex-direction:column; position:relative;"><label style="font-weight:600; color:#333; font-size:14px;">Search</label><input type="text" placeholder="Search by date or notes..." id="searchInput"
+                   style="padding:10px 45px 10px 15px; width:220px; border:1px solid #ddd;
+                          border-radius:6px; outline:none; font-size:14px;" /><!-- Icon inside box (Right side) --><i class="fa-solid fa-magnifying-glass"
+               style="position:absolute; right:12px; top:38px; color:#777;
+                      font-size:14px;"></i></div></div></div><!-- MY ATTENDANCE TABLE --><style>
+    .chart-container {
+        position: relative;
+        height: 350px;
+        width: 100%;
+    }
+    .chart-container canvas {
+        max-height: 350px !important;
+        height: 350px !important;
+        width: 100% !important;
+    }
+    .chart-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 350px;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        color: #6c757d;
+        font-size: 14px;
+    }
+    .chart-error i {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+    
+    /* Pagination Styling */
+    .pagination .page-link {
+        color: #0b7368;
+        border-color: #dee2e6;
+        padding: 0.5rem 0.75rem;
+    }
+    .pagination .page-link:hover {
+        color: #0a6d65;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0b7368;
+        border-color: #0b7368;
+        color: white;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+    
+    /* Status styling improvements */
+    .text-success { color: #28a745 !important; font-weight: 600; }
+    .text-warning { color: #ffc107 !important; font-weight: 600; }
+    .text-danger { color: #dc3545 !important; font-weight: 600; }
+    .text-muted { color: #6c757d !important; }
+    .text-info { color: #17a2b8 !important; font-weight: 600; }
+    
+    /* Auto checkout message animations */
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    .auto-checkout-message-hide {
+        animation: slideOutRight 0.5s ease-in forwards;
+    }
+  </style><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+            border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Table Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb;background-color: #0a6d65;"><h5 style="margin:0; font-weight:600; color:#f5f3f3;">My Attendance Record (Present Days Only)</h5></div><!-- Responsive Table --><div class="table-responsive"><table class="table table-hover mb-0" style="font-family:Poppins, sans-serif;"><thead style="background:#f8f9fa;"><tr><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Date</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Day</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Check In</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Check Out</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Working Hours</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Status</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Notes</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Action</th></tr></thead><tbody id="myAttendanceTableBody">
+                {% if attendance_records %}
+                    {% for record in attendance_records %}
+                        {% if record.status == 'present' or record.status == 'late' or record.status == 'half_day' %}
+                        <tr><td class="px-4 py-3">{{ record.attendance_date|date:"Y-m-d" }}</td><td class="px-4 py-3">{{ record.attendance_date|date:"l" }}</td><td class="px-4 py-3">
+                                {% if record.check_in_time %}
+                                    {{ record.check_in_time|time:"H:i" }}
+                                {% else %}
+                                    <span style="color:#999;">--</span>
+                                {% endif %}
+                            </td><td class="px-4 py-3">
+                                {% if record.check_out_time %}
+                                    {{ record.check_out_time|time:"H:i" }}
+                                {% else %}
+                                    <span style="color:#999;">--</span>
+                                {% endif %}
+                            </td><td class="px-4 py-3">
+                                {% if record.total_worked_hours %}
+                                    {{ record.total_worked_hours|floatformat:1 }}h
+                                {% else %}
+                                    <span style="color:#999;">--</span>
+                                {% endif %}
+                            </td><td class="px-4 py-3">
+                                {% if record.status == 'present' %}
+                                    <span class="text-success">✓ Present</span>
+                                {% elif record.status == 'late' %}
+                                    <span class="text-warning">⚠ Late</span>
+                                {% elif record.status == 'half_day' %}
+                                    <span class="text-warning">⚠ Half Day</span>
+                                {% else %}
+                                    <span class="text-muted">○ {{ record.status|title }}</span>
+                                {% endif %}
+                            </td><td class="px-4 py-3">
+                                {% if record.remarks %}
+                                    {{ record.remarks|truncatechars:50 }}
+                                {% else %}
+                                    <span style="color:#999;">No notes</span>
+                                {% endif %}
+                            </td><td class="px-4 py-3"><button class="btn btn-sm btn-outline-primary" onclick="viewAttendanceDetails('{{ record.attendance_date|date:"Y-m-d" }}')"><i class="fas fa-eye"></i></button></td></tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="8" class="text-center py-5"><i class="fas fa-calendar-times mb-3" style="font-size:3rem; color:#dee2e6;"></i><div class="text-muted mb-2">No attendance records found</div><small class="text-muted">Start by checking in to create your first attendance record</small></td></tr>
+                {% endif %}
+            </tbody></table></div></div><!-- PAGINATION CONTROLS -->
+            {% if attendance_records|length > 10 %}
+            <div class="d-flex justify-content-between align-items-center mt-3" id="paginationControls" style="display: flex;">
+            {% else %}
+            <div class="d-flex justify-content-between align-items-center mt-3" id="paginationControls" style="display: none;">
+            {% endif %}
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <label for="recordsPerPage" class="form-label mb-0 me-2">Records per page:</label>
+                        <select id="recordsPerPage" class="form-select form-select-sm" style="width: auto; display: inline-block;">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div id="recordInfo" class="text-muted small">
+            Showing {{ attendance_records|length }} of {{ total_days }} records
+        </div></div></div></main><script>
+// Get today's attendance record from server data
+const serverAttendanceData = [
+    {% for record in attendance_records %}
+    {
+        date: '{{ record.attendance_date|date:"Y-m-d" }}',
+        day: '{{ record.attendance_date|date:"l" }}',
+        checkIn: '{% if record.check_in_time %}{{ record.check_in_time|time:"H:i" }}{% else %}--{% endif %}',
+        checkOut: '{% if record.check_out_time %}{{ record.check_out_time|time:"H:i" }}{% else %}--{% endif %}',
+        workingHours: '{% if record.total_worked_hours %}{{ record.total_worked_hours|floatformat:1 }}h 0m{% else %}0h 0m{% endif %}',
+        status: '{{ record.status }}',
+        notes: '{% if record.remarks %}{{ record.remarks|escapejs|truncatechars:50 }}{% else %}No notes{% endif %}',
+        checkInTime: '{% if record.check_in_time %}{{ record.check_in_time|time:"H:i" }}{% endif %}',
+        checkOutTime: '{% if record.check_out_time %}{{ record.check_out_time|time:"H:i" }}{% endif %}'
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Filtered data for current view
+let filteredData = [...serverAttendanceData];
+
+// Check today's status and update buttons
+function updateAttendanceStatus() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayRecord = serverAttendanceData.find(r => r.date === today);
+    
+    const statusDiv = document.getElementById('attendanceStatus');
+    const checkInBtn = document.getElementById('checkInBtn');
+    const checkOutBtn = document.getElementById('checkOutBtn');
+    
+    if (!todayRecord) {
+        // No record for today
+        statusDiv.innerHTML = '<span style="color:#6c757d; font-weight:600;">○ Not Checked In</span>';
+        checkInBtn.style.display = 'inline-block';
+        checkOutBtn.style.display = 'none';
+    } else if (todayRecord.checkInTime && !todayRecord.checkOutTime) {
+        // Checked in but not checked out
+        statusDiv.innerHTML = '<span style="color:#28a745; font-weight:600;">✓ Checked In</span>';
+        checkInBtn.style.display = 'none';
+        checkOutBtn.style.display = 'inline-block';
+    } else if (todayRecord.checkInTime && todayRecord.checkOutTime) {
+        // Completed the day
+        statusDiv.innerHTML = '<span style="color:#0f8f5c; font-weight:600;">✓ Completed Today</span>';
+        checkInBtn.style.display = 'none';
+        checkOutBtn.style.display = 'none';
+    } else {
+        // Some other status
+        statusDiv.innerHTML = '<span style="color:#ffc107; font-weight:600;">⚠ ' + todayRecord.status + '</span>';
+        checkInBtn.style.display = 'inline-block';
+        checkOutBtn.style.display = 'none';
+    }
+}
+
+// Check in function
+function checkIn() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    
+    // Confirm check-in
+    if (confirm(`Are you sure you want to check in at ${timeString}?`)) {
+        // Create form and submit POST request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href;
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        // Add action
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'check_in';
+        form.appendChild(actionInput);
+        
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Check out function
+function checkOut() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    
+    if (confirm(`Are you sure you want to check out at ${timeString}?`)) {
+        // Create form and submit POST request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href;
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        // Add action
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'check_out';
+        form.appendChild(actionInput);
+        
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// View attendance report
+function viewAttendanceReport() {
+    window.location.href = '{% url "employee-attendance-records" %}';
+}
+
+// Export attendance
+function exportAttendance() {
+    alert('Export functionality will be implemented. This will download your attendance as PDF/Excel.');
+}
+
+// View attendance details
+function viewAttendanceDetails(date) {
+    const record = serverAttendanceData.find(r => r.date === date);
+    if (record) {
+        alert(`Attendance Details for ${date}:\n\n` +
+              `Day: ${record.day}\n` +
+              `Check In: ${record.checkIn}\n` +
+              `Check Out: ${record.checkOut}\n` +
+              `Working Hours: ${record.workingHours}\n` +
+              `Status: ${record.status}\n` +
+              `Notes: ${record.notes}`);
+    }
+}
+
+// Filter data based on search and filter criteria
+function filterData() {
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+    const dateFilter = document.getElementById('dateFilter')?.value || '';
+    
+    filteredData = serverAttendanceData.filter(record => {
+        // Search filter
+        const matchesSearch = !searchTerm || 
+            record.date.toLowerCase().includes(searchTerm) ||
+            record.day.toLowerCase().includes(searchTerm) ||
+            record.notes.toLowerCase().includes(searchTerm) ||
+            record.status.toLowerCase().includes(searchTerm);
+        
+        // Status filter
+        let matchesStatus = true;
+        if (statusFilter !== 'all') {
+            matchesStatus = record.status.toLowerCase() === statusFilter.toLowerCase();
+        }
+        
+        // Date filter
+        const matchesDate = !dateFilter || record.date === dateFilter;
+        
+        return matchesSearch && matchesStatus && matchesDate;
+    });
+    
+    updateTable();
+}
+
+// Update table display
+function updateTable() {
+    const tbody = document.getElementById('myAttendanceTableBody');
+    if (!tbody) return;
+    
+    // Check if there are any filtered results
+    if (filteredData.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="8" class="text-center py-4"><i class="fas fa-search mb-2" style="font-size: 2rem; color: #dee2e6;"></i><div class="text-muted">No attendance records found</div><small class="text-muted">Try adjusting your search criteria or filters</small></td></tr>
+        `;
+        return;
+    }
+    
+    // Clear existing rows
+    tbody.innerHTML = '';
+    
+    // Add new rows
+    filteredData.forEach(record => {
+        const statusClass = getStatusClass(record.status);
+        const statusIcon = getStatusIcon(record.status);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-4 py-3">${record.date}</td><td class="px-4 py-3">${record.day}</td><td class="px-4 py-3">${record.checkIn}</td><td class="px-4 py-3">${record.checkOut}</td><td class="px-4 py-3">${record.workingHours}</td><td class="px-4 py-3"><span class="${statusClass}">${statusIcon} ${record.status}</span></td><td class="px-4 py-3">${record.notes}</td><td class="px-4 py-3"><button class="btn btn-sm btn-outline-primary" onclick="viewAttendanceDetails('${record.date}')"><i class="fas fa-eye"></i></button></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Get CSS class for status
+function getStatusClass(status) {
+    switch(status.toLowerCase()) {
+        case 'present': return 'text-success';
+        case 'late': return 'text-warning';
+        case 'absent': return 'text-danger';
+        case 'half_day': return 'text-warning';
+        case 'weekend': return 'text-muted';
+        case 'holiday': return 'text-info';
+        default: return 'text-muted';
+    }
+}
+
+// Get icon for status
+function getStatusIcon(status) {
+    switch(status.toLowerCase()) {
+        case 'present': return '✓';
+        case 'late': return '⚠';
+        case 'absent': return '✗';
+        case 'half_day': return '⚠';
+        case 'weekend': return '○';
+        case 'holiday': return '★';
+        default: return '○';
+    }
+}
+
+// Setup search and filter functionality
+function setupSearchAndFilters() {
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterData();
+        });
+    }
+    
+    // Status filter
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            filterData();
+        });
+    }
+    
+    // Date filter
+    const dateFilter = document.getElementById('dateFilter');
+    if (dateFilter) {
+        dateFilter.addEventListener('change', function() {
+            filterData();
+        });
+    }
+}
+
+// Auto hide auto checkout message after 3 seconds
+function hideAutoCheckoutMessage() {
+    const messageDiv = document.getElementById('autoCheckoutMessage');
+    if (messageDiv) {
+        messageDiv.classList.add('auto-checkout-message-hide');
+        setTimeout(() => {
+            if (messageDiv && messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 500); // Wait for slide out animation to complete
+    }
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing employee attendance page...');
+    
+    // Update current time immediately
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 60000); // Update every minute
+    
+    // Update attendance status based on today's record
+    updateAttendanceStatus();
+    
+    // Setup search and filters
+    setupSearchAndFilters();
+    
+    // Auto hide auto checkout message after 3 seconds
+    const autoCheckoutMessage = document.getElementById('autoCheckoutMessage');
+    if (autoCheckoutMessage) {
+        setTimeout(hideAutoCheckoutMessage, 3000); // 3 seconds
+    }
+    
+    console.log('Employee attendance page initialized');
+});
+
+// Update current time
+function updateCurrentTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    const dateString = now.toLocaleDateString('en-US', { 
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric' 
+    });
+    
+    document.getElementById('currentTime').textContent = timeString;
+    document.getElementById('currentDate').textContent = dateString;
+}
+</script>
+
+{% endblock %}

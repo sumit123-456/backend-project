@@ -1,0 +1,245 @@
+{% extends 'app/base3.html' %}
+{% load static %}
+{% block content %}
+
+
+<!-- CONTENT --><main class="content-wrap"><div class="d-flex justify-content-between mb-3" style="background:#fff;border:1px solid #e5e7eb;padding:10px 15px;border-radius:4px;"><div class="page-title">Team Attendance Management</div><a href="{% url 'tl-dashboard' %}"><div class="text-muted">Dashboard</div></a></div><div style="display:flex; gap:20px; flex-wrap:wrap; margin:20px 0; font-family:Poppins, sans-serif;"><!-- CARD 1 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#1a73e8; margin-bottom:8px;"><i class="fa-solid fa-users"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ total_team_members }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Total Team Members</div></div><!-- CARD 2 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#0f8f5c; margin-bottom:8px;"><i class="fa-solid fa-calendar-check"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ present_today }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Present Today</div></div><!-- CARD 3 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#e63946; margin-bottom:8px;"><i class="fa-solid fa-calendar-xmark"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ absent_today }}</div><div style="font-size:15px; color:#666; margin-top:4px;">Absent Today</div></div><!-- CARD 4 --><div style="flex:1; min-width:220px; background:#ffffff; border-radius:10px;
+                border-top:6px solid #0a6d65; padding:25px; text-align:center;
+                box-shadow:0px 2px 6px rgba(0,0,0,0.08);"><div style="font-size:38px; color:#06b6d4; margin-bottom:8px;"><i class="fa-solid fa-percent"></i></div><div style="font-size:32px; font-weight:700; color:#000;">{{ attendance_rate }}%</div><div style="font-size:15px; color:#666; margin-top:4px;">Team Attendance Rate</div></div></div><div style="border:2px solid #0b7368; border-radius:10px; padding:20px;
+            font-family:Poppins, sans-serif; margin:20px 0;"><div style="display:flex; flex-wrap:wrap; align-items:center; gap:25px;"><!-- Filter Form --><form method="GET" style="display:flex; flex-wrap:wrap; align-items:end; gap:25px; width:100%;"><!-- Select Date --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Select Date</label><input type="date" name="date" value="{{ selected_date }}"
+                       style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                              border-radius:6px; outline:none; font-size:14px;" /></div><!-- Status Filter --><div style="display:flex; flex-direction:column;"><label style="font-weight:600; color:#333; font-size:14px;">Status</label><select name="status" style="padding:10px 15px; width:220px; border:1px solid #ddd;
+                               border-radius:6px; outline:none; font-size:14px;">
+                    {% for value, display in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ display }}</option>
+                    {% endfor %}
+                </select></div><!-- SEARCH BOX WITH ICON INSIDE --><div style="display:flex; flex-direction:column; position:relative;"><label style="font-weight:600; color:#333; font-size:14px;">Search Team Member</label><input type="text" name="search" placeholder="Search by name, ID, or designation..."
+                       value="{{ search_term }}"
+                       style="padding:10px 45px 10px 15px; width:220px; border:1px solid #ddd;
+                              border-radius:6px; outline:none; font-size:14px;" /><!-- Icon inside box (Right side) --><i class="fa-solid fa-magnifying-glass"
+                   style="position:absolute; right:12px; top:38px; color:#777;
+                          font-size:14px;"></i></div><!-- Filter Buttons --><div style="display:flex; gap:12px; margin-left:auto;"><button type="submit" style="background:#1a73e8; color:#fff; border:none;
+                               padding:10px 22px; border-radius:6px; font-size:16px;"><i class="fa-solid fa-filter"></i> Filter
+                </button>
+                
+                {% if is_filtered %}
+                <a href="{% url 'team-attendence' %}" style="background:#6c757d; color:#fff; border:none;
+                           padding:10px 22px; border-radius:6px; font-size:16px; text-decoration:none; display:flex; align-items:center;"><i class="fa-solid fa-times"></i> Clear
+                </a>
+                {% endif %}
+            </div></form></div></div><!-- TEAM ATTENDANCE TABLE --><div style="background:#ffffff; border-radius:10px; box-shadow:0px 2px 6px rgba(0,0,0,0.08); 
+            border:1px solid #e5e7eb; overflow:hidden; margin-top:20px;"><!-- Table Header --><div style="padding:20px; border-bottom:1px solid #e5e7eb;background-color: #0a6d65;"><div style="display:flex; justify-content:space-between; align-items:center;"><h5 style="margin:0; font-weight:600; color:#f5f3f3;">Team Member Attendance</h5>
+            {% if is_filtered %}
+            <div style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:5px; font-size:12px; color:#f5f3f3;"><i class="fas fa-filter"></i> Filtered Results
+            </div>
+            {% endif %}
+        </div></div><!-- Responsive Table --><div class="table-responsive"><table class="table table-hover mb-0" style="font-family:Poppins, sans-serif;"><thead style="background:#f8f9fa;"><tr><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Employee ID</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Name</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Role</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Date</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Check In</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Check Out</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Status</th><th class="px-4 py-3" style="font-weight:600; color:#333; font-size:14px;">Action</th></tr></thead><tbody id="teamAttendanceTableBody">
+                {% if team_attendance_data %}
+                    {% for member in team_attendance_data %}
+                    <tr><td class="px-4 py-3">{{ member.id }}</td><td class="px-4 py-3">{{ member.name }}</td><td class="px-4 py-3">{{ member.designation }}</td><td class="px-4 py-3">{{ member.date }}</td><td class="px-4 py-3">{{ member.check_in }}</td><td class="px-4 py-3">{{ member.check_out }}</td><td class="px-4 py-3">
+                            {% if member.status == 'present' %}
+                                <span class="text-success">Present</span>
+                            {% elif member.status == 'late' %}
+                                <span class="text-warning">Late</span>
+                            {% elif member.status == 'absent' %}
+                                <span class="text-danger">Absent</span>
+                            {% elif member.status == 'half_day' %}
+                                <span class="text-info">Half Day</span>
+                            {% elif member.status == 'remote_work' %}
+                                <span class="text-primary">Remote</span>
+                            {% else %}
+                                <span class="text-secondary">{{ member.status|title }}</span>
+                            {% endif %}
+                        </td><td class="px-4 py-3"><button class="btn btn-sm btn-outline-primary" onclick="viewTeamMemberDetails('{{ member.id }}')"><i class="fas fa-eye"></i></button></td></tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="8" class="px-4 py-4 text-center text-muted">
+                            {% if is_filtered %}
+                                No attendance records found for the selected filters.
+                            {% else %}
+                                No team members found or no attendance records for the selected date.
+                            {% endif %}
+                        </td></tr>
+                {% endif %}
+            </tbody></table></div></div><!-- PAGINATION CONTROLS --><div class="d-flex justify-content-between align-items-center mt-3" id="paginationControls" style="display: none;"><div class="d-flex align-items-center gap-3"><div><label for="recordsPerPage" class="form-label mb-0 me-2">Records per page:</label><select id="recordsPerPage" class="form-select form-select-sm" style="width: auto; display: inline-block;"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div><div id="recordInfo" class="text-muted small">
+            Showing {{ team_attendance_data|length }} record{{ team_attendance_data|length|pluralize }}
+            {% if is_filtered %} (filtered){% endif %}
+        </div></div><nav aria-label="Team attendance table pagination"><ul class="pagination pagination-sm mb-0" id="pagination"><!-- Pagination items will be generated by JavaScript --></ul></nav></div><!-- TEAM ATTENDANCE DETAILS MODAL --><div class="modal fade" id="teamAttendanceDetailsModal" tabindex="-1" aria-labelledby="teamAttendanceDetailsModalLabel" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content" style="border:none; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.15);"><div class="modal-header" style="background:linear-gradient(135deg, #0a6d65 0%, #1a7370 100%); color:white; border-radius:15px 15px 0 0; border:none;"><h5 class="modal-title fw-bold" id="teamAttendanceDetailsModalLabel"><i class="fas fa-calendar-check me-2"></i>Team Member Attendance Details
+                </h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body p-4"><div id="modalContent"><!-- Content will be populated by JavaScript --></div></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                        style="border-radius:8px; padding:8px 20px; font-weight:500;">
+                    Close
+                </button></div></div></div></div></main><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><script src="{% static 'assets/js/main.js' %}"></script><!-- Profile Dropdown Functions --><script>
+
+// Team Attendance Chart.js Configuration
+Chart.defaults.font.family = 'Poppins';
+Chart.defaults.color = '#6d7c83';
+
+// Color palette
+const colors = {
+    primary: '#0b7368',
+    success: '#02c202',
+    danger: '#dc3545',
+    warning: '#e2e205',
+    info: '#17a2b8',
+    purple: '#6f42c1',
+    orange: '#fd7e14',
+    teal: '#20c997'
+};
+
+// Weekly Team Attendance Chart
+function initWeeklyTeamAttendanceChart() {
+    const ctx = document.getElementById('weeklyTeamAttendanceChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            datasets: [
+                {
+                    label: 'Present',
+                    data: [11, 10, 12, 11, 10],
+                    borderColor: colors.success,
+                    backgroundColor: colors.success + '20',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Late',
+                    data: [1, 2, 0, 1, 2],
+                    borderColor: colors.warning,
+                    backgroundColor: colors.warning + '20',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Absent',
+                    data: [0, 0, 0, 0, 0],
+                    borderColor: colors.danger,
+                    backgroundColor: colors.danger + '20',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 12,
+                    grid: {
+                        color: '#f0f0f0'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Team Member Status Chart
+function initTeamMemberStatusChart() {
+    const ctx = document.getElementById('teamMemberStatusChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Late', 'Absent', 'Remote'],
+            datasets: [{
+                data: [10, 1, 1, 0],
+                backgroundColor: [
+                    colors.success,
+                    colors.warning,
+                    colors.danger,
+                    colors.info
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+
+// View team member details
+function viewTeamMemberDetails(memberId) {
+    // Find member in the current table data
+    const memberRow = document.querySelector(`tr:has(td:first-child:contains("${memberId}"))`);
+    if (memberRow) {
+        const cells = memberRow.querySelectorAll('td');
+        const name = cells[1].textContent.trim();
+        const role = cells[2].textContent.trim();
+        const date = cells[3].textContent.trim();
+        const checkIn = cells[4].textContent.trim();
+        const checkOut = cells[5].textContent.trim();
+        const status = cells[6].textContent.trim();
+        
+        // Calculate worked hours if both check-in and check-out are available
+        let workedHours = 'N/A';
+        if (checkIn !== '-' && checkOut !== '-') {
+            try {
+                const checkInTime = new Date(`2000-01-01 ${checkIn}`);
+                const checkOutTime = new Date(`2000-01-01 ${checkOut}`);
+                const diffMs = checkOutTime - checkInTime;
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                workedHours = `${diffHours}h ${diffMinutes}m`;
+            } catch (e) {
+                workedHours = 'N/A';
+            }
+        }
+        
+        const modalContent = document.getElementById('modalContent');
+        modalContent.innerHTML = `
+            <div class="row"><div class="col-md-6"><h6 class="fw-bold">Member Information</h6><p><strong>Name:</strong> ${name}</p><p><strong>Employee ID:</strong> ${memberId}</p><p><strong>Role:</strong> ${role}</p><p><strong>Date:</strong> ${date}</p></div><div class="col-md-6"><h6 class="fw-bold">Attendance Details</h6><p><strong>Check In:</strong> ${checkIn}</p><p><strong>Check Out:</strong> ${checkOut}</p><p><strong>Status:</strong><span class="text-${status.toLowerCase().replace(' ', '')}">${status}</span></p><p><strong>Working Hours:</strong> ${workedHours}</p></div></div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('teamAttendanceDetailsModal'));
+        modal.show();
+    } else {
+        // Fallback for dynamic data - you can implement AJAX call here if needed
+        console.log('Member details not found in table for ID:', memberId);
+    }
+}
+
+// Initialize charts when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        initWeeklyTeamAttendanceChart();
+        initTeamMemberStatusChart();
+    }, 100);
+});
+</script>
+
+
+{% endblock %}

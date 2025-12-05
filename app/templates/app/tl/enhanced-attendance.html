@@ -1,0 +1,97 @@
+{% extends "app/base3.html" %} 
+{% load static %}
+{% block title %}Enhanced Team Attendance - Team Lead{% endblock %}
+
+{% block content %}
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Page Title Bar -->
+  <div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "
+  >
+    <div class="page-title">
+      <i class="fa-solid fa-calendar-check me-2"></i>
+      Team Enhanced Attendance
+    </div>
+    <div class="d-flex gap-2">
+      <a
+        href="{% url 'tl-dashboard' %}"
+        style="
+          background: #0b7368;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-home me-1"></i>Dashboard
+      </a>
+      <a
+        href="{% url 'tl-manage-team' %}"
+        style="
+          background: #17a2b8;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-users me-1"></i>Manage Team
+      </a>
+    </div>
+  </div>
+
+  {% include 'app/enhanced_attendance_content.html' %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Set default dates if not provided
+    const fromDateInput = document.getElementById("from_date");
+    const toDateInput = document.getElementById("to_date");
+
+    if (!fromDateInput.value) {
+      const firstDayOfMonth = new Date();
+      firstDayOfMonth.setDate(1);
+      fromDateInput.value = firstDayOfMonth.toISOString().split("T")[0];
+    }
+
+    if (!toDateInput.value) {
+      const today = new Date();
+      toDateInput.value = today.toISOString().split("T")[0];
+    }
+  });
+
+  function viewWorkDetails(workId) {
+    // Implementation for viewing work details
+    const modal = new bootstrap.Modal(document.getElementById('workDetailsModal'));
+    const content = document.getElementById("workDetailsContent");
+
+    // This would typically fetch work details via AJAX
+    content.innerHTML =
+      "<p>Work details for ID: " +
+      workId +
+      "</p><p>Implementation pending...</p>";
+    modal.show();
+  }
+
+  function viewAbsenceDetails(absenceId) {
+    // Implementation for viewing absence details
+    alert(
+      "Absence details view for ID: " +
+        absenceId +
+        " - Implementation pending..."
+    );
+  }
+</script>
+{% endblock %}

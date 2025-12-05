@@ -1,0 +1,1141 @@
+{% extends "app/base2.html" %} 
+{% block content%}
+
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Personalized Welcome Header -->
+  <div class="row" style="margin-bottom: 18px">
+    <div class="col-12">
+      <div
+        style="
+          background: linear-gradient(135deg, #0b7368, #0a8a4a);
+          color: white;
+          padding: 20px;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+        "
+      >
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h2 style="margin: 0; font-weight: 700">
+              Welcome back, {% if employee_obj %}{{ employee_obj.first_name }} {{ employee_obj.last_name }}{% else %}{{ request.session.employee_name|default:"Employee" }}{% endif %}!
+            </h2>
+            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px">
+              {% if employee_obj %}
+                {{ employee_obj.designation }} | {{ employee_obj.department }} | ID: {{ employee_obj.company_id }}
+                {% if employee_obj.package %} | Package: ₹{{ employee_obj.package }}{% endif %}
+              {% else %}
+                Dashboard Overview
+              {% endif %}
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <small style="opacity: 0.8"
+              ><i class="fa-solid fa-calendar me-1"></i>
+              {{ "now"|date:"F d, Y" }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "
+  >
+    <div class="page-title">Employee Dashboard</div>
+    <div class="d-flex gap-2">
+      <a
+        href="{% url 'employee-profile' %}"
+        style="
+          background: #0b7368;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+        ><i class="fa-solid fa-user me-1"></i>My Profile </a
+      ><a
+        href="{% url 'employee-check-in' %}"
+        style="
+          background: #28a745;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+        ><i class="fa-solid fa-sign-in-alt me-1"></i>Check In </a
+      ><a
+        href="{% url 'employee-check-out' %}"
+        style="
+          background: #dc3545;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+        ><i class="fa-solid fa-sign-out-alt me-1"></i>Check Out </a
+      ><a
+        href="{% url 'employee-attendance-records' %}"
+        style="
+          background: #17a2b8;
+          color: white;
+          padding: 6px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+        "
+        ><i class="fa-solid fa-calendar-check me-1"></i>Attendance Records
+      </a>
+    </div>
+  </div>
+  <!-- 4 Stat Cards Section -->
+  <div class="row" style="margin-bottom: 18px">
+    <!-- Working Days This Month -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #0b7368;
+          "
+        >
+          <i class="fa-solid fa-calendar-days"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ working_days_this_month|default:22|floatformat:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">
+            Working Days This Month
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Present This Month -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: rgb(2, 194, 2);
+          "
+        >
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ present_this_month|default:0|floatformat:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Present This Month</div>
+        </div>
+      </div>
+    </div>
+    <!-- Attendance Rate -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: rgb(226, 226, 5);
+          "
+        >
+          <i class="fa-solid fa-percent"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ attendance_rate|default:0|floatformat:1 }}%
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Attendance Rate</div>
+        </div>
+      </div>
+    </div>
+    <!-- Pending Leaves -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #e63946;
+          "
+        >
+          <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ pending_leaves|default:0|floatformat:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">
+            Pending Leave Requests
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ===========================
+     ATTENDANCE & LEAVE SECTION – REAL DATABASE DATA
+     =========================== -->
+  <div class="row" style="margin-bottom: 20px">
+    <!-- LEFT ATTENDANCE OVERVIEW -->
+    <div class="col-lg-6 col-md-12" style="margin-bottom: 20px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          height: 420px;
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 10px 10px 0 0;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-calendar-check me-2"></i>Monthly Attendance
+          Overview
+        </div>
+        <div style="padding: 20px">
+          {% if recent_attendance %}
+          <div class="row mb-3">
+            <div class="col-6">
+              <div
+                style="
+                  text-align: center;
+                  padding: 15px;
+                  background: #f8f9fa;
+                  border-radius: 8px;
+                "
+              >
+                <div style="font-size: 24px; font-weight: 700; color: #28a745">
+                  {{ present_days|default:present_this_month|floatformat:0 }}
+                </div>
+                <div style="font-size: 12px; color: #6c757d">Present Days</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div
+                style="
+                  text-align: center;
+                  padding: 15px;
+                  background: #f8f9fa;
+                  border-radius: 8px;
+                "
+              >
+                <div style="font-size: 24px; font-weight: 700; color: #ffc107">
+                  {{ half_days|default:0|floatformat:0 }}
+                </div>
+                <div style="font-size: 12px; color: #6c757d">Half Days</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-bottom: 15px">
+            <h6 style="font-weight: 600; margin-bottom: 10px">
+              Recent Attendance Records
+            </h6>
+            {% for attendance in recent_attendance|slice:":5" %}
+            <div
+              style="display: flex; align-items: center; padding: 10px; margin-bottom: 8px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid {% if attendance.status == 'present' %}#28a745{% elif attendance.status == 'half_day' %}#ffc107{% elif attendance.status == 'late' %}#fd7e14{% elif attendance.status == 'absent' %}#dc3545{% else %}#6c757d{% endif %};"
+            >
+              <div style="flex-grow: 1">
+                <div style="font-weight: 600; font-size: 14px">
+                  {{ attendance.get_status_display }}
+                  {% if attendance.status == 'late' %}
+                  <span class="badge bg-warning text-dark" style="font-size: 10px">Late</span>
+                  {% endif %}
+                </div>
+                <div style="font-size: 12px; color: #6c757d">
+                  {{ attendance.attendance_date|date:"M d, Y" }} {% if attendance.check_in_time %} - Check in: {{ attendance.check_in_time|time:"H:i" }}{% endif %} {% if attendance.check_out_time %} | Check out: {{ attendance.check_out_time|time:"H:i" }}{% endif %}
+                </div>
+                {% if attendance.remarks %}
+                <div
+                  style="font-size: 11px; color: #6c757d; font-style: italic"
+                >
+                  {{ attendance.remarks|truncatewords:5 }}
+                </div>
+                {% endif %}
+              </div>
+              {% if attendance.approved_by %}
+              <div style="font-size: 10px; color: #28a745">
+                <i class="fa-solid fa-check-circle"></i> Approved
+              </div>
+              {% else %}
+              <div style="font-size: 10px; color: #ffc107">
+                <i class="fa-solid fa-clock"></i> Pending
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div style="text-align: center; padding: 40px; color: #6c757d">
+            <i
+              class="fa-solid fa-calendar-times"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h6>No Attendance Records</h6>
+            <p style="font-size: 14px">
+              Your attendance records will appear here after you start checking
+              in.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT LEAVE STATUS -->
+    <div class="col-lg-6 col-md-12" style="margin-bottom: 20px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          height: 420px;
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 10px 10px 0 0;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-calendar-minus me-2"></i>Leave Status Overview
+        </div>
+        <div style="padding: 20px">
+          {% if leave_statistics %}
+          <div class="row mb-3">
+            <div class="col-6">
+              <div
+                style="
+                  text-align: center;
+                  padding: 15px;
+                  background: #f8f9fa;
+                  border-radius: 8px;
+                "
+              >
+                <div style="font-size: 24px; font-weight: 700; color: #007bff">
+                  {{ leave_statistics.leaves_used_this_month|default:0|floatformat:0 }}
+                </div>
+                <div style="font-size: 12px; color: #6c757d">
+                  Used This Month
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div
+                style="
+                  text-align: center;
+                  padding: 15px;
+                  background: #f8f9fa;
+                  border-radius: 8px;
+                "
+              >
+                <div style="font-size: 24px; font-weight: 700; color: #28a745">
+                  {{ leave_statistics.remaining_leaves|default:10|floatformat:0 }}
+                </div>
+                <div style="font-size: 12px; color: #6c757d">Remaining</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-bottom: 15px">
+            <h6 style="font-weight: 600; margin-bottom: 10px">Leave Balance</h6>
+            <div
+              style="
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 10px;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 8px;
+                "
+              >
+                <span style="font-size: 14px; font-weight: 600"
+                  >Monthly Leave Allocation</span
+                ><span style="font-size: 14px; font-weight: 700; color: #0b7368"
+                  >{{ leave_statistics.max_leaves_per_month|default:10|floatformat:0 }}
+                  days</span
+                >
+              </div>
+              <div
+                style="
+                  background: #e9ecef;
+                  height: 8px;
+                  border-radius: 4px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  style="background: #0b7368; height: 100%; width: {% widthratio leave_statistics.leaves_used_this_month 1 100 %}%;"
+                ></div>
+              </div>
+            </div>
+
+            {% if leave_statistics and leave_statistics.pending_leave_days and leave_statistics.pending_leave_days > 0 %}
+            <div
+              style="
+                background: #fff3cd;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #ffeaa7;
+                margin-bottom: 10px;
+              "
+            >
+              <div style="font-size: 13px; color: #856404">
+                <i class="fa-solid fa-clock me-1"></i>Pending Leave Days: {{ leave_statistics.pending_leave_days }}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          {% if recent_leave_applications %}
+          <div>
+            <h6 style="font-weight: 600; margin-bottom: 10px">
+              Recent Leave Applications
+            </h6>
+            {% for leave in recent_leave_applications|slice:":3" %}
+            <div
+              style="display: flex; align-items: center; padding: 10px; margin-bottom: 8px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid {% if leave.status == 'approved' %}#28a745{% elif leave.status == 'pending' %}#ffc107{% elif leave.status == 'rejected' %}#dc3545{% else %}#6c757d{% endif %};"
+            >
+              <div style="flex-grow: 1">
+                <div style="font-weight: 600; font-size: 14px">
+                  {{ leave.get_leave_type_display|title }}
+                </div>
+                <div style="font-size: 12px; color: #6c757d">
+                  {{ leave.start_date|date:"M d" }}{% if leave.start_date != leave.end_date %} - {{ leave.end_date|date:"M d, Y" }}{% endif %} ({{ leave.total_days }} day{{ leave.total_days|pluralize }})
+                </div>
+              </div>
+              <span class="badge {% if leave.status == 'approved' %}bg-success{% elif leave.status == 'pending' %}bg-warning text-dark{% elif leave.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+                {{ leave.get_status_display }}
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div style="text-align: center; padding: 40px; color: #6c757d">
+            <i
+              class="fa-solid fa-calendar-minus"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h6>No Leave Data</h6>
+            <p style="font-size: 14px">
+              Your leave information will appear here.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============================
+     NEW SECTION – SMALL HEIGHT
+     ============================ -->
+  <div class="row" style="margin-top: 20px">
+    <!-- LEFT SMALL RECENT ACTIVITY -->
+    <div class="col-lg-6 col-md-12" style="margin-bottom: 20px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          height: 300px;
+          overflow: hidden;
+          position: relative;
+        "
+      >
+        <!-- Header -->
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 700;
+            border-radius: 10px 10px 0 0;
+            font-size: 16px;
+          "
+        >
+          Recent Activity
+        </div>
+        <!-- Slider -->
+        <div
+          id="activityContainer"
+          style="
+            height: 245px;
+            overflow: hidden;
+            position: relative;
+            padding: 10px 15px;
+          "
+        >
+          <div
+            id="activityList"
+            style="position: absolute; bottom: 0; width: 100%"
+          >
+            {% if recent_attendance %}
+            {% for attendance in recent_attendance %}
+            <div style="display: flex; gap: 10px; margin-bottom: 10px">
+              <i class="fa-solid fa-calendar-check" style="color: #0b7368; font-size: 18px"></i>
+              <div>
+                <div style="font-weight: 700; font-size: 14px">
+                  {{ attendance.get_status_display }} - {{ attendance.attendance_date|date:"M d, Y" }}
+                </div>
+                <div style="font-size: 12px; color: #6c7278">
+                  {% if attendance.check_in_time %} Check-in: {{ attendance.check_in_time|time:"H:i" }} {% endif %}
+                  {% if attendance.check_out_time %} | Check-out: {{ attendance.check_out_time|time:"H:i" }} {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %} {% else %}
+            <div style="display: flex; gap: 10px; margin-bottom: 10px">
+              <i
+                class="fa-solid fa-info-circle"
+                style="color: #0b7368; font-size: 18px"
+              ></i>
+              <div>
+                <div style="font-weight: 700; font-size: 14px">
+                  No Recent Activity
+                </div>
+                <div style="font-size: 12px; color: #6c7278">
+                  Your attendance records will appear here
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT SMALL QUICK ACTIONS -->
+    <div class="col-lg-6 col-md-12" style="margin-bottom: 20px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          height: 300px;
+        "
+      >
+        <!-- Header -->
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 700;
+            border-radius: 10px 10px 0 0;
+            font-size: 16px;
+          "
+        >
+          Quick Actions
+        </div>
+        <div style="padding: 16px">
+          <div class="row g-2">
+            <div class="col-6">
+              <a
+                href="{% url 'employee-check-in' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #0b7368;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-sign-in-alt me-1"></i
+                ><span>Check In</span></a
+              >
+            </div>
+            <div class="col-6">
+              <a
+                href="{% url 'employee-check-out' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #dc3545;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-sign-out-alt me-1"></i
+                ><span>Check Out</span></a
+              >
+            </div>
+            <div class="col-6">
+              <a
+                href="{% url 'apply-leave' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #0a8a4a;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-calendar-plus me-1"></i
+                ><span>Apply Leave</span></a
+              >
+            </div>
+            <div class="col-6">
+              <a
+                href="{% url 'employee-attendance-records' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #17a2b8;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-calendar-check me-1"></i
+                ><span>View Attendance</span></a
+              >
+            </div>
+            <div class="col-6">
+              <a
+                href="{% url 'payslip' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #1e90ff;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-wallet me-1"></i
+                ><span>View Payroll</span></a
+              >
+            </div>
+            <div class="col-6">
+              <a
+                href="{% url 'employee-profile' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #e63946;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-user me-1"></i><span>My Profile</span></a
+              >
+            </div>
+            <div class="col-6">
+              <a
+                href="{% url 'employee-project-dashboard' %}"
+                style="
+                  display: block;
+                  width: 100%;
+                  background: #6f42c1;
+                  color: #fff;
+                  border: 0;
+                  padding: 10px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-decoration: none;
+                  text-align: center;
+                "
+                ><i class="fa-solid fa-project-diagram me-1"></i><span>Project Dashboard</span></a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ==========================================
+      RECENT ANNOUNCEMENTS SECTION
+      ========================================== -->
+    <div class="row" style="margin-top: 25px">
+      <!-- LEFT – Recent Announcements -->
+      <div class="col-lg-12 col-md-12" style="margin-bottom: 20px">
+        <div
+          style="
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <!-- Header -->
+          <div
+            style="
+              background: #0b7368;
+              color: #fff;
+              padding: 14px 18px;
+              font-size: 20px;
+              font-weight: 700;
+            "
+          >
+            <i class="fa-solid fa-bullhorn me-2"></i>Recent Announcements
+            <span class="badge bg-light text-dark ms-2"
+              >{{ announcements_count }}</span
+            >
+          </div>
+          <!-- Body -->
+          <div style="padding: 18px">
+            {% if recent_announcements %}
+            <div class="row g-3">
+              {% for announcement in recent_announcements %}
+              <div class="col-lg-6 col-md-12">
+                <div
+                  style="
+                    border: 1px solid #e8e8e8;
+                    border-radius: 10px;
+                    padding: 15px;
+                    margin-bottom: 16px;
+                    position: relative;
+                    height: 180px;
+                    display: flex;
+                    flex-direction: column;
+                  "
+                >
+                  <!-- Priority Badge -->
+                  <div style="position: absolute; right: 15px; top: 15px">
+                    {% if announcement.priority == "high" %}
+                    <span class="badge bg-danger">High</span>
+                    {% elif announcement.priority == "medium" %}
+                    <span class="badge bg-warning text-dark">Medium</span>
+                    {% elif announcement.priority == "low" %}
+                    <span class="badge bg-secondary">Low</span>
+                    {% elif announcement.priority == "critical" %}
+                    <span class="badge bg-danger">Critical</span>
+                    {% elif announcement.priority == "urgent" %}
+                    <span class="badge bg-danger">Urgent</span>
+                    {% else %}
+                    <span class="badge bg-secondary"
+                      >{{ announcement.priority }}</span
+                    >
+                    {% endif %}
+                  </div>
+                  <!-- Category Badge -->
+                  <div style="margin-bottom: 10px">
+                    {% if announcement.category == "company_news" %}
+                    <span class="badge bg-primary">Company News</span>
+                    {% elif announcement.category == "hr_updates" %}
+                    <span class="badge bg-info">HR Updates</span>
+                    {% elif announcement.category == "policy_changes" %}
+                    <span class="badge bg-danger">Policy Changes</span>
+                    {% elif announcement.category == "events" %}
+                    <span class="badge bg-warning text-dark">Events</span>
+                    {% elif announcement.category == "general" %}
+                    <span class="badge bg-secondary">General</span>
+                    {% elif announcement.category == "holiday" %}
+                    <span class="badge bg-warning text-dark"
+                      >Holiday Notice</span
+                    >
+                    {% else %}
+                    <span class="badge bg-secondary"
+                      >{{ announcement.category|title }}</span
+                    >
+                    {% endif %}
+                  </div>
+                  <!-- Title -->
+                  <h6
+                    style="
+                      font-weight: 700;
+                      margin-bottom: 8px;
+                      padding-right: 80px;
+                    "
+                  >
+                    {{ announcement.title }}
+                  </h6>
+                  <!-- Content Preview -->
+                  <p
+                    style="
+                      font-size: 14px;
+                      color: #6d7c83;
+                      margin-bottom: 8px;
+                      flex-grow: 1;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      display: -webkit-box;
+                      -webkit-line-clamp: 3;
+                      -webkit-box-orient: vertical;
+                    "
+                  >
+                    {{ announcement.content|truncatewords:20 }}
+                  </p>
+                  <!-- Footer with HR name and date -->
+                  <div
+                    style="
+                      border-top: 1px solid #eee;
+                      padding-top: 8px;
+                      margin-top: auto;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        font-size: 12px;
+                        color: #9aa3a9;
+                      "
+                    >
+                      <span
+                        ><i class="fa-solid fa-user me-1"></i> By {{ announcement.created_by }} </span
+                      ><span
+                        ><i class="fa-solid fa-calendar me-1"></i>
+                        {{ announcement.created_at|date:"M d, Y" }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center" style="padding: 40px; color: #6d7c83">
+              <i
+                class="fa-solid fa-bullhorn"
+                style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+              ></i>
+              <h5>No Announcements</h5>
+              <p>There are no announcements to display at the moment.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ==========================================
+     PENDING LEAVE + UPCOMING EVENTS (Equal Height)
+     ========================================== -->
+  <div class="row" style="margin-top: 25px">
+    <!-- LEFT – Pending Leave Requests -->
+    <div class="col-lg-6 col-md-12" style="margin-bottom: 20px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          height: 430px;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <!-- Header -->
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          My Leave Requests
+        </div>
+        <!-- Body -->
+        <div style="padding: 18px; overflow-y: auto">
+          {% if recent_leave_applications %}
+          {% for leave in recent_leave_applications %}
+          <div
+            style="border: 1px solid #e8e8e8; border-radius: 10px; padding: 15px; margin-bottom: 16px; position: relative;"
+          >
+            <div style="font-size: 16px; font-weight: 700; padding-right: 60px">
+              {{ leave.get_leave_type_display|title }}
+            </div>
+            <div style="color: #6d7c83; font-size: 14px">
+              {{ leave.start_date|date:"M d" }}{% if leave.start_date != leave.end_date %}–{{ leave.end_date|date:"M d, Y" }}{% endif %} ({{ leave.total_days }} {% if leave.total_days == 1 %}day{% else %}days{% endif %})
+            </div>
+            <div style="color: #9aa3a9; font-size: 12px; margin-top: 4px">
+              Applied {{ leave.applied_at|timesince }} ago
+            </div>
+            <div style="margin-top: 8px">
+              {% if leave.status == "pending" %}
+              <span class="badge bg-warning">Pending</span>
+              {% elif leave.status == "approved" %}
+              <span class="badge bg-success">Approved</span>
+              {% elif leave.status == "rejected" %}
+              <span class="badge bg-danger">Rejected</span>
+              {% else %}
+              <span class="badge bg-secondary">{{ leave.status|title }}</span>
+              {% endif %}
+            </div>
+            {% if leave.reason %}
+            <div style="color: #6d7c83; font-size: 12px; margin-top: 4px; font-style: italic;">
+              Reason: {{ leave.reason|truncatewords:10 }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %} {% else %}
+          <div class="text-center" style="padding: 40px; color: #6d7c83">
+            <i
+              class="fa-solid fa-calendar-times"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h5>No Leave Applications</h5>
+            <p>You haven't applied for any leaves yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT – Upcoming Events -->
+    <div class="col-lg-6 col-md-12" style="margin-bottom: 20px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          height: 430px;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <!-- Header -->
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          <span>Upcoming Events</span>
+        </div>
+        <!-- Body -->
+        <div style="padding: 18px; overflow-y: auto">
+          <!-- EVENT -->
+          <div
+            style="
+              background: #0b7368;
+              color: #fff;
+              padding: 15px;
+              border-radius: 10px;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 15px;
+            "
+          >
+            <div
+              style="
+                background: rgba(255, 255, 255, 0.15);
+                padding: 10px 14px;
+                border-radius: 6px;
+                font-weight: 700;
+                text-align: center;
+                line-height: 16px;
+              "
+            >
+              <div style="font-size: 20px">25</div>
+              <div style="font-size: 12px">JAN</div>
+            </div>
+            <div>
+              <div style="font-size: 16px; font-weight: 700">
+                <span>Team Meeting</span>
+              </div>
+              <div style="font-size: 13px; color: #d6f3ef">
+                2:00 PM - Conference Room A
+              </div>
+            </div>
+          </div>
+          <!-- EVENT -->
+          <div
+            style="
+              background: #0b7368;
+              color: #fff;
+              padding: 15px;
+              border-radius: 10px;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 15px;
+            "
+          >
+            <div
+              style="
+                background: rgba(255, 255, 255, 0.15);
+                padding: 10px 14px;
+                border-radius: 6px;
+                font-weight: 700;
+                text-align: center;
+                line-height: 16px;
+              "
+            >
+              <div style="font-size: 20px">30</div>
+              <div style="font-size: 12px">JAN</div>
+            </div>
+            <div>
+              <div style="font-size: 16px; font-weight: 700">
+                <span>Performance Review</span>
+              </div>
+              <div style="font-size: 13px; color: #d6f3ef">
+                Annual performance discussion
+              </div>
+            </div>
+          </div>
+          <!-- EVENT -->
+          <div
+            style="
+              background: #0b7368;
+              color: #fff;
+              padding: 15px;
+              border-radius: 10px;
+              margin-bottom: 4px;
+              display: flex;
+              align-items: center;
+              gap: 15px;
+            "
+          >
+            <div
+              style="
+                background: rgba(255, 255, 255, 0.15);
+                padding: 10px 14px;
+                border-radius: 6px;
+                font-weight: 700;
+                text-align: center;
+                line-height: 16px;
+              "
+            >
+              <div style="font-size: 20px">15</div>
+              <div style="font-size: 12px">FEB</div>
+            </div>
+            <div>
+              <div style="font-size: 16px; font-weight: 700">
+                <span>Company Holiday</span>
+              </div>
+              <div style="font-size: 13px; color: #d6f3ef">
+                <span>National Day Celebration</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</main>
+
+{% endblock %}

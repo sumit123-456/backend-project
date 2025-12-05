@@ -1,0 +1,859 @@
+{% extends "app/base2.html" %} {% block content %}
+
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Personalized Welcome Header -->
+  <div class="row" style="margin-bottom: 18px">
+    <div class="col-12">
+      <div
+        style="
+          background: linear-gradient(135deg, #0b7368, #0a8a4a);
+          color: white;
+          padding: 20px;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+        "
+      >
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h2 style="margin: 0; font-weight: 700">
+              Project Dashboard - {{ request.session.employee_name|default:"Employee" }}
+            </h2>
+            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px">
+              Track your assigned projects and communicate with your team | {{ "now"|date:"F d, Y" }}
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <small style="opacity: 0.8"
+              ><i class="fa-solid fa-chart-line me-1"></i>
+              Personal Project Center
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "
+  >
+    <div class="page-title">Project Dashboard & Progress Tracking</div>
+    <div class="d-flex gap-2">
+      <button
+        onclick="openProjectDiscussions()"
+        style="
+          background: #0b7368;
+          color: white;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-comments me-1"></i>Team Discussions
+      </button>
+      <button
+        onclick="requestHelp()"
+        style="
+          background: #0a8a4a;
+          color: white;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-question-circle me-1"></i>Request Help
+      </button>
+      <button
+        onclick="refreshDashboard()"
+        style="
+          background: #6c757d;
+          color: white;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-weight: 600;
+        "
+      >
+        <i class="fa-solid fa-sync-alt me-1"></i>Refresh
+      </button>
+    </div>
+  </div>
+  <!-- Project Statistics Cards -->
+  <div class="row" style="margin-bottom: 18px">
+    <!-- Total Projects -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #0b7368;
+          "
+        >
+          <i class="fa-solid fa-project-diagram"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ total_projects|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Assigned Projects</div>
+        </div>
+      </div>
+    </div>
+    <!-- Active Projects -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: rgb(2, 194, 2);
+          "
+        >
+          <i class="fa-solid fa-play-circle"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ active_projects|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Active Projects</div>
+        </div>
+      </div>
+    </div>
+    <!-- Completed Tasks -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #1e90ff;
+          "
+        >
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ completed_tasks|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Completed Tasks</div>
+        </div>
+      </div>
+    </div>
+    <!-- Pending Tasks -->
+    <div class="col-lg-3 col-md-6 col-12" style="margin-bottom: 15px">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #edf0f1;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-height: 120px;
+        "
+      >
+        <div
+          style="
+            width: 70px;
+            height: 70px;
+            background: #f7faf9;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #e63946;
+          "
+        >
+          <i class="fa-solid fa-tasks"></i>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700">
+            {{ pending_tasks|default:0 }}
+          </div>
+          <div style="font-size: 14px; color: #6d7c83">Pending Tasks</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- My Projects Section -->
+  <div class="row" style="margin-bottom: 20px">
+    <div class="col-lg-12 col-md-12">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          height: auto;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-project-diagram me-2"></i>My Projects
+          <span class="badge bg-light text-dark ms-2"
+            >{{ projects.count }}</span
+          >
+        </div>
+        <div style="padding: 18px">
+          {% if projects %}
+          <div class="row g-3">
+            {% for project in projects %}
+            <div class="col-lg-6 col-md-12">
+              <div
+                style="
+                  border: 1px solid #e8e8e8;
+                  border-radius: 10px;
+                  padding: 15px;
+                  position: relative;
+                  height: 200px;
+                "
+              >
+                <!-- Priority and Status Badges -->
+                <div style="position: absolute; right: 15px; top: 15px">
+                  {% if project.priority == "high" %}
+                  <span class="badge bg-danger me-1">High</span>
+                  {% elif project.priority == "medium" %}
+                  <span class="badge bg-warning text-dark me-1">Medium</span>
+                  {% elif project.priority == "low" %}
+                  <span class="badge bg-secondary me-1">Low</span>
+                  {% else %}
+                  <span class="badge bg-secondary me-1"
+                    >{{ project.priority|title }}</span
+                  >
+                  {% endif %}
+                  {% if project.end_date >= timezone.now.date %}
+                  <span class="badge bg-success">Active</span>
+                  {% else %}
+                  <span class="badge bg-secondary">Completed</span>
+                  {% endif %}
+                  {% if project.days_until_due and project.days_until_due < 7 and project.days_until_due >= 0 %}
+                  <span class="badge bg-warning text-dark mt-1">Due Soon</span>
+                  {% elif project.days_until_due and project.days_until_due < 0 %}
+                  <span class="badge bg-danger mt-1">Overdue</span>
+                  {% endif %}
+                </div>
+                <!-- Project Title -->
+                <h6
+                  style="
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    padding-right: 150px;
+                  "
+                >
+                  {{ project.project_name }}
+                </h6>
+                <div
+                  style="font-size: 14px; color: #6d7c83; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-code me-1"></i>{{ project.project_code
+                  }}
+                </div>
+                <!-- Team Leader -->
+                <div
+                  style="font-size: 12px; color: #6d7c83; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-user-tie me-1"></i>
+                  Team Leader: {{ project.team_leader.employee.first_name }} {{
+                  project.team_leader.employee.last_name }}
+                </div>
+                <!-- Timeline -->
+                <div
+                  style="font-size: 12px; color: #9aa3a9; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-calendar me-1"></i>
+                  {{ project.start_date|date:"M d" }} - {{
+                  project.end_date|date:"M d, Y" }}
+                </div>
+                <!-- Progress Bar -->
+                <div style="margin-bottom: 8px">
+                  <div
+                    style="font-size: 12px; color: #6d7c83; margin-bottom: 4px"
+                  >
+                    My Progress
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ project.my_progress|default:0 }}%; background-color: #0b7368;"
+                      aria-valuenow="{{ project.my_progress|default:0 }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <div style="font-size: 11px; color: #9aa3a9; margin-top: 2px">
+                    {{ project.my_progress|default:0 }}% Complete
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center" style="padding: 40px; color: #6d7c83">
+            <i
+              class="fa-solid fa-project-diagram"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h5>No Projects Assigned</h5>
+            <p>You don't have any projects assigned yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- My Tasks Section -->
+  <div class="row" style="margin-bottom: 20px">
+    <div class="col-lg-12 col-md-12">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          height: auto;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-tasks me-2"></i>My Tasks
+          <span class="badge bg-light text-dark ms-2">{{ tasks.count }}</span>
+          {% if overdue_tasks > 0 %}
+          <span class="badge bg-danger ms-2">{{ overdue_tasks }} Overdue</span>
+          {% endif %}
+        </div>
+        <div style="padding: 18px">
+          {% if tasks %}
+          <div class="row g-3">
+            {% for task in tasks %}
+            <div class="col-lg-6 col-md-12">
+              <div
+                style="
+                    border: 1px solid #e8e8e8;
+                    border-radius: 10px;
+                    padding: 15px;
+                    position: relative;
+                    {% if task.task_status == 'completed' %}
+                      background-color: #f8fff9;
+                      border-color: #28a745;
+                    {% elif task.due_date < timezone.now.date and task.task_status != 'completed' %}
+                      background-color: #fff5f5;
+                      border-color: #dc3545;
+                    {% endif %}
+                  "
+              >
+                <!-- Task Status Badge -->
+                <div style="position: absolute; right: 15px; top: 15px">
+                  {% if task.task_status == "completed" %}
+                  <span class="badge bg-success">Completed</span>
+                  {% elif task.task_status == "in_progress" %}
+                  <span class="badge bg-info">In Progress</span>
+                  {% elif task.task_status == "in_review" %}
+                  <span class="badge bg-warning text-dark">In Review</span>
+                  {% elif task.task_status == "on_hold" %}
+                  <span class="badge bg-secondary">On Hold</span>
+                  {% else %}
+                  <span class="badge bg-primary">Not Started</span>
+                  {% endif %}
+                </div>
+                <!-- Task Title -->
+                <h6
+                  style="
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    padding-right: 100px;
+                  "
+                >
+                  {{ task.title }}
+                </h6>
+                <div
+                  style="font-size: 14px; color: #6d7c83; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-project-diagram me-1"></i>{{
+                  task.project.project_name }}
+                </div>
+                <!-- Due Date -->
+                <div
+                  style="font-size: 12px; color: #9aa3a9; margin-bottom: 8px"
+                >
+                  <i class="fa-solid fa-calendar me-1"></i>
+                  Due: {{ task.due_date|date:"M d, Y" }}
+                  {% if task.due_date < timezone.now.date and task.task_status != 'completed' %}
+                  <span class="badge bg-danger ms-1">Overdue</span>
+                  {% endif %}
+                </div>
+                <!-- Progress Bar -->
+                <div style="margin-bottom: 8px">
+                  <div class="progress" style="height: 6px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ task.progress_percentage }}%; background-color: #0b7368;"
+                      aria-valuenow="{{ task.progress_percentage }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <div style="font-size: 11px; color: #9aa3a9; margin-top: 2px">
+                    {{ task.progress_percentage }}% Complete
+                  </div>
+                </div>
+                <!-- Quick Actions -->
+                <div style="font-size: 12px">
+                  {% if task.task_status != 'completed' %}
+                  <button
+                    class="btn btn-sm btn-outline-success me-2"
+                    onclick="updateTaskStatus({{ task.id }}, 'completed')"
+                    style="font-size: 11px; padding: 2px 6px"
+                  >
+                    <i class="fa-solid fa-check"></i> Mark Complete
+                  </button>
+                  {% endif %}
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    onclick="updateTaskProgress({{ task.id }})"
+                    style="font-size: 11px; padding: 2px 6px"
+                  >
+                    <i class="fa-solid fa-edit"></i> Update Progress
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center" style="padding: 40px; color: #6d7c83">
+            <i
+              class="fa-solid fa-tasks"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h5>No Tasks Assigned</h5>
+            <p>You don't have any tasks assigned yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Recent Activity -->
+  <div class="row" style="margin-top: 20px">
+    <div class="col-lg-12 col-md-12">
+      <div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+        "
+      >
+        <div
+          style="
+            background: #0b7368;
+            color: #fff;
+            padding: 14px 18px;
+            font-size: 20px;
+            font-weight: 700;
+          "
+        >
+          <i class="fa-solid fa-clock me-2"></i>Recent Activity
+        </div>
+        <div style="padding: 18px">
+          {% if recent_discussions %}
+          <div class="row g-3">
+            {% for discussion in recent_discussions %}
+            <div class="col-lg-6 col-md-12">
+              <div
+                style="
+                  border: 1px solid #e8e8e8;
+                  border-radius: 10px;
+                  padding: 15px;
+                  position: relative;
+                "
+              >
+                <!-- Message Type Badge -->
+                <div style="position: absolute; right: 15px; top: 15px">
+                  {% if discussion.message_type == "message" %}
+                  <span class="badge bg-primary">Message</span>
+                  {% elif discussion.message_type == "update" %}
+                  <span class="badge bg-info">Update</span>
+                  {% elif discussion.message_type == "task_assignment" %}
+                  <span class="badge bg-warning text-dark">Task</span>
+                  {% elif discussion.message_type == "completion_report" %}
+                  <span class="badge bg-success">Complete</span>
+                  {% elif discussion.message_type == "issue" %}
+                  <span class="badge bg-danger">Issue</span>
+                  {% else %}
+                  <span class="badge bg-secondary"
+                    >{{ discussion.get_message_type_display|title }}</span
+                  >
+                  {% endif %}
+                </div>
+                <h6
+                  style="
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    padding-right: 80px;
+                  "
+                >
+                  {{ discussion.subject }}
+                </h6>
+                <p style="font-size: 14px; color: #6d7c83; margin-bottom: 8px">
+                  {{ discussion.content|truncatewords:15 }}
+                </p>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 12px;
+                    color: #9aa3a9;
+                  "
+                >
+                  <span
+                    ><i class="fa-solid fa-project-diagram me-1"></i>
+                    {{ discussion.project.project_name }} </span
+                  ><span
+                    ><i class="fa-solid fa-clock me-1"></i>
+                    {{ discussion.created_at|timesince }} ago
+                  </span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center" style="padding: 40px; color: #6d7c83">
+            <i
+              class="fa-solid fa-comments"
+              style="font-size: 48px; margin-bottom: 15px; color: #ccc"
+            ></i>
+            <h5>No Recent Activity</h5>
+            <p>No recent discussions or messages.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<!-- Task Update Modal -->
+<div
+  class="modal fade"
+  id="taskUpdateModal"
+  tabindex="-1"
+  aria-labelledby="taskUpdateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="background: #0b7368; color: white">
+        <h5 class="modal-title" id="taskUpdateModalLabel">
+          <i class="fa-solid fa-edit me-2"></i>Update Task Progress
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="progressRange" class="form-label"
+            >Progress Percentage</label
+          ><input
+            type="range"
+            class="form-range"
+            id="progressRange"
+            min="0"
+            max="100"
+            value="0"
+          />
+          <div class="text-center"><span id="progressValue">0</span>%</div>
+        </div>
+        <div class="mb-3">
+          <label for="taskNotes" class="form-label">Notes (Optional)</label
+          ><textarea
+            class="form-control"
+            id="taskNotes"
+            rows="3"
+            placeholder="Add any notes about your progress..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel</button
+        ><button
+          type="button"
+          class="btn"
+          style="background: #0b7368; color: white"
+          onclick="saveTaskUpdate()"
+        >
+          <i class="fa-solid fa-save me-1"></i>Save Update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  let currentTaskId = null;
+
+  // Request help function
+  function requestHelp() {
+    // Create a help request modal
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header" style="background: #0b7368; color: white">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-question-circle me-2"></i>Request Help
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Help Category</label>
+              <select class="form-select" id="helpCategory">
+                <option value="project">Project Related</option>
+                <option value="technical">Technical Issue</option>
+                <option value="task">Task Assignment</option>
+                <option value="deadline">Deadline Extension</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" id="helpDescription" rows="4" 
+                placeholder="Describe your issue or request help with..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Priority</label>
+              <select class="form-select" id="helpPriority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn" style="background: #0b7368; color: white" onclick="submitHelpRequest()">
+              <i class="fa-solid fa-paper-plane me-1"></i>Send Request
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Show modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Remove modal after hiding
+    modal.addEventListener('hidden.bs.modal', function() {
+      document.body.removeChild(modal);
+    });
+  }
+
+  // Open project discussions
+  function openProjectDiscussions() {
+    // Redirect to project discussions page
+    window.location.href = '/employee-project-discussions/';
+  }
+
+  // Refresh dashboard
+  function refreshDashboard() {
+    // Show loading indicator
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Refreshing...';
+    button.disabled = true;
+    
+    // Reload the page after a short delay
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  }
+
+  // Submit help request
+  function submitHelpRequest() {
+    const category = document.getElementById('helpCategory').value;
+    const description = document.getElementById('helpDescription').value;
+    const priority = document.getElementById('helpPriority').value;
+    
+    if (!description.trim()) {
+      alert('Please provide a description of your request.');
+      return;
+    }
+    
+    // Here you would typically send the help request to your backend
+    // For now, we'll show a success message
+    alert(`Help request submitted successfully!\n\nCategory: ${category}\nPriority: ${priority}\n\nYour team leader will be notified.`);
+    
+    // Close modal
+    const modal = document.querySelector('.modal.show');
+    if (modal) {
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal.hide();
+    }
+  }
+
+  // Update task status
+  function updateTaskStatus(taskId, status) {
+    if (confirm("Are you sure you want to mark this task as completed?")) {
+      // This would make an AJAX call to update the task status
+      fetch(`/update-task-status/${taskId}/${status}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCsrfToken(),
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert("Error updating task: " + data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Failed to update task status");
+        });
+    }
+  }
+
+  // Update task progress
+  function updateTaskProgress(taskId) {
+    currentTaskId = taskId;
+    const modal = new bootstrap.Modal(
+      document.getElementById("taskUpdateModal")
+    );
+    modal.show();
+  }
+
+  // Save task update
+  function saveTaskUpdate() {
+    const progress = document.getElementById("progressRange").value;
+    const notes = document.getElementById("taskNotes").value;
+
+    fetch(`/update-task-progress/${currentTaskId}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+      body: JSON.stringify({
+        progress_percentage: progress,
+        notes: notes,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert("Error updating task: " + data.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Failed to update task progress");
+      });
+  }
+
+  // Get CSRF token
+  function getCsrfToken() {
+    return document.querySelector("[name=csrfmiddlewaretoken]").value;
+  }
+
+  // Update progress display
+  document
+    .getElementById("progressRange")
+    .addEventListener("input", function () {
+      document.getElementById("progressValue").textContent = this.value;
+    });
+</script>
+
+{% endblock %}

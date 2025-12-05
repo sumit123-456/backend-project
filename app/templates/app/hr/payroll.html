@@ -1,0 +1,1526 @@
+{% extends "app/base.html" %} {% block content %}
+
+<!-- CONTENT --><main class="content-wrap"><div
+    class="d-flex justify-content-between mb-3"
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 10px 15px;
+      border-radius: 4px;
+    "><div class="page-title">Payroll Management</div><div class="text-muted">Dashboard</div></div><!-- PAYROLL STATISTICS CARDS --><div class="row g-3" style="margin-top: 20px"><!-- CARD 1 - TOTAL PAYROLL --><div class="col-lg-3 col-md-6"><div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          padding: 25px;
+          text-align: center;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          position: relative;
+        "><!-- top teal bar --><div
+          style="
+            height: 6px;
+            background: #0b7368;
+            border-radius: 12px 12px 0 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+          "></div><i
+          class="fa-solid fa-money-bill-wave"
+          style="font-size: 32px; color: #28a745; margin-top: 5px"></i><div style="font-size: 28px; font-weight: 700; margin-top: 10px">
+          ₹{{ total_payroll|floatformat:0 }}
+        </div><div style="color: #6c757d; font-size: 16px">Total Payroll</div></div></div><!-- CARD 2 - PENDING PAYMENTS --><div class="col-lg-3 col-md-6"><div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          padding: 25px;
+          text-align: center;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          position: relative;
+        "><div
+          style="
+            height: 6px;
+            background: #0b7368;
+            border-radius: 12px 12px 0 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+          "></div><i
+          class="fa-solid fa-clock"
+          style="font-size: 32px; color: #ffc107; margin-top: 5px"></i><div style="font-size: 28px; font-weight: 700; margin-top: 10px">
+          {{ pending_payments }}
+        </div><div style="color: #6c757d; font-size: 16px">Pending Payments</div></div></div><!-- CARD 3 - PROCESSED --><div class="col-lg-3 col-md-6"><div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          padding: 25px;
+          text-align: center;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          position: relative;
+        "><div
+          style="
+            height: 6px;
+            background: #0b7368;
+            border-radius: 12px 12px 0 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+          "></div><i
+          class="fa-solid fa-check-circle"
+          style="font-size: 32px; color: #28a745; margin-top: 5px"></i><div style="font-size: 28px; font-weight: 700; margin-top: 10px">
+          {{ processed_payrolls }}
+        </div><div style="color: #6c757d; font-size: 16px">Processed</div></div></div><!-- CARD 4 - AVERAGE SALARY --><div class="col-lg-3 col-md-6"><div
+        style="
+          background: #fff;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          padding: 25px;
+          text-align: center;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          position: relative;
+        "><div
+          style="
+            height: 6px;
+            background: #0b7368;
+            border-radius: 12px 12px 0 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+          "></div><i
+          class="fa-solid fa-chart-line"
+          style="font-size: 32px; color: #6f42c1; margin-top: 5px"></i><div style="font-size: 28px; font-weight: 700; margin-top: 10px">
+          ₹{{ avg_salary|floatformat:0 }}
+        </div><div style="color: #6c757d; font-size: 16px">Average Salary</div></div></div></div><!-- PAYROLL ACTION HEADER --><div
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    "><div class="row align-items-center"><!-- LEFT BUTTONS --><div class="col-md-6" style="display: flex; gap: 12px; flex-wrap: wrap"><!-- ADD PAYROLL BUTTON --><button
+          onclick="openPayrollModal('add')"
+          style="
+            background: #0b7368;
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+          "><i class="fa-solid fa-plus me-2"></i>Add Payroll
+        </button><!-- ADD PAYROLL BUTTON --><a
+          href="{% url 'hr-payroll-calculations' %}"
+          style="
+            background: #0b7368;
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+          "><i class="fa-solid fa-calculator me-2"></i>
+          Payroll Calculations
+        </a><!-- MONTHLY ATTENDANCE SUMMARY BUTTON --><a
+          href="{% url 'hr-monthly-attendance-summary' %}"
+          style="
+            background: #17a2b8;
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+          "><i class="fa-solid fa-calendar-alt me-2"></i>
+          Monthly Attendance Summary
+        </a><!-- EXPORT BUTTON --><button
+          onclick="exportPayroll()"
+          style="
+            background: #6f42c1;
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+          "><i class="fa-solid fa-download me-2"></i>Export
+        </button></div><!-- RIGHT FILTERS --><div
+        class="col-md-6"
+        style="
+          display: flex;
+          justify-content: end;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-top: 10px;
+        "><input
+          type="text"
+          id="searchEmployee"
+          class="form-control"
+          placeholder="Search employee..."
+          style="width: 200px; border-radius: 8px; border: 1px solid #d1d5db"
+          onkeyup="filterTable()"
+        /><select
+          id="departmentFilter"
+          class="form-select"
+          style="width: 160px; border-radius: 8px; border: 1px solid #d1d5db"
+          onchange="filterTable()"><option value="">All Departments</option>
+          {% for emp in employees %}
+          <option value="{{ emp.department }}">{{ emp.department }}</option>
+          {% endfor %}
+        </select></div></div></div><!-- PAYROLL TABLE SECTION --><div
+    style="
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      margin-top: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    "><!-- TABLE HEADER --><div
+      style="
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #007070;
+      "><h5 style="margin: 0; font-weight: 700; color: #eeebeb">
+        Payroll Records
+      </h5></div><!-- ========================== --><!--     PAYROLL TABLE          --><!-- ========================== --><div class="desktop-table d-none d-md-block" style="overflow-x: auto"><table class="table table-hover mb-0" style="width: 100%"><thead style="background: #f8f9fa"><tr><th
+              onclick="sortTable(0)"
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Employee
+            </th><th
+              onclick="sortTable(1)"
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Department
+            </th><th
+              onclick="sortTable(2)"
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Base Salary
+            </th><th
+              onclick="sortTable(3)"
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              PF Deduction
+            </th><th
+              onclick="sortTable(4)"
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Final Salary
+            </th><th
+              onclick="sortTable(5)"
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Month
+            </th><th
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Status
+            </th><th
+              style="
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                font-weight: 600;
+              ">
+              Actions
+            </th></tr></thead><tbody><!-- ===================== --><!--   PROCESSED PAYROLLS --><!-- ===================== -->
+          {% for p in payrolls %}
+          <tr><td style="padding: 15px"><div class="d-flex align-items-center gap-2"><div
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: var(--teal);
+                    color: #fff;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-weight: 700;
+                  ">
+                  {{ p.employee.first_name.0|default:"" }}{{ p.employee.last_name.0|default:"" }}
+                </div><div><strong>{{ p.employee.first_name }} {{ p.employee.last_name
+                    }}</strong><br /><small class="text-muted">{{ p.employee.company_id }}</small></div></div></td><td style="padding: 15px">{{ p.employee.department }}</td><td style="padding: 15px">₹{{ p.base_salary }}</td><td style="padding: 15px">₹{{ p.pf_deduction }}</td><td style="padding: 15px; font-weight: 700; color: #28a745">
+              ₹{{ p.final_salary }}
+            </td><td style="padding: 15px">{{ p.month }}</td><td style="padding: 15px"><span class="badge bg-success">Processed</span></td><td style="padding: 15px"><button
+                class="btn btn-sm btn-outline-info"
+                onclick="viewPayslip({{ p.id }})"><i class="fas fa-eye"></i></button><button
+                class="btn btn-sm btn-outline-primary"
+                onclick="editPayroll({{ p.id }})"><i class="fas fa-edit"></i></button><button
+                class="btn btn-sm btn-outline-danger"
+                onclick="deletePayroll({{ p.id }}, '{{ p.employee.first_name }} {{ p.employee.last_name }}')"><i class="fas fa-trash"></i></button></td></tr>
+          {% endfor %}
+
+          <!-- ===================== --><!--   PENDING EMPLOYEES  --><!-- ===================== -->
+          {% for emp in pending_employees %}
+          <tr><td style="padding: 15px"><div class="d-flex align-items-center gap-2"><div
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: gray;
+                    color: #fff;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-weight: 700;
+                  ">
+                  {{ emp.first_name.0|default:"" }}{{ emp.last_name.0|default:"" }}
+                </div><div><strong>{{ emp.first_name }} {{ emp.last_name }}</strong><br /><small class="text-muted">{{ emp.company_id }}</small></div></div></td><td style="padding: 15px">{{ emp.department }}</td><td style="padding: 15px">₹{{ emp.package }}</td><td style="padding: 15px">–</td><td style="padding: 15px">–</td><td style="padding: 15px">Not Assigned</td><td style="padding: 15px"><span class="badge bg-warning text-dark">Pending</span></td><td style="padding: 15px"><button
+                class="btn btn-sm btn-outline-success"
+                onclick="openAddPayroll({{ emp.id }})"><i class="fas fa-plus"></i> Add Payroll
+              </button></td></tr>
+          {% endfor %}
+        </tbody></table></div><!-- ========================== --><!--   MOBILE VIEW PAYROLL     --><!-- ========================== --><div class="d-md-none">
+      {% for p in payrolls %}
+      <div class="card shadow-sm mb-3"><div class="card-body"><div class="d-flex align-items-center mb-2"><div
+              style="
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: var(--teal);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+              ">
+              {{ p.employee.first_name.0|default:"" }}{{ p.employee.last_name.0|default:"" }}
+            </div><div class="ms-2"><strong>{{ p.employee.first_name }} {{ p.employee.last_name }}</strong><br /><small class="text-muted">{{ p.employee.company_id }}</small></div></div><p class="mb-1"><strong>Dept:</strong> {{ p.employee.department }}</p><p class="mb-1"><strong>Base:</strong> ₹{{ p.base_salary }}</p><p class="mb-1"><strong>PF:</strong> ₹{{ p.pf_deduction }}</p><p class="mb-1"><strong>Final:</strong> ₹{{ p.final_salary }}</p><p class="mb-1"><strong>Month:</strong> {{ p.month }}</p><span class="badge bg-success mb-2">Processed</span><div class="d-flex gap-2"><button
+              class="btn btn-sm btn-outline-info w-33"
+              onclick="viewPayslip({{ p.id }})"><i class="fas fa-eye"></i></button><button
+              class="btn btn-sm btn-outline-primary w-33"
+              onclick="editPayroll({{ p.id }})"><i class="fas fa-edit"></i></button><button
+              class="btn btn-sm btn-outline-danger w-33"
+              onclick="deletePayroll({{ p.id }}, '{{ p.employee.first_name }} {{ p.employee.last_name }}')"><i class="fas fa-trash"></i></button></div></div></div>
+      {% endfor %} {% for emp in pending_employees %}
+      <div class="card shadow-sm mb-3"><div class="card-body"><div class="d-flex align-items-center mb-2"><div
+              style="
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: gray;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+              ">
+              {{ emp.first_name.0|default:"" }}{{ emp.last_name.0|default:"" }}
+            </div><div class="ms-2"><strong>{{ emp.first_name }} {{ emp.last_name }}</strong><br /><small class="text-muted">{{ emp.company_id }}</small></div></div><p class="mb-1"><strong>Dept:</strong> {{ emp.department }}</p><p class="mb-1"><strong>Salary:</strong> ₹{{ emp.package }}</p><span class="badge bg-warning text-dark mb-2">Pending</span><button
+            class="btn btn-sm btn-outline-success w-100"
+            onclick="openAddPayroll({{ emp.id }})"><i class="fas fa-plus"></i> Add Payroll
+          </button></div></div>
+      {% endfor %}
+    </div><!-- TABLE FOOTER WITH PAGINATION --><div
+      style="
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      "><div style="font-size: 14px; color: #6c757d">
+        Showing <span id="showingFrom">1</span> to
+        <span id="showingTo">10</span> of
+        <span id="totalRecords">15</span> payroll records
+      </div><nav><ul class="pagination pagination-sm mb-0"><li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item"><a class="page-link" href="#">2</a></li><li class="page-item"><a class="page-link" href="#">Next</a></li></ul></nav></div></div></main><!-- PAYROLL MODAL - VISIBLE POPUP --><div
+  id="payrollModal"
+  style="
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 900px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    max-height: 70vh;
+    overflow-y: auto;
+  "><!-- MODAL HEADER --><div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #e6e6e6;
+      padding-bottom: 15px;
+    "><h4 style="margin: 0; color: #0b7368; font-weight: 700" id="modalTitle">
+      Add New Payroll
+    </h4><!-- CLOSE BUTTON --><button
+      onclick="closePayrollModal()"
+      style="
+        border: none;
+        background: none;
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        cursor: pointer;
+      ">
+      &times;
+    </button></div><form method="POST">
+    {% csrf_token %}
+
+    <div class="row mb-3"><div class="col-md-6"><label class="form-label fw-bold">Select Employee</label><select class="form-select" name="employee" required><option value="">Select Employee</option>
+          {% for emp in employees %}
+          <option value="{{ emp.id }}">
+            {{ emp.first_name }} {{ emp.last_name }} ({{ emp.company_id }})
+          </option>
+          {% endfor %}
+        </select></div><div class="col-md-6"><label class="form-label fw-bold">Salary Month</label><select class="form-select" name="month" required><option value="">Select Salary Month</option>
+          {% for m in months %}
+          <option value="{{ m }}">{{ m }}</option>
+          {% endfor %}
+        </select></div></div><div class="row mb-3"><div class="col-md-6"><label class="form-label fw-bold">Base Salary</label><input type="number" class="form-control" name="baseSalary" required /></div><div class="col-md-6"><label class="form-label fw-bold">PF Deduction</label><input
+          type="number"
+          class="form-control"
+          name="pfDeduction"
+          value="0"
+        /></div></div><div class="mb-3"><label class="form-label fw-bold">Created By (HR Name)</label><input
+        type="text"
+        class="form-control"
+        name="createdBy"
+        placeholder="Enter HR Name"
+        required
+      /></div><div class="text-end mt-3"><button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Payroll
+      </button></div></form></div><!-- PAYSLIP VIEW MODAL --><div
+  id="payslipModal"
+  style="
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 700px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    max-height: 70vh;
+    overflow-y: auto;
+  "><!-- PAYSLIP HEADER --><div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #0b7368;
+      padding-bottom: 15px;
+    "><h3 style="margin: 0; color: #0b7368; font-weight: 700"><i class="fas fa-file-invoice-dollar me-2"></i>Pay Slip Details
+    </h3><!-- CLOSE BUTTON --><button
+      onclick="closePayslipModal()"
+      style="
+        border: none;
+        background: none;
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        cursor: pointer;
+      ">
+      &times;
+    </button></div><!-- PAYSLIP CONTENT --><div class="row"><!-- Employee Info Section --><div class="col-12 mb-4"><h5
+        style="
+          color: #0b7368;
+          border-bottom: 1px solid #dee2e6;
+          padding-bottom: 8px;
+        "><i class="fas fa-user me-2"></i>Employee Information
+      </h5><div class="row mt-3"><div class="col-md-6 mb-2"><strong>Name:</strong><span id="payslipEmployeeName" style="color: #495057"></span></div><div class="col-md-6 mb-2"><strong>Employee ID:</strong><span id="payslipEmployeeId" style="color: #495057"></span></div><div class="col-md-6 mb-2"><strong>Department:</strong><span id="payslipDepartment" style="color: #495057"></span></div><div class="col-md-6 mb-2"><strong>Designation:</strong><span id="payslipDesignation" style="color: #495057"></span></div></div></div><!-- Payroll Details Section --><div class="col-12 mb-4"><h5
+        style="
+          color: #0b7368;
+          border-bottom: 1px solid #dee2e6;
+          padding-bottom: 8px;
+        "><i class="fas fa-calculator me-2"></i>Payroll Details
+      </h5><div class="row mt-3"><div class="col-md-6 mb-3"><strong>Salary Month:</strong><br /><span
+            id="payslipMonth"
+            style="color: #0b7368; font-weight: 600"></span></div><div class="col-md-6 mb-3"><strong>Base Salary:</strong><br /><span
+            id="payslipBaseSalary"
+            style="color: #28a745; font-weight: 600; font-size: 18px"></span></div><div class="col-md-6 mb-3"><strong>PF Deduction:</strong><br /><span
+            id="payslipPfDeduction"
+            style="color: #dc3545; font-weight: 600"></span></div><div class="col-md-6 mb-3"><strong>Final Salary:</strong><br /><span
+            id="payslipFinalSalary"
+            style="color: #28a745; font-weight: 700; font-size: 20px"></span></div></div></div><!-- System Info Section --><div class="col-12"><h5
+        style="
+          color: #0b7368;
+          border-bottom: 1px solid #dee2e6;
+          padding-bottom: 8px;
+        "><i class="fas fa-info-circle me-2"></i>System Information
+      </h5><div class="row mt-3"><div class="col-md-6 mb-2"><strong>Created By:</strong><span id="payslipCreatedBy" style="color: #495057"></span></div><div class="col-md-6 mb-2"><strong>Created At:</strong><span id="payslipCreatedAt" style="color: #495057"></span></div></div></div></div><!-- ACTION BUTTONS --><div
+    class="text-center mt-4"
+    style="border-top: 1px solid #dee2e6; padding-top: 20px"><button
+      onclick="closePayslipModal()"
+      class="btn btn-secondary me-2"
+      style="padding: 10px 20px; border-radius: 6px"><i class="fas fa-times me-2"></i>Close
+    </button><button
+      onclick="downloadPayslip()"
+      class="btn btn-primary"
+      style="
+        background: #0b7368;
+        border-color: #0b7368;
+        padding: 10px 20px;
+        border-radius: 6px;
+      "><i class="fas fa-download me-2"></i>Download PDF
+    </button></div></div><!-- PAYSLIP MODAL OVERLAY --><div
+  id="payslipModalOverlay"
+  onclick="closePayslipModal()"
+  style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+  "></div><!-- EDIT PAYROLL MODAL --><div
+  id="editPayrollModal"
+  style="
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 10%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 800px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    max-height: 80vh;
+    overflow-y: auto;
+  "><!-- EDIT MODAL HEADER --><div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #e6e6e6;
+      padding-bottom: 15px;
+    "><h4 style="margin: 0; color: #0b7368; font-weight: 700"><i class="fas fa-edit me-2"></i>Edit Payroll Record
+    </h4><!-- CLOSE BUTTON --><button
+      onclick="closeEditPayrollModal()"
+      style="
+        border: none;
+        background: none;
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        cursor: pointer;
+      ">
+      &times;
+    </button></div><form method="POST" id="editPayrollForm">
+    {% csrf_token %}
+    <input type="hidden" id="editPayrollId" name="payroll_id" /><div class="row mb-3"><div class="col-md-6"><label class="form-label fw-bold">Employee</label><select
+          class="form-select"
+          name="employee"
+          id="editEmployeeSelect"
+          required><option value="">Select Employee</option>
+          {% for emp in employees %}
+          <option value="{{ emp.id }}">
+            {{ emp.first_name }} {{ emp.last_name }} ({{ emp.company_id }})
+          </option>
+          {% endfor %}
+        </select></div><div class="col-md-6"><label class="form-label fw-bold">Salary Month</label><select class="form-select" name="month" id="editMonthSelect" required><option value="">Select Salary Month</option>
+          {% for m in months %}
+          <option value="{{ m }}">{{ m }}</option>
+          {% endfor %}
+        </select></div></div><div class="row mb-3"><div class="col-md-4"><label class="form-label fw-bold">Base Salary</label><input
+          type="number"
+          class="form-control"
+          name="baseSalary"
+          id="editBaseSalary"
+          required
+        /></div><div class="col-md-4"><label class="form-label fw-bold">PF Deduction</label><input
+          type="number"
+          class="form-control"
+          name="pfDeduction"
+          id="editPfDeduction"
+          value="0"
+          onchange="calculateEditFinalSalary()"
+        /></div><div class="col-md-4"><label class="form-label fw-bold">Final Salary</label><input
+          type="number"
+          class="form-control"
+          name="finalSalary"
+          id="editFinalSalary"
+          readonly
+          style="background-color: #f8f9fa"
+        /></div></div><div class="mb-3"><label class="form-label fw-bold">Created By (HR Name)</label><input
+        type="text"
+        class="form-control"
+        name="createdBy"
+        id="editCreatedBy"
+        placeholder="Enter HR Name"
+        required
+      /></div><div class="text-end mt-3"><button
+        type="button"
+        class="btn btn-secondary me-2"
+        onclick="closeEditPayrollModal()"><i class="fas fa-times me-2"></i>Cancel
+      </button><button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>Update Payroll
+      </button></div></form></div><!-- EDIT PAYROLL MODAL OVERLAY --><div
+  id="editPayrollModalOverlay"
+  onclick="closeEditPayrollModal()"
+  style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+  "></div><!-- MODAL OVERLAY --><div
+  id="modalOverlay"
+  onclick="closePayrollModal()"
+  style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+  "></div>
+
+{% if messages %}
+<div
+  id="popupOverlay"
+  style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    animation: fadeInBg 0.3s ease;
+  "><div
+    id="popupMessage"
+    style="
+      background: white;
+      padding: 25px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      font-weight: 600;
+      font-size: 18px;
+      animation: scaleIn 0.3s ease;
+      max-width: 400px;
+      text-align: center;
+    ">
+    {% for message in messages %}
+    <div style="color: #0b7d62">{{ message }}</div>
+    {% endfor %}
+  </div></div><script>
+  // 5 seconds baad popup hide
+  setTimeout(function () {
+    let overlay = document.getElementById("popupOverlay");
+    if (overlay) {
+      overlay.style.transition = "opacity 0.8s";
+      overlay.style.opacity = "0";
+      setTimeout(() => overlay.remove(), 800);
+    }
+  }, 5000);
+</script><style>
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes fadeInBg {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
+
+{% endif %}
+
+<!-- PAYROLL FUNCTIONALITY SCRIPT --><script>
+    // Global variables for pagination
+    let currentPage = 1;
+    let recordsPerPage = 10;
+    let totalRecords = 0;
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeTable();
+      updatePaginationInfo();
+    });
+
+    // Initialize table functionality
+    function initializeTable() {
+      const table = document.querySelector('.table');
+      if (!table) return;
+
+      // Add click handlers to table headers for sorting
+      const headers = table.querySelectorAll('th[onclick]');
+      headers.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.style.userSelect = 'none';
+      });
+
+      updatePaginationInfo();
+    }
+
+    // Open Payroll Modal Function
+    function openPayrollModal(type) {
+      const modal = document.getElementById("payrollModal");
+      const overlay = document.getElementById("modalOverlay");
+
+      // Prevent body scrolling
+      document.body.style.overflow = "hidden";
+
+      // Show overlay and modal
+      overlay.style.display = "block";
+      modal.style.display = "block";
+
+      // Add animation class
+      modal.style.animation = "fadeInScale 0.3s ease-out";
+    }
+
+    // Close Payroll Modal Function
+    function closePayrollModal() {
+      const modal = document.getElementById("payrollModal");
+      const overlay = document.getElementById("modalOverlay");
+
+      // Restore body scrolling
+      document.body.style.overflow = "";
+
+      // Hide with animation
+      modal.style.animation = "fadeOutScale 0.3s ease-in";
+
+      setTimeout(() => {
+        modal.style.display = "none";
+        overlay.style.display = "none";
+      }, 300);
+    }
+
+    // Open Add Payroll for specific employee
+    function openAddPayroll(employeeId) {
+      // Pre-select the employee in the modal
+      const employeeSelect = document.querySelector('select[name="employee"]');
+      if (employeeSelect) {
+        employeeSelect.value = employeeId;
+      }
+      openPayrollModal('add');
+    }
+
+
+
+    // Show Payslip Modal Function
+    function showPayslipModal(payroll) {
+      const modal = document.getElementById('payslipModal');
+      const overlay = document.getElementById('payslipModalOverlay');
+
+      // Populate modal with payroll data
+      document.getElementById('payslipEmployeeName').textContent =
+        `${payroll.employee.first_name} ${payroll.employee.last_name}`;
+      document.getElementById('payslipEmployeeId').textContent =
+        payroll.employee.company_id;
+      document.getElementById('payslipDepartment').textContent =
+        payroll.employee.department;
+      document.getElementById('payslipDesignation').textContent =
+        payroll.employee.designation;
+      document.getElementById('payslipMonth').textContent = payroll.month;
+      document.getElementById('payslipBaseSalary').textContent =
+        `₹${parseFloat(payroll.base_salary).toLocaleString('en-IN')}`;
+      document.getElementById('payslipPfDeduction').textContent =
+        `₹${parseFloat(payroll.pf_deduction).toLocaleString('en-IN')}`;
+      document.getElementById('payslipFinalSalary').textContent =
+        `₹${parseFloat(payroll.final_salary).toLocaleString('en-IN')}`;
+      document.getElementById('payslipCreatedBy').textContent =
+        payroll.created_by;
+      document.getElementById('payslipCreatedAt').textContent =
+        new Date(payroll.created_at).toLocaleDateString('en-IN');
+
+      // Show modal
+      overlay.style.display = 'block';
+      modal.style.display = 'block';
+      modal.style.animation = "fadeInScale 0.3s ease-out";
+    }
+
+    // Show Edit Payroll Modal Function
+    function showEditPayrollModal(payroll) {
+      const modal = document.getElementById('editPayrollModal');
+      const overlay = document.getElementById('editPayrollModalOverlay');
+
+      // Populate form with payroll data
+      document.getElementById('editPayrollId').value = payroll.id;
+      document.getElementById('editEmployeeSelect').value = payroll.employee.id;
+      document.getElementById('editMonthSelect').value = payroll.month;
+      document.getElementById('editBaseSalary').value = payroll.base_salary;
+      document.getElementById('editPfDeduction').value = payroll.pf_deduction;
+      document.getElementById('editFinalSalary').value = payroll.final_salary;
+      document.getElementById('editCreatedBy').value = payroll.created_by;
+
+      // Show modal
+      overlay.style.display = 'block';
+      modal.style.display = 'block';
+      modal.style.animation = "fadeInScale 0.3s ease-out";
+    }
+
+    // Close Payslip Modal Function
+    function closePayslipModal() {
+      const modal = document.getElementById('payslipModal');
+      const overlay = document.getElementById('payslipModalOverlay');
+
+      modal.style.animation = "fadeOutScale 0.3s ease-in";
+      setTimeout(() => {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+      }, 300);
+    }
+
+    // Close Edit Payroll Modal Function
+    function closeEditPayrollModal() {
+      const modal = document.getElementById('editPayrollModal');
+      const overlay = document.getElementById('editPayrollModalOverlay');
+
+      modal.style.animation = "fadeOutScale 0.3s ease-in";
+      setTimeout(() => {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+      }, 300);
+    }
+
+    // Filter Table Function
+    function filterTable() {
+      const searchInput = document.getElementById('searchEmployee');
+      const departmentFilter = document.getElementById('departmentFilter');
+      const table = document.querySelector('.table');
+      const rows = table.querySelectorAll('tbody tr');
+
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedDepartment = departmentFilter.value;
+
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const employeeName = row.cells[0]?.textContent.toLowerCase() || '';
+        const department = row.cells[1]?.textContent || '';
+
+        const matchesSearch = employeeName.includes(searchTerm);
+        const matchesDepartment = !selectedDepartment || department.includes(selectedDepartment);
+
+        if (matchesSearch && matchesDepartment) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Update pagination info
+      updatePaginationInfo(visibleCount);
+    }
+
+    // Sort Table Function
+    function sortTable(columnIndex) {
+      const table = document.querySelector('.table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      // Determine sort direction
+      const isAscending = !table.dataset.sortDirection || table.dataset.sortDirection === 'desc';
+      table.dataset.sortDirection = isAscending ? 'asc' : 'desc';
+
+      // Sort rows based on column content
+      rows.sort((a, b) => {
+        const aText = a.cells[columnIndex]?.textContent.trim() || '';
+        const bText = b.cells[columnIndex]?.textContent.trim() || '';
+
+        // Try numeric comparison first
+        const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ''));
+        const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ''));
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return isAscending ? aNum - bNum : bNum - aNum;
+        }
+
+        // Fallback to string comparison
+        return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+      });
+
+      // Clear tbody and append sorted rows
+      tbody.innerHTML = '';
+      rows.forEach(row => tbody.appendChild(row));
+
+      // Update sort indicators
+      updateSortIndicators(columnIndex, isAscending);
+    }
+
+    // Update Sort Indicators
+    function updateSortIndicators(activeColumn, isAscending) {
+      const table = document.querySelector('.table');
+      const headers = table.querySelectorAll('th');
+
+      headers.forEach((header, index) => {
+        const icon = header.querySelector('.sort-icon');
+        if (icon) icon.remove();
+
+        if (index === activeColumn) {
+          const indicator = document.createElement('span');
+          indicator.className = 'sort-icon';
+          indicator.innerHTML = isAscending ? ' ▲' : ' ▼';
+          indicator.style.color = '#0b7368';
+          header.appendChild(indicator);
+        }
+      });
+    }
+
+    // Export Payroll Function
+    function exportPayroll() {
+      // Prevent any form submission or page navigation
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      // Create a loading state
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+      button.disabled = true;
+
+      // Direct download using fetch API
+      fetch('/hr/export-payroll/')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = `Payroll_Data_${new Date().toISOString().slice(0,10)}.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          // Show success message
+          showSuccessMessage();
+        })
+        .catch(error => {
+          console.error('Export error:', error);
+          alert('Error exporting payroll data. Please try again.');
+        })
+        .finally(() => {
+          // Reset button state
+          button.innerHTML = originalText;
+          button.disabled = false;
+        });
+    }
+
+    // Success message function
+    function showSuccessMessage() {
+      const successMsg = document.createElement('div');
+      successMsg.innerHTML = '<i class="fas fa-check-circle me-2"></i>Payroll data exported successfully!';
+      successMsg.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        animation: slideInRight 0.3s ease-out;
+      `;
+      document.body.appendChild(successMsg);
+
+      // Remove success message after 3 seconds
+      setTimeout(() => {
+        if (successMsg.parentNode) {
+          successMsg.style.animation = 'slideOutRight 0.3s ease-in';
+          setTimeout(() => {
+            if (successMsg.parentNode) {
+              successMsg.parentNode.removeChild(successMsg);
+            }
+          }, 300);
+        }
+      }, 3000);
+    }
+
+    // Pagination Functions
+    function updatePaginationInfo(visibleRecords = null) {
+      const table = document.querySelector('.table');
+      if (!table) return;
+
+      const rows = table.querySelectorAll('tbody tr');
+      const total = visibleRecords !== null ? visibleRecords : rows.length;
+      totalRecords = total;
+
+      const from = Math.min((currentPage - 1) * recordsPerPage + 1, total);
+      const to = Math.min(currentPage * recordsPerPage, total);
+
+      document.getElementById('showingFrom').textContent = from;
+      document.getElementById('showingTo').textContent = to;
+      document.getElementById('totalRecords').textContent = total;
+
+      // Update pagination buttons
+      updatePaginationButtons();
+    }
+
+    function updatePaginationButtons() {
+      const totalPages = Math.ceil(totalRecords / recordsPerPage);
+      const pagination = document.querySelector('.pagination');
+
+      if (!pagination) return;
+
+      // Clear existing pagination (except prev/next)
+      const pageItems = pagination.querySelectorAll('.page-item:not(:first-child):not(:last-child)');
+      pageItems.forEach(item => item.remove());
+
+      // Add page numbers
+      for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>`;
+        pagination.insertBefore(li, pagination.lastElementChild);
+      }
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      updatePaginationInfo();
+
+      // Scroll to top of table
+      const table = document.querySelector('.table');
+      if (table) {
+        table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Calculate Final Salary in Form
+    function calculateFinalSalary() {
+      const baseSalary = parseFloat(document.querySelector('input[name="baseSalary"]').value) || 0;
+      const pfDeduction = parseFloat(document.querySelector('input[name="pfDeduction"]').value) || 0;
+      const finalSalary = baseSalary - pfDeduction;
+
+      // Display calculated salary (you can add a display element for this)
+      console.log(`Final Salary: ₹${finalSalary.toFixed(2)}`);
+    }
+
+    // Calculate Final Salary in Edit Form
+    function calculateEditFinalSalary() {
+      const baseSalary = parseFloat(document.getElementById('editBaseSalary').value) || 0;
+      const pfDeduction = parseFloat(document.getElementById('editPfDeduction').value) || 0;
+      const finalSalary = baseSalary - pfDeduction;
+
+      document.getElementById('editFinalSalary').value = finalSalary.toFixed(2);
+    }
+
+    // Download Payslip Function
+    function downloadPayslip() {
+      alert('Generating PDF payslip...');
+      // In real implementation, this would generate and download PDF
+      setTimeout(() => {
+        alert('Payslip PDF downloaded successfully!');
+        closePayslipModal();
+      }, 2000);
+    }
+
+    // Handle Edit Payroll Form Submission
+    document.addEventListener('DOMContentLoaded', function() {
+      const editForm = document.getElementById('editPayrollForm');
+      if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          const formData = new FormData(this);
+          const submitButton = this.querySelector('button[type="submit"]');
+          const originalText = submitButton.innerHTML;
+
+          // Show loading state
+          submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+          submitButton.disabled = true;
+
+          // In real implementation, this would make an AJAX call to update payroll
+          setTimeout(() => {
+            alert('Payroll record updated successfully!');
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+            closeEditPayrollModal();
+            // Optionally refresh the page or update table data
+            // location.reload();
+          }, 2000);
+        });
+      }
+    });
+
+    // Add event listeners for real-time calculations
+    document.addEventListener('DOMContentLoaded', function() {
+      const baseSalaryInput = document.querySelector('input[name="baseSalary"]');
+      const pfDeductionInput = document.querySelector('input[name="pfDeduction"]');
+
+      if (baseSalaryInput) {
+        baseSalaryInput.addEventListener('input', calculateFinalSalary);
+      }
+
+      if (pfDeductionInput) {
+        pfDeductionInput.addEventListener('input', calculateFinalSalary);
+      }
+
+      // Add event listeners for edit form
+      const editBaseSalaryInput = document.getElementById('editBaseSalary');
+      const editPfDeductionInput = document.getElementById('editPfDeduction');
+
+      if (editBaseSalaryInput) {
+        editBaseSalaryInput.addEventListener('input', calculateEditFinalSalary);
+      }
+
+      if (editPfDeductionInput) {
+        editPfDeductionInput.addEventListener('input', calculateEditFinalSalary);
+      }
+    });
+
+    // Modal Animation Styles
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes fadeInScale {
+          from {
+              opacity: 0;
+              transform: translateX(-50%) scale(0.8);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(-50%) scale(1);
+          }
+      }
+
+      @keyframes fadeOutScale {
+          from {
+              opacity: 1;
+              transform: translateX(-50%) scale(1);
+          }
+          to {
+              opacity: 0;
+              transform: translateX(-50%) scale(0.8);
+          }
+      }
+
+      /* Ensure modal is always above sidebar */
+      #payrollModal {
+          z-index: 9999 !important;
+      }
+
+      /* Prevent body scroll when modal is open */
+      body.modal-open {
+          overflow: hidden !important;
+      }
+
+      /* Table hover effects */
+      .table-hover tbody tr:hover {
+          background-color: rgba(11, 115, 104, 0.05) !important;
+      }
+
+      /* Sortable headers */
+      th[onclick] {
+          position: relative;
+          padding-right: 25px !important;
+      }
+
+      th[onclick]:hover {
+          background-color: #e9ecef !important;
+      }
+
+      /* Loading state */
+      .btn.loading {
+          opacity: 0.7;
+          cursor: not-allowed;
+      }
+
+      /* Modal specific styles */
+      #payslipModal, #editPayrollModal {
+          background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      }
+
+      /* Payslip modal styling */
+      #payslipModal h5 {
+          color: #0b7368 !important;
+          border-bottom: 2px solid #0b7368 !important;
+          padding-bottom: 10px !important;
+          margin-bottom: 20px !important;
+      }
+
+      /* Form controls in edit modal */
+      #editPayrollModal .form-control,
+      #editPayrollModal .form-select {
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          transition: all 0.3s ease;
+      }
+
+      #editPayrollModal .form-control:focus,
+      #editPayrollModal .form-select:focus {
+          border-color: #0b7368;
+          box-shadow: 0 0 0 0.2rem rgba(11, 115, 104, 0.25);
+          outline: none;
+      }
+
+      /* Employee info styling */
+      .employee-info-card {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 15px;
+          border-left: 4px solid #0b7368;
+      }
+
+      /* Payroll summary cards */
+      .payroll-summary {
+          background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+          color: white;
+          border-radius: 10px;
+          padding: 20px;
+          text-align: center;
+          box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      }
+
+      .deduction-card {
+          background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+          color: white;
+          border-radius: 10px;
+          padding: 20px;
+          text-align: center;
+          box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+      }
+
+      /* Modal animations */
+      .modal-enter {
+          animation: modalEnter 0.3s ease-out;
+      }
+
+      .modal-exit {
+          animation: modalExit 0.3s ease-in;
+      }
+
+      @keyframes modalEnter {
+          from {
+              opacity: 0;
+              transform: translateX(-50%) scale(0.8) translateY(-20px);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(-50%) scale(1) translateY(0);
+          }
+      }
+
+      @keyframes modalExit {
+          from {
+              opacity: 1;
+              transform: translateX(-50%) scale(1) translateY(0);
+          }
+          to {
+              opacity: 0;
+              transform: translateX(-50%) scale(0.8) translateY(-20px);
+          }
+      }
+
+      /* Button hover effects */
+      .btn:hover {
+          transform: translateY(-2px);
+          transition: all 0.3s ease;
+      }
+
+      /* Form labels */
+      .form-label {
+          color: #495057;
+          margin-bottom: 8px;
+          font-weight: 600;
+      }
+
+      /* Readonly input styling */
+      input[readonly] {
+          background-color: #e9ecef !important;
+          cursor: not-allowed;
+      }
+
+      /* Success message animations */
+      @keyframes slideInRight {
+          from {
+              transform: translateX(100%);
+              opacity: 0;
+          }
+          to {
+              transform: translateX(0);
+              opacity: 1;
+          }
+      }
+
+      @keyframes slideOutRight {
+          from {
+              transform: translateX(0);
+              opacity: 1;
+          }
+          to {
+              transform: translateX(100%);
+              opacity: 0;
+          }
+      }
+  `;
+    document.head.appendChild(style);
+
+    // Make payroll data available to JavaScript
+    const payrollData = [
+      {% for p in payrolls %}
+      {
+        id: {{ p.id }},
+        employee: {
+          id: {{ p.employee.id }},
+          first_name: "{{ p.employee.first_name }}",
+          last_name: "{{ p.employee.last_name }}",
+          company_id: "{{ p.employee.company_id }}",
+          department: "{{ p.employee.department }}",
+          designation: "{{ p.employee.designation }}"
+        },
+        month: "{{ p.month }}",
+        base_salary: "{{ p.base_salary }}",
+        pf_deduction: "{{ p.pf_deduction }}",
+        final_salary: "{{ p.final_salary }}",
+        created_by: "{{ p.created_by }}",
+        created_at: "{{ p.created_at|date:'c' }}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // Override the viewPayslip function to use the real data
+    function viewPayslip(payrollId) {
+      const payroll = payrollData.find(p => p.id === payrollId);
+
+      if (payroll) {
+        showPayslipModal(payroll);
+      } else {
+        console.error('Payroll record not found for ID:', payrollId);
+        alert('Payroll record not found. Please refresh the page and try again.');
+      }
+    }
+
+    // Override the editPayroll function to use the real data
+    function editPayroll(payrollId) {
+      const payroll = payrollData.find(p => p.id === payrollId);
+
+      if (payroll) {
+        showEditPayrollModal(payroll);
+      } else {
+        console.error('Payroll record not found for ID:', payrollId);
+        alert('Payroll record not found. Please refresh the page and try again.');
+      }
+    }
+
+    // Delete Payroll Function
+    function deletePayroll(payrollId, employeeName) {
+      // Show confirmation dialog
+      if (confirm(`Are you sure you want to delete payroll record for ${employeeName}?\n\nThis action cannot be undone.`)) {
+        
+        // Show loading state
+        const deleteBtn = event.target.closest('button');
+        const originalHTML = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        deleteBtn.disabled = true;
+
+        // Make AJAX request to delete payroll
+        fetch('/delete-payroll/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            payroll_id: payrollId
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success message
+            showSuccessMessage('Payroll record deleted successfully!');
+            
+            // Remove the row from desktop table
+            const row = deleteBtn.closest('tr');
+            if (row) {
+              row.remove();
+              updatePaginationInfo();
+            }
+            
+            // Remove the corresponding card from mobile view
+            const mobileCards = document.querySelectorAll('.d-md-none .card');
+            mobileCards.forEach(card => {
+              const cardContent = card.textContent;
+              if (cardContent.includes(employeeName)) {
+                card.remove();
+              }
+            });
+            
+            // Update statistics cards without page reload
+            updateStatisticsCardsDynamic();
+          } else {
+            throw new Error(data.message || 'Delete failed');
+          }
+        })
+        .catch(error => {
+          console.error('Delete error:', error);
+          alert('Error deleting payroll record: ' + error.message);
+        })
+        .finally(() => {
+          // Reset button state
+          deleteBtn.innerHTML = originalHTML;
+          deleteBtn.disabled = false;
+        });
+      }
+    }
+
+    // Get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Update statistics cards without page reload
+    function updateStatisticsCardsDynamic() {
+      // Calculate updated statistics from remaining table rows
+      const rows = document.querySelectorAll('tbody tr');
+      const mobileCards = document.querySelectorAll('.d-md-none .card');
+      
+      // Count total remaining records
+      let totalPayrolls = 0;
+      let totalPayrollAmount = 0;
+      let processedPayrolls = 0;
+      
+      // Process table rows
+      rows.forEach(row => {
+        const employeeCell = row.cells[0];
+        const finalSalaryCell = row.cells[4];
+        const statusCell = row.cells[6];
+        
+        if (employeeCell && finalSalaryCell && statusCell) {
+          totalPayrolls++;
+          
+          // Extract salary amount
+          const salaryText = finalSalaryCell.textContent.replace(/[₹,]/g, '').trim();
+          const salary = parseFloat(salaryText) || 0;
+          totalPayrollAmount += salary;
+          
+          // Check if processed
+          if (statusCell.textContent.includes('Processed')) {
+            processedPayrolls++;
+          }
+        }
+      });
+      
+      // Process mobile cards
+      mobileCards.forEach(card => {
+        const cardContent = card.textContent;
+        const salaryMatch = cardContent.match(/Final:\s*₹([\d,]+)/);
+        const statusMatch = cardContent.includes('Processed');
+        
+        if (salaryMatch) {
+          totalPayrolls++;
+          const salary = parseFloat(salaryMatch[1].replace(/,/g, '')) || 0;
+          totalPayrollAmount += salary;
+          
+          if (statusMatch) {
+            processedPayrolls++;
+          }
+        }
+      });
+      
+      // Calculate average salary
+      const avgSalary = totalPayrolls> 0 ? Math.round(totalPayrollAmount / totalPayrolls) : 0;
+      
+      // Update statistics cards
+      const totalPayrollElement = document.querySelector('.col-lg-3:first-child .row div div div div');
+      const pendingPaymentsElement = document.querySelector('.col-lg-3:nth-child(2) .row div div div div');
+      const processedElement = document.querySelector('.col-lg-3:nth-child(3) .row div div div div');
+      const avgSalaryElement = document.querySelector('.col-lg-3:nth-child(4) .row div div div div');
+      
+      // Update the numbers (this is a simplified approach - in production you'd want more precise selectors)
+      const cards = document.querySelectorAll('.col-lg-3');
+      if (cards.length>= 4) {
+        const totalPayrollCard = cards[0].querySelector('div div div div');
+        const processedCard = cards[2].querySelector('div div div div');
+        const avgSalaryCard = cards[3].querySelector('div div div div');
+        
+        if (totalPayrollCard) {
+          totalPayrollCard.textContent = `₹${totalPayrollAmount.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+        }
+        if (processedCard) {
+          processedCard.textContent = processedPayrolls;
+        }
+        if (avgSalaryCard) {
+          avgSalaryCard.textContent = `₹${avgSalary.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+        }
+      }
+      
+      // Update pending payments (simplified calculation)
+      const pendingCount = Math.max(0, totalPayrolls - processedPayrolls);
+      const pendingCard = document.querySelector('.col-lg-3:nth-child(2) div div div div');
+      if (pendingCard) {
+        pendingCard.textContent = pendingCount;
+      }
+    }
+</script>
+
+{% endblock %}

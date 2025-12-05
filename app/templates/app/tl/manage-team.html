@@ -1,0 +1,67 @@
+{% extends "app/base3.html" %} {% block content %}
+
+<!-- CONTENT -->
+<main class="content-wrap">
+  <!-- Header -->
+  <div class="row" style="margin-bottom: 18px">
+    <div class="col-12">
+      <div
+        style="
+          background: linear-gradient(135deg, #0b7368, #20c997);
+          color: white;
+          padding: 20px;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+        "
+      >
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h2 style="margin: 0; font-weight: 700">
+              <i class="fa-solid fa-users me-2"></i>Team Management
+            </h2>
+            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 16px">
+              Team Management Dashboard
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <a
+              href="{% url 'tl-dashboard' %}"
+              style="
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+              "
+              ><i class="fa-solid fa-arrow-left me-1"></i>Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty Content Area -->
+  <div class="row" style="margin-bottom: 20px">
+    <div class="col-12">
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          padding: 40px;
+          text-align: center;
+        "
+      >
+        <i class="fa-solid fa-users" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3; color: #0b7368"></i>
+        <div style="font-size: 18px; font-weight: 600; color: #6c757d">Team Management</div>
+        <div style="font-size: 14px; color: #9aa3a9; margin-top: 5px">
+          Clean dashboard interface
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endblock %}
