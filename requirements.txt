@@ -27,7 +27,7 @@ django-crispy-forms==2.2
 crispy-bootstrap5==2023.10
 
 # Pagination
-django-bootstrap-pagination==1.0.3
+django-bootstrap-pagination==1.7.1
 
 # Debug Toolbar (Development only)
 django-debug-toolbar==4.2.0
@@ -47,4 +47,5 @@ Pillow==10.1.0
 python-json-logger==2.0.7
 
 # Development Tools
+
 django-extensions==3.2.3
