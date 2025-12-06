@@ -44,9 +44,11 @@ USER appuser
 
 # Expose port
 EXPOSE 10000
+EXPOSE 3306
 
 # Run the application
 
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "hrms.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "hrms.wsgi"]
+
 
 
