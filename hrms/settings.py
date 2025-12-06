@@ -67,11 +67,11 @@ WSGI_APPLICATION = 'hrms.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hrmodel',  # Your database name
-        'USER': 'root',           # XAMPP MySQL default user
-        'PASSWORD': '',           # XAMPP MySQL default password (empty)
-        'HOST': '127.0.0.1',      # localhost
+        'ENGINE': 'jdbc:mysql://sql12.freesqldatabase.com:3306/sql12810862',
+        'NAME': 'sql12810862',  # Your database name
+        'USER': 'sql12810862',           # XAMPP MySQL default user
+        'PASSWORD': 'sql12810862',           # XAMPP MySQL default password (empty)
+        'HOST': 'sql12.freesqldatabase.com',      # localhost
         'PORT': '3306',           # MySQL default port
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -147,3 +147,4 @@ EMAIL_HOST_PASSWORD = 'ykjdxdnwzuxaipct'
 
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
